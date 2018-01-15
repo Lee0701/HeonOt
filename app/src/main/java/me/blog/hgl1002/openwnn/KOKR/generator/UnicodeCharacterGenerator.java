@@ -1,10 +1,17 @@
 package me.blog.hgl1002.openwnn.KOKR.generator;
 
+import java.util.Map;
 import java.util.Stack;
+
+import static me.blog.hgl1002.openwnn.KOKR.generator.UnicodeJamoHandler.JamoPair;
 
 public class UnicodeCharacterGenerator implements CharacterGenerator {
 
 	Stack<State> states;
+
+	Map<UnicodeJamoHandler.JamoPair, Character> combinationTable;
+
+	boolean moachigi, firstMidEnd;
 
 	@Override
 	public void init() {
@@ -16,6 +23,36 @@ public class UnicodeCharacterGenerator implements CharacterGenerator {
 	public void input(long code) {
 		State state = new State(states.peek());
 
+		char charCode = (char) (code & 0xffff);
+		switch(UnicodeJamoHandler.getType(charCode)) {
+		case CHO3: {
+			if(state.syllable.containsCho()) {
+				JamoPair pair = new JamoPair(state.syllable.cho, charCode);
+				Character combination = combinationTable.get(pair);
+				if(combination != null) {
+					state.syllable.cho = combination;
+				} else {
+					finishComposing();
+					startNewSyllable(new UnicodeHangulSyllable(charCode, (char) 0, (char) 0));
+				}
+			} else {
+				state.syllable.cho = charCode;
+			}
+			break;
+		}
+
+		case JUNG3: {
+			break;
+		}
+
+		case JONG3: {
+			break;
+		}
+
+		}
+
+		state.composing = state.syllable.toString(firstMidEnd);
+
 		states.push(state);
 	}
 
@@ -24,24 +61,30 @@ public class UnicodeCharacterGenerator implements CharacterGenerator {
 
 	}
 
+	public void finishComposing() {
+
+	}
+
+	public void startNewSyllable(UnicodeHangulSyllable syllable) {
+		states.peek().syllable = syllable;
+	}
+
 	public static class State {
 
-		int cho, jung, jong;
-		int last, beforeJong;
+		UnicodeHangulSyllable syllable;
+		char last, beforeJong;
 		String composing;
 		int lastInputType;
 
 		public State() {
-			cho = jung = jong = -1;
-			last = beforeJong = -1;
+			this.syllable = new UnicodeHangulSyllable();
+			last = beforeJong = 0;
 			composing = "";
 			lastInputType = 0;
 		}
 
 		public State(State previousState) {
-			cho = previousState.cho;
-			jung = previousState.jung;
-			jong = previousState.jong;
+			syllable = (UnicodeHangulSyllable) previousState.syllable.clone();
 			beforeJong = previousState.beforeJong;
 			composing = previousState.composing;
 		}
