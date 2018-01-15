@@ -189,7 +189,7 @@ public class HangulEngine {
 		this();
 		this.moachigi = moachigi;
 	}
-	
+
 	public boolean backspace() {
 		try {
 			// 입력 기록을 하나 빼 온다.
