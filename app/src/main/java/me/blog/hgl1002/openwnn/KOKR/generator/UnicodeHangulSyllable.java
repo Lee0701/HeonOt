@@ -67,7 +67,7 @@ public class UnicodeHangulSyllable implements Cloneable {
 		} else {
 			int cho = this.cho - 0x1100;
 			int jung = this.jung - 0x1161;
-			int jong = containsJong() ? this.jong - 0x11a8 - 1 : 0;
+			int jong = containsJong() ? this.jong - 0x11a8 + 1 : 0;
 			if(containsCho() && containsJung()) {
 				return String.valueOf(compose(cho, jung, jong));
 			} else if(containsCho()) {

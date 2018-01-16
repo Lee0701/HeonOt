@@ -17,11 +17,15 @@ import android.view.inputmethod.InputMethodManager;
 import me.blog.hgl1002.openwnn.KOKR.DefaultSoftKeyboardKOKR;
 import me.blog.hgl1002.openwnn.KOKR.EngineMode;
 import me.blog.hgl1002.openwnn.KOKR.HangulEngine;
+import me.blog.hgl1002.openwnn.KOKR.HangulEngine.FinishComposingEvent;
 import me.blog.hgl1002.openwnn.KOKR.KeystrokePreference;
 import me.blog.hgl1002.openwnn.KOKR.TwelveHangulEngine;
 import me.blog.hgl1002.openwnn.KOKR.HangulEngine.*;
+import me.blog.hgl1002.openwnn.KOKR.event.*;
+import me.blog.hgl1002.openwnn.KOKR.generator.CharacterGenerator;
+import me.blog.hgl1002.openwnn.KOKR.generator.UnicodeCharacterGenerator;
 
-public class OpenWnnKOKR extends OpenWnn implements HangulEngineListener {
+public class OpenWnnKOKR extends OpenWnn implements HangulEngineListener, Listener {
 
 	public static final int[][] SHIFT_CONVERT = {
 			{0x60, 0x7e},
@@ -88,6 +92,8 @@ public class OpenWnnKOKR extends OpenWnn implements HangulEngineListener {
 
 	HangulEngine mHangulEngine;
 	HangulEngine mQwertyEngine, m12keyEngine;
+
+	CharacterGenerator characterGenerator;
 
 	int[][] mAltSymbols;
 	boolean mAltMode;
@@ -156,6 +162,9 @@ public class OpenWnnKOKR extends OpenWnn implements HangulEngineListener {
 		mHangulEngine = mQwertyEngine;
 		mQwertyEngine.setListener(this);
 		m12keyEngine.setListener(this);
+
+		characterGenerator = new UnicodeCharacterGenerator();
+		characterGenerator.addListener(this);
 		
 		mAutoHideMode = false;
 	}
@@ -172,6 +181,7 @@ public class OpenWnnKOKR extends OpenWnn implements HangulEngineListener {
 
 	@Override
 	public View onCreateInputView() {
+		characterGenerator.init();
 		int hiddenState = getResources().getConfiguration().hardKeyboardHidden;
 		boolean hidden = (hiddenState == Configuration.HARDKEYBOARDHIDDEN_YES);
 		((DefaultSoftKeyboardKOKR) mInputViewManager).setHardKeyboardHidden(hidden);
@@ -612,12 +622,13 @@ public class OpenWnnKOKR extends OpenWnn implements HangulEngineListener {
 		}
 		int jamo = mHangulEngine.inputCode(Character.toLowerCase(code), shift);
 		if(jamo != -1) {
-			if(mHangulEngine.inputJamo(jamo) != 0) {
-				mInputConnection.setComposingText(mHangulEngine.getComposing(), 1);
-			} else {
-				resetJohab();
-				sendKeyChar((char) jamo);
-			}
+//			if(mHangulEngine.inputJamo(jamo) != 0) {
+//				mInputConnection.setComposingText(mHangulEngine.getComposing(), 1);
+//			} else {
+//				resetJohab();
+//				sendKeyChar((char) jamo);
+//			}
+			characterGenerator.input(jamo);
 		} else {
 			resetJohab();
 			directInput(originalCode, shift > 0);
@@ -789,12 +800,13 @@ public class OpenWnnKOKR extends OpenWnn implements HangulEngineListener {
 			mInputConnection.commitText(" ", 1);
 			return true;
 		} else if (key == KeyEvent.KEYCODE_DEL) {
-			if (!mHangulEngine.backspace()) {
-				resetJohab();
-				return false;
-			}
-			if (mHangulEngine.getComposing() == "")
-				resetJohab();
+//			if (!mHangulEngine.backspace()) {
+//				resetJohab();
+//				return false;
+//			}
+			characterGenerator.backspace(0);
+//			if (mHangulEngine.getComposing() == "")
+//				resetJohab();
 			return true;
 		} else if (key == DefaultSoftKeyboardKOKR.KEYCODE_NON_SHIN_DEL) {
 			resetJohab();
@@ -1032,6 +1044,26 @@ public class OpenWnnKOKR extends OpenWnn implements HangulEngineListener {
 		mShiftPressing = false;
 	}
 
+	@Override
+	public void onEvent(Event e) {
+		if(e instanceof ComposeCharEvent) {
+			ComposeCharEvent event = (ComposeCharEvent) e;
+			String composing = event.getComposingChar();
+			getCurrentInputConnection().setComposingText(composing, 1);
+		}
+		else if(e instanceof me.blog.hgl1002.openwnn.KOKR.event.FinishComposingEvent) {
+			getCurrentInputConnection().finishComposingText();
+		}
+		else if(e instanceof InputCharEvent) {
+			InputCharEvent event = (InputCharEvent) e;
+			getCurrentInputConnection().commitText(String.valueOf(event.getCharacter()), event.getCursorPosition());
+		}
+		else if(e instanceof DeleteCharEvent) {
+			DeleteCharEvent event = (DeleteCharEvent) e;
+			getCurrentInputConnection().deleteSurroundingText(event.getBeforeLength(), event.getAfterLength());
+		}
+	}
+
 	public HangulEngine getHangulEngine() {
 		return mHangulEngine;
 	}
@@ -1039,4 +1071,5 @@ public class OpenWnnKOKR extends OpenWnn implements HangulEngineListener {
 	public int[][] getmAltSymbols() {
 		return mAltSymbols;
 	}
+
 }
