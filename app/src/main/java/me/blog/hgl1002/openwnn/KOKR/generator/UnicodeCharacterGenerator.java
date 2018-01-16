@@ -15,7 +15,7 @@ public class UnicodeCharacterGenerator implements CharacterGenerator {
 
 	@Override
 	public void init() {
-	    //Push initial placeholder state into the stack.
+		//Push initial placeholder state into the stack.
 		states.push(new State());
 	}
 
@@ -25,29 +25,29 @@ public class UnicodeCharacterGenerator implements CharacterGenerator {
 
 		char charCode = (char) (code & 0xffff);
 		switch(UnicodeJamoHandler.getType(charCode)) {
-            case CHO3: {
-                if(state.syllable.containsCho()) {
-                    JamoPair pair = new JamoPair(state.syllable.cho, charCode);
-                    Character combination = combinationTable.get(pair);
-                    if(combination != null) {
-                        state.syllable.cho = combination;
-                    } else {
-                        finishComposing();
-                        startNewSyllable(new UnicodeHangulSyllable(charCode, (char) 0, (char) 0));
-                    }
-                } else {
-                    state.syllable.cho = charCode;
-                }
-                break;
-            }
+			case CHO3: {
+				if(state.syllable.containsCho()) {
+					JamoPair pair = new JamoPair(state.syllable.cho, charCode);
+					Character combination = combinationTable.get(pair);
+					if(combination != null) {
+						state.syllable.cho = combination;
+					} else {
+						finishComposing();
+						startNewSyllable(new UnicodeHangulSyllable(charCode, (char) 0, (char) 0));
+					}
+				} else {
+					state.syllable.cho = charCode;
+				}
+				break;
+			}
 
-            case JUNG3: {
-                break;
-            }
+			case JUNG3: {
+				break;
+			}
 
-            case JONG3: {
-                break;
-            }
+			case JONG3: {
+				break;
+			}
 
 		}
 
