@@ -20,15 +20,13 @@ import java.util.List;
 
 import me.blog.hgl1002.openwnn.KOKR.DefaultSoftKeyboardKOKR;
 import me.blog.hgl1002.openwnn.KOKR.EngineMode;
-import me.blog.hgl1002.openwnn.KOKR.HangulEngine;
 import me.blog.hgl1002.openwnn.KOKR.KeystrokePreference;
-import me.blog.hgl1002.openwnn.KOKR.HangulEngine.*;
 import me.blog.hgl1002.openwnn.KOKR.event.*;
 import me.blog.hgl1002.openwnn.KOKR.event.FinishComposingEvent;
 import me.blog.hgl1002.openwnn.KOKR.generator.CharacterGenerator;
 import me.blog.hgl1002.openwnn.KOKR.generator.UnicodeCharacterGenerator;
 
-public class OpenWnnKOKR extends OpenWnn implements HangulEngineListener, Listener {
+public class OpenWnnKOKR extends OpenWnn implements Listener {
 
 	public static final int[][] SHIFT_CONVERT = {
 			{0x60, 0x7e},
@@ -278,17 +276,6 @@ public class OpenWnnKOKR extends OpenWnn implements HangulEngineListener, Listen
 		mInputConnection.finishComposingText();
 		super.onViewClicked(focusChanged);
 		resetJohab();
-	}
-
-	@Override
-	public void onEvent(HangulEngineEvent event) {
-		if(event instanceof HangulEngine.FinishComposingEvent) {
-			if(mInputConnection != null) mInputConnection.finishComposingText();
-		}
-		if(event instanceof SetComposingEvent) {
-			SetComposingEvent composingEvent = (SetComposingEvent) event;
-			if(mInputConnection != null) mInputConnection.setComposingText(composingEvent.getComposing(), 1);
-		}
 	}
 
 	@Override
@@ -1057,7 +1044,7 @@ public class OpenWnnKOKR extends OpenWnn implements HangulEngineListener, Listen
 			getCurrentInputConnection().setComposingText(composing, 1);
 			this.mLastInput = event.getLastInput();
 		}
-		else if(e instanceof me.blog.hgl1002.openwnn.KOKR.event.FinishComposingEvent) {
+		else if(e instanceof FinishComposingEvent) {
 			getCurrentInputConnection().finishComposingText();
 		}
 		else if(e instanceof InputCharEvent) {
