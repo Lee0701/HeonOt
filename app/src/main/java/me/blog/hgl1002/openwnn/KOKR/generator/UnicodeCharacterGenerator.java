@@ -45,14 +45,17 @@ public class UnicodeCharacterGenerator implements CharacterGenerator {
 				Character combination = combinationTable.get(pair);
 				if(combination != null) {
 					state.syllable.cho = combination;
+					state.lastInput |= State.INPUT_COMBINED;
 				} else {
 					finishComposing();
 					startNewSyllable(new UnicodeHangulSyllable(charCode, (char) 0, (char) 0));
 					state = states.pop();
+					state.lastInput |= State.INPUT_COMBINATION_FAILED | State.INPUT_NEW_SYLLABLE_STARTED;
 				}
 			} else {
 				state.syllable.cho = charCode;
 			}
+			state.lastInput |= State.INPUT_CHO3;
 			break;
 		}
 
@@ -62,14 +65,17 @@ public class UnicodeCharacterGenerator implements CharacterGenerator {
 				Character combination = combinationTable.get(pair);
 				if(combination != null) {
 					state.syllable.jung = combination;
+					state.lastInput |= State.INPUT_COMBINED;
 				} else {
 					finishComposing();
 					startNewSyllable(new UnicodeHangulSyllable((char) 0, charCode, (char) 0));
 					state = states.pop();
+					state.lastInput |= State.INPUT_COMBINATION_FAILED | State.INPUT_NEW_SYLLABLE_STARTED;
 				}
 			} else {
 				state.syllable.jung = charCode;
 			}
+			state.lastInput |= State.INPUT_JUNG3;
 			break;
 		}
 
@@ -79,26 +85,30 @@ public class UnicodeCharacterGenerator implements CharacterGenerator {
 				Character combination = combinationTable.get(pair);
 				if(combination != null) {
 					state.syllable.jong = combination;
+					state.lastInput |= State.INPUT_COMBINED;
 				} else {
 					finishComposing();
 					startNewSyllable(new UnicodeHangulSyllable((char) 0, (char) 0, charCode));
 					state = states.pop();
+					state.lastInput |= State.INPUT_COMBINATION_FAILED | State.INPUT_NEW_SYLLABLE_STARTED;
 				}
 			} else {
 				state.syllable.jong = charCode;
 			}
+			state.lastInput |= State.INPUT_JONG3;
 			break;
 		}
 
 		default:
 			finishComposing();
-			fireEvent(new InputCharEvent(charCode, 1));
+			Event.fire(listeners, new InputCharEvent(charCode, 1));
 			state = states.pop();
+			state.lastInput = State.INPUT_NON_HANGUL;
 		}
 
 		state.composing = state.syllable.toString(true);
 
-		fireEvent(new ComposeCharEvent(state.composing));
+		Event.fire(listeners, new ComposeCharEvent(state.composing, state.lastInput));
 
 		states.push(state);
 	}
@@ -108,15 +118,15 @@ public class UnicodeCharacterGenerator implements CharacterGenerator {
 		try {
 			states.pop();
 			State state = states.peek();
-			fireEvent(new ComposeCharEvent(state.composing));
+			Event.fire(listeners, new ComposeCharEvent(state.composing, state.lastInput));
 		} catch(EmptyStackException e) {
-			fireEvent(new FinishComposingEvent());
-			fireEvent(new DeleteCharEvent(1, 0));
+			Event.fire(listeners, new FinishComposingEvent());
+			Event.fire(listeners, new DeleteCharEvent(1, 0));
 		}
 	}
 
 	public void finishComposing() {
-		fireEvent(new FinishComposingEvent());
+		Event.fire(listeners, new FinishComposingEvent());
 		states.clear();
 		states.push(new State());
 	}
@@ -126,16 +136,41 @@ public class UnicodeCharacterGenerator implements CharacterGenerator {
 	}
 
 	public static class State {
+
+		public static final int MASK_HANGUL_BEOL = 0xf000;
+		public static final int MASK_HANGUL_TYPE = 0x0f00;
+
+		public static final int INPUT_NON_HANGUL = 0x0000;
+
+		public static final int INPUT_DUBEOL = 0x2000;
+		public static final int INPUT_SEBEOL = 0x3000;
+
+		public static final int INPUT_CHO = 0x0100;
+		public static final int INPUT_JUNG = 0x0200;
+		public static final int INPUT_JONG = 0x0300;
+
+		public static final int INPUT_CHO3 = 0x3100;
+		public static final int INPUT_JUNG3 = 0x3200;
+		public static final int INPUT_JONG3 = 0x3300;
+
+		public static final int INPUT_CHO2 = 0x2100;
+		public static final int INPUT_JUNG2 = 0x2200;
+		public static final int INPUT_JONG2 = 0x2300;
+
+		public static final int INPUT_COMBINED = 0x0001;
+		public static final int INPUT_COMBINATION_FAILED = 0x0002;
+		public static final int INPUT_NEW_SYLLABLE_STARTED = 0x0004;
+
 		UnicodeHangulSyllable syllable;
 		char last, beforeJong;
 		String composing;
-		int lastInputType;
+		int lastInput;
 
 		public State(UnicodeHangulSyllable syllable) {
 			this.syllable = syllable;
 			last = beforeJong = 0;
 			composing = "";
-			lastInputType = 0;
+			lastInput = 0;
 		}
 
 		public State() {
@@ -148,12 +183,6 @@ public class UnicodeCharacterGenerator implements CharacterGenerator {
 			composing = previousState.composing;
 		}
 
-	}
-
-	private void fireEvent(Event event) {
-		for(Listener listener : listeners) {
-			listener.onEvent(event);
-		}
 	}
 
 	@Override

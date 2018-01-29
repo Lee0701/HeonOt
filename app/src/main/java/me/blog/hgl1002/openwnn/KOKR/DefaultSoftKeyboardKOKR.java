@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 import me.blog.hgl1002.openwnn.DefaultSoftKeyboard;
+import me.blog.hgl1002.openwnn.KOKR.generator.UnicodeCharacterGenerator;
 import me.blog.hgl1002.openwnn.OpenWnn;
 import me.blog.hgl1002.openwnn.OpenWnnEvent;
 import me.blog.hgl1002.openwnn.OpenWnnKOKR;
@@ -1126,9 +1127,10 @@ public class DefaultSoftKeyboardKOKR extends DefaultSoftKeyboard {
 	public void updateKeyLabels() {
 		int[][] layout, virtual;
 		if(mCurrentKeyMode != KEYMODE_ALT_SYMBOLS) {
-			HangulEngine hangulEngine = ((OpenWnnKOKR) mWnn).getHangulEngine();
-			layout = hangulEngine.getJamoTable();
-			virtual = hangulEngine.getVirtualJamoTable();
+			int index = (((OpenWnnKOKR) mWnn).getLastInput() & UnicodeCharacterGenerator.State.MASK_HANGUL_TYPE) >> 0x08;
+			layout = ((OpenWnnKOKR) mWnn).getJamoSet()[index];
+//			virtual = hangulEngine.getVirtualJamoTable();
+			virtual = null;
 		} else {
 			layout = ((OpenWnnKOKR) mWnn).getmAltSymbols();
 			virtual = null;
