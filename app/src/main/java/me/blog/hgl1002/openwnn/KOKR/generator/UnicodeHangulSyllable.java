@@ -52,7 +52,7 @@ public class UnicodeHangulSyllable implements Cloneable {
 	}
 
 	public boolean isIncomplete() {
-		return (!containsCho() || !containsJung()) && containsJong();
+		return (containsCho() != containsJung()) && containsJong();
 	}
 
 	public boolean requiresFirstMidEndComposition() {

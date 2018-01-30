@@ -1,14 +1,15 @@
 package me.blog.hgl1002.openwnn.KOKR;
 
-import static me.blog.hgl1002.openwnn.KOKR.LayoutAlphabet.*;
-import static me.blog.hgl1002.openwnn.KOKR.LayoutDubul.*;
-import static me.blog.hgl1002.openwnn.KOKR.Layout12KeySebul.*;
-import static me.blog.hgl1002.openwnn.KOKR.LayoutGongSebul.*;
-import static me.blog.hgl1002.openwnn.KOKR.LayoutShinSebul.*;
-import static me.blog.hgl1002.openwnn.KOKR.LayoutMoachigiSebul.*;
-import static me.blog.hgl1002.openwnn.KOKR.Layout12KeyDubul.*;
-import static me.blog.hgl1002.openwnn.KOKR.LayoutDev.*;
-import static me.blog.hgl1002.openwnn.KOKR.LayoutSymbol.*;
+import me.blog.hgl1002.openwnn.KOKR.layouts.LayoutSymbol;
+
+import static me.blog.hgl1002.openwnn.KOKR.layouts.LayoutAlphabet.*;
+import static me.blog.hgl1002.openwnn.KOKR.layouts.LayoutDubul.*;
+import static me.blog.hgl1002.openwnn.KOKR.layouts.Layout12KeySebul.*;
+import static me.blog.hgl1002.openwnn.KOKR.layouts.LayoutGongSebul.*;
+import static me.blog.hgl1002.openwnn.KOKR.layouts.LayoutShinSebul.*;
+import static me.blog.hgl1002.openwnn.KOKR.layouts.LayoutMoachigiSebul.*;
+import static me.blog.hgl1002.openwnn.KOKR.layouts.Layout12KeyDubul.*;
+import static me.blog.hgl1002.openwnn.KOKR.layouts.LayoutDev.*;
 
 public enum EngineMode {
 

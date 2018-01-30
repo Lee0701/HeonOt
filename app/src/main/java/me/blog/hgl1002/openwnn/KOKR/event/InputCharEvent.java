@@ -1,20 +1,13 @@
 package me.blog.hgl1002.openwnn.KOKR.event;
 
 public class InputCharEvent extends Event {
+	private Object character;
 
-	private char character;
-	private int cursorPosition;
-
-	public InputCharEvent(char character, int cursorPosition) {
+	public InputCharEvent(Object character) {
 		this.character = character;
-		this.cursorPosition = cursorPosition;
 	}
 
-	public char getCharacter() {
+	public Object getCharacter() {
 		return character;
-	}
-
-	public int getCursorPosition() {
-		return cursorPosition;
 	}
 }

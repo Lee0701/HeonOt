@@ -15,16 +15,22 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import me.blog.hgl1002.openwnn.KOKR.DefaultSoftKeyboardKOKR;
 import me.blog.hgl1002.openwnn.KOKR.EngineMode;
+import me.blog.hgl1002.openwnn.KOKR.InputMethod;
 import me.blog.hgl1002.openwnn.KOKR.KeystrokePreference;
 import me.blog.hgl1002.openwnn.KOKR.event.*;
 import me.blog.hgl1002.openwnn.KOKR.event.FinishComposingEvent;
 import me.blog.hgl1002.openwnn.KOKR.generator.CharacterGenerator;
+import me.blog.hgl1002.openwnn.KOKR.generator.EmptyCharacterGenerator;
 import me.blog.hgl1002.openwnn.KOKR.generator.UnicodeCharacterGenerator;
+import me.blog.hgl1002.openwnn.KOKR.hardkeyboard.DefaultHardKeyboard;
+import me.blog.hgl1002.openwnn.KOKR.hardkeyboard.HardKeyboard;
 
 public class OpenWnnKOKR extends OpenWnn implements Listener {
 
@@ -95,7 +101,9 @@ public class OpenWnnKOKR extends OpenWnn implements Listener {
 
 	int[][][] mJamoSet;
 
-	CharacterGenerator mCharacterGenerator;
+	List<InputMethod> mInputMethods;
+	int mCurrentInputMethodId;
+	InputMethod mCurrentInputMethod;
 
 	int mLastInput;
 
@@ -161,10 +169,8 @@ public class OpenWnnKOKR extends OpenWnn implements Listener {
 		super();
 		mSelf = this;
 		mInputViewManager = new DefaultSoftKeyboardKOKR(this);
+		mInputMethods = new ArrayList<>();
 
-		mCharacterGenerator = new UnicodeCharacterGenerator();
-		mCharacterGenerator.addListener(this);
-		
 		mAutoHideMode = false;
 	}
 	
@@ -176,11 +182,41 @@ public class OpenWnnKOKR extends OpenWnn implements Listener {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		{
+			HardKeyboard hardKeyboard = new DefaultHardKeyboard();
+			hardKeyboard.addListener(this);
+			CharacterGenerator characterGenerator = new EmptyCharacterGenerator();
+			characterGenerator.addListener(this);
+			hardKeyboard.addListener(characterGenerator);
+			InputMethod qwerty = new InputMethod(hardKeyboard, characterGenerator);
+			mInputMethods.add(qwerty);
+		}
+		{
+			String str = "";
+			try {
+				InputStream is = getResources().openRawResource(R.raw.keyboard_sebul_391);
+				byte[] bytes = new byte[is.available()];
+				is.read(bytes);
+				str = new String(bytes);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			HardKeyboard hardKeyboard = new DefaultHardKeyboard(str);
+			hardKeyboard.addListener(this);
+			CharacterGenerator characterGenerator = new UnicodeCharacterGenerator();
+			characterGenerator.addListener(this);
+			hardKeyboard.addListener(characterGenerator);
+			InputMethod sebul391 = new InputMethod(hardKeyboard, characterGenerator);
+			mInputMethods.add(sebul391);
+		}
+		mCurrentInputMethod = mInputMethods.get(mCurrentInputMethodId);
 	}
 
 	@Override
 	public View onCreateInputView() {
-		mCharacterGenerator.init();
+		for(InputMethod method : mInputMethods) {
+			method.init();
+		}
 		int hiddenState = getResources().getConfiguration().hardKeyboardHidden;
 		boolean hidden = (hiddenState == Configuration.HARDKEYBOARDHIDDEN_YES);
 		((DefaultSoftKeyboardKOKR) mInputViewManager).setHardKeyboardHidden(hidden);
@@ -189,7 +225,7 @@ public class OpenWnnKOKR extends OpenWnn implements Listener {
 
 	@Override
 	public void onStartInputView(EditorInfo attribute, boolean restarting) {
-		resetJohab();
+		finishComposing();
 		if(restarting) {
 			super.onStartInputView(attribute, restarting);
 		} else {
@@ -266,7 +302,7 @@ public class OpenWnnKOKR extends OpenWnn implements Listener {
 
 	@Override
 	public void onFinishInput() {
-		resetJohab();
+		finishComposing();
 		super.onFinishInput();
 	}
 
@@ -275,7 +311,7 @@ public class OpenWnnKOKR extends OpenWnn implements Listener {
 		if(mInputConnection == null) return;
 		mInputConnection.finishComposingText();
 		super.onViewClicked(focusChanged);
-		resetJohab();
+		finishComposing();
 	}
 
 	@Override
@@ -288,7 +324,7 @@ public class OpenWnnKOKR extends OpenWnn implements Listener {
 			return true;
 			
 		case OpenWnnEvent.CHANGE_MODE:
-			resetJohab();
+			finishComposing();
 			changeEngineMode(ev.mode);
 			return true;
 			
@@ -302,7 +338,7 @@ public class OpenWnnKOKR extends OpenWnn implements Listener {
 				mBackspaceSelectionMode = true;
 				mBackspaceSelectionEnd = mInputConnection.getTextBeforeCursor(Integer.MAX_VALUE, 0).length();
 				mBackspaceSelectionStart = mBackspaceSelectionEnd;
-				resetJohab();
+				finishComposing();
 			}
 			while(true) {
 				mBackspaceSelectionStart--;
@@ -341,7 +377,7 @@ public class OpenWnnKOKR extends OpenWnn implements Listener {
 			
 		case TIMEOUT_EVENT:
 			if(mEnableTimeout) {
-				resetJohab();
+				finishComposing();
 			}
 			if(mQuickPeriod) {
 				mSpace = false;
@@ -527,11 +563,11 @@ public class OpenWnnKOKR extends OpenWnn implements Listener {
 				//TODO: 두벌식 단모음, 천지인, 12키 알파벳 자판 등에서 스페이스바로 조합 끊기 옵션 적용시
 //				if(mSpaceResetJohab && !mHangulEngine.getComposing().equals("")) {
 //					if(mCurrentEngineMode.properties.timeout) {
-//						resetJohab();
+//						finishComposing();
 //						return true;
 //					}
 //				}
-				resetJohab();
+				finishComposing();
 				if(mQuickPeriod && mSpace && mCharInput) {
 					mInputConnection.deleteSurroundingText(1, 0);
 					mInputConnection.commitText(". ", 1);
@@ -587,33 +623,22 @@ public class OpenWnnKOKR extends OpenWnn implements Listener {
 			for(int[] item : mAltSymbols) {
 				code = Character.toLowerCase(code);
 				if(code == item[0]) {
-					resetJohab();
+					finishComposing();
 					directInput((char) (shift == 0 ? item[1] : item[2]), false);
 					return;
 				}
 			}
 		}
 
+		/*
 		if(mDirectInputMode || direct) {
 			code = originalCode;
-			resetJohab();
+			finishComposing();
 			directInput(code, shift > 0);
 			return;
 		}
-//		int jamo = mHangulEngine.inputCode(Character.toLowerCase(code), shift);
-		long jamo = inputCode(Character.toLowerCase(code), shift);
-		if(jamo != -1) {
-//			if(mHangulEngine.inputJamo(jamo) != 0) {
-//				mInputConnection.setComposingText(mHangulEngine.getComposing(), 1);
-//			} else {
-//				resetJohab();
-//				sendKeyChar((char) jamo);
-//			}
-			mCharacterGenerator.input(jamo);
-		} else {
-			resetJohab();
-			directInput(originalCode, shift > 0);
-		}
+		*/
+		mCurrentInputMethod.getHardKeyboard().input(new KeyPressEvent(Character.toLowerCase(code), shift > 0, mCapsLock, 1));
 	}
 
 	private void directInput(char code, boolean shift) {
@@ -648,7 +673,8 @@ public class OpenWnnKOKR extends OpenWnn implements Listener {
 		IBinder token = getWindow().getWindow().getAttributes().token;
 		switch(action) {
 		case LANGKEY_SWITCH_KOR_ENG:
-			((DefaultSoftKeyboardKOKR) mInputViewManager).nextLanguage();
+			if(++mCurrentInputMethodId >= mInputMethods.size()) mCurrentInputMethodId = 0;
+			mCurrentInputMethod = mInputMethods.get(mCurrentInputMethodId);
 			break;
 
 		case LANGKEY_SWITCH_NEXT_METHOD:
@@ -726,6 +752,8 @@ public class OpenWnnKOKR extends OpenWnn implements Listener {
 			if (ev.isCtrlPressed()) return false;
 		}
 
+		//TODO
+		/*
 		if ((key <= -200 && key > -300) || (key <= -2000 && key > -3000)) {
 			long jamo = inputCode(key, mHardShift);
 			if (jamo != -1) {
@@ -734,9 +762,10 @@ public class OpenWnnKOKR extends OpenWnn implements Listener {
 			}
 			return true;
 		}
+		*/
 
 		if (key >= KeyEvent.KEYCODE_NUMPAD_0 && key <= KeyEvent.KEYCODE_NUMPAD_RIGHT_PAREN) {
-			resetJohab();
+			finishComposing();
 			return false;
 		}
 
@@ -746,7 +775,7 @@ public class OpenWnnKOKR extends OpenWnn implements Listener {
 					&& ev.isCtrlPressed() == mHardLangKey.isControl()
 					&& ev.isMetaPressed() == mHardLangKey.isWin()) {
 
-				resetJohab();
+				finishComposing();
 				((DefaultSoftKeyboardKOKR) mInputViewManager).nextLanguage();
 				mHardShift = 0;
 				mShiftPressing = false;
@@ -788,24 +817,18 @@ public class OpenWnnKOKR extends OpenWnn implements Listener {
 
 		} else if (key == KeyEvent.KEYCODE_SPACE) {
 			// 한글 조합을 종료한다
-			resetJohab();
+			finishComposing();
 			mInputConnection.commitText(" ", 1);
 			return true;
 		} else if (key == KeyEvent.KEYCODE_DEL) {
-//			if (!mHangulEngine.backspace()) {
-//				resetJohab();
-//				return false;
-//			}
-			mCharacterGenerator.backspace(0);
-//			if (mHangulEngine.getComposing() == "")
-//				resetJohab();
+			mCurrentInputMethod.getCharacterGenerator().backspace(0);
 			return true;
 		} else if (key == DefaultSoftKeyboardKOKR.KEYCODE_NON_SHIN_DEL) {
-			resetJohab();
+			finishComposing();
 			mInputConnection.deleteSurroundingText(1, 0);
 			return true;
 		} else if(key == KeyEvent.KEYCODE_ENTER) {
-			resetJohab();
+			finishComposing();
 			mHardShift = 0;
 			mHardAlt = 0;
 			updateMetaKeyStateDisplay();
@@ -821,7 +844,7 @@ public class OpenWnnKOKR extends OpenWnn implements Listener {
 				return false;
 			}
 		} else {
-			resetJohab();
+			finishComposing();
 		}
 		
 		return false;
@@ -899,7 +922,6 @@ public class OpenWnnKOKR extends OpenWnn implements Listener {
 			boolean capsLock = kokr.isCapsLock();
 			if(mHardShift == 2) capsLock = true;
 			boolean shift = !kokr.mHardKeyboardHidden && mHardShift == 1;
-			kokr.updateKeyLabels();
 			if(capsLock) {
 				kokr.setCapsLock(capsLock);
 				kokr.setShiftState(1);
@@ -982,9 +1004,9 @@ public class OpenWnnKOKR extends OpenWnn implements Listener {
 		((DefaultSoftKeyboard) mInputViewManager).updateIndicator(mode);
 	}
 
-	private void resetJohab() {
-		if(mCharacterGenerator instanceof UnicodeCharacterGenerator) {
-			((UnicodeCharacterGenerator) mCharacterGenerator).finishComposing();
+	private void finishComposing() {
+		if(mCurrentInputMethod.getCharacterGenerator() instanceof UnicodeCharacterGenerator) {
+			((UnicodeCharacterGenerator) mCurrentInputMethod.getCharacterGenerator()).finishComposing();
 		}
 	}
 
@@ -1047,13 +1069,28 @@ public class OpenWnnKOKR extends OpenWnn implements Listener {
 		else if(e instanceof FinishComposingEvent) {
 			getCurrentInputConnection().finishComposingText();
 		}
-		else if(e instanceof InputCharEvent) {
-			InputCharEvent event = (InputCharEvent) e;
+		else if(e instanceof CommitCharEvent) {
+			CommitCharEvent event = (CommitCharEvent) e;
 			getCurrentInputConnection().commitText(String.valueOf(event.getCharacter()), event.getCursorPosition());
 		}
 		else if(e instanceof DeleteCharEvent) {
 			DeleteCharEvent event = (DeleteCharEvent) e;
 			getCurrentInputConnection().deleteSurroundingText(event.getBeforeLength(), event.getAfterLength());
+		}
+		else if(e instanceof InputRawEvent) {
+			KeyPressEvent event = ((InputRawEvent) e).getEvent();
+			if(event.isCaps()) mInputConnection.commitText(new String(new char[] {Character.toUpperCase((char) event.getKeyCode())}), 1);
+			else if(event.isShift()) {
+				char code = Character.toUpperCase((char) event.getKeyCode());
+				for(int[] item : SHIFT_CONVERT) {
+					if(item[0] == event.getKeyCode()) {
+						code = (char) item[1];
+						break;
+					}
+				}
+				mInputConnection.commitText(new String(new char[] {code}), 1);
+			}
+			else mInputConnection.commitText(new String(Character.toChars(event.getKeyCode())), 1);
 		}
 	}
 

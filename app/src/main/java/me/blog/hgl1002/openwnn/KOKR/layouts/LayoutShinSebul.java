@@ -1,4 +1,6 @@
-package me.blog.hgl1002.openwnn.KOKR;
+package me.blog.hgl1002.openwnn.KOKR.layouts;
+
+import me.blog.hgl1002.openwnn.KOKR.HangulEngine;
 
 public class LayoutShinSebul {
 

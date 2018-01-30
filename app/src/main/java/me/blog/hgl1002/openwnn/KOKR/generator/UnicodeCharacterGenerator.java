@@ -11,6 +11,7 @@ import me.blog.hgl1002.openwnn.KOKR.event.ComposeCharEvent;
 import me.blog.hgl1002.openwnn.KOKR.event.DeleteCharEvent;
 import me.blog.hgl1002.openwnn.KOKR.event.Event;
 import me.blog.hgl1002.openwnn.KOKR.event.FinishComposingEvent;
+import me.blog.hgl1002.openwnn.KOKR.event.CommitCharEvent;
 import me.blog.hgl1002.openwnn.KOKR.event.InputCharEvent;
 import me.blog.hgl1002.openwnn.KOKR.event.Listener;
 
@@ -101,7 +102,7 @@ public class UnicodeCharacterGenerator implements CharacterGenerator {
 
 		default:
 			finishComposing();
-			Event.fire(listeners, new InputCharEvent(charCode, 1));
+			Event.fire(listeners, new CommitCharEvent(charCode, 1));
 			state = states.pop();
 			state.lastInput = State.INPUT_NON_HANGUL;
 		}
@@ -183,6 +184,16 @@ public class UnicodeCharacterGenerator implements CharacterGenerator {
 			composing = previousState.composing;
 		}
 
+	}
+
+	@Override
+	public void onEvent(Event e) {
+		if(e instanceof InputCharEvent) {
+			InputCharEvent event = (InputCharEvent) e;
+			Object o = event.getCharacter();
+			if(o instanceof Long) this.input((long) o);
+			else if(o instanceof Integer) this.input((int) o);
+		}
 	}
 
 	@Override

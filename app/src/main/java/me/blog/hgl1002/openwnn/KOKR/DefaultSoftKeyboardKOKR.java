@@ -1,6 +1,7 @@
 package me.blog.hgl1002.openwnn.KOKR;
 
 import java.util.Locale;
+import java.util.Map;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -155,7 +156,6 @@ public class DefaultSoftKeyboardKOKR extends DefaultSoftKeyboard {
 						new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_SHIFT_LEFT)));
 				mCapsLock = true;
 				performed = true;
-				updateKeyLabels();
 				return;
 
 			case KEYCODE_JP12_BACKSPACE:
@@ -581,8 +581,6 @@ public class DefaultSoftKeyboardKOKR extends DefaultSoftKeyboard {
 			changeNumKeyboard(mNumKeyboard[mCurrentLanguage][mDisplayMode][mCurrentKeyboardType][mShiftOn][0][0]);
 		}
 
-		updateKeyLabels();
-
 		mLastKeyMode = mCurrentKeyMode;
 	}
 	
@@ -725,7 +723,6 @@ public class DefaultSoftKeyboardKOKR extends DefaultSoftKeyboard {
 		case KEYCODE_QWERTY_SHIFT:
 			mCapsLock = false;
 			toggleShiftLock();
-			updateKeyLabels();
 			if(mShiftOn == 0) {
 				mWnn.onEvent(new OpenWnnEvent(OpenWnnEvent.INPUT_SOFT_KEY,
 						new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_SHIFT_LEFT)));
@@ -1124,26 +1121,10 @@ public class DefaultSoftKeyboardKOKR extends DefaultSoftKeyboard {
 		}
 	}
 
-	public void updateKeyLabels() {
-		int[][] layout, virtual;
-		if(mCurrentKeyMode != KEYMODE_ALT_SYMBOLS) {
-			int index = (((OpenWnnKOKR) mWnn).getLastInput() & UnicodeCharacterGenerator.State.MASK_HANGUL_TYPE) >> 0x08;
-			layout = ((OpenWnnKOKR) mWnn).getJamoSet()[index];
-//			virtual = hangulEngine.getVirtualJamoTable();
-			virtual = null;
-		} else {
-			layout = ((OpenWnnKOKR) mWnn).getmAltSymbols();
-			virtual = null;
-		}
-		updateLabels(mKeyboard[mCurrentLanguage][mDisplayMode][mCurrentKeyboardType][mShiftOn][mCurrentKeyMode][0], layout, virtual);
-		mKeyboardView.invalidateAllKeys();
-		mKeyboardView.requestLayout();
-	}
-
-	protected void updateLabels(Keyboard kbd, int[][] layout, int[][] virtual) {
+	protected void updateLabels(Keyboard kbd, Map<Integer, String> labels) {
 		if(!(kbd instanceof KeyboardKOKR)) return;
 		if(mCurrentKeyboardType == KEYBOARD_12KEY) return;
-		if(layout == null) {
+		if(labels == null) {
 			for(Keyboard.Key key : kbd.getKeys()) {
 				String label = getKeyLabel(key.codes[0], mShiftOn > 0);
 				if(label != null) key.label = label;
@@ -1151,27 +1132,11 @@ public class DefaultSoftKeyboardKOKR extends DefaultSoftKeyboard {
 			return;
 		}
 		for(Keyboard.Key key : kbd.getKeys()) {
-			boolean found = false;
-			for(int i = 0 ; i < layout.length ; i++) {
-				if(key.codes[0] == 128) break;
-				if(key.codes[0] == layout[i][0]) {
-					int code = layout[i][mShiftOn + 1];
-					if(code < 0 && virtual != null) {
-						for(int[] item : virtual) {
-							if(item[1] == code) {
-								code = item[2];
-								break;
-							}
-						}
-					}
-					String label = getKeyLabel(code, false);
-					if(label != null) key.label = label;
-					found = true;
-					break;
-				}
-			}
-			if(!found) {
-				String label = getKeyLabel(key.codes[0], mShiftOn > 0);
+			String label = labels.get(key.codes[0]);
+			if(label != null) {
+				key.label = label;
+			} else {
+				label = getKeyLabel(key.codes[0], mShiftOn > 0);
 				if(label != null) key.label = label;
 			}
 		}
