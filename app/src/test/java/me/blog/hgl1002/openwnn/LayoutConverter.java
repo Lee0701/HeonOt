@@ -51,7 +51,7 @@ public class LayoutConverter {
 				JSONArray table = new JSONArray();
 				for(int[] item : engineMode.layout) {
 					JSONObject map = new JSONObject();
-					map.put("keycode", item[0]);
+					map.put("keycode", convertCode(item[0]));
 					map.put("normal", Integer.toString(item[1]));
 					map.put("shift", Integer.toString(item[2]));
 					table.put(map);
@@ -88,6 +88,14 @@ public class LayoutConverter {
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	public int convertCode(int code) {
+		if(code >= 0x30 && code <= 0x39) return code - 41;
+		if(code >= 0x61 && code <= 0x7a) return code - 68;
+		if(code == 0x20) return 62;
+		if(code == -100) return 67;
+		return code;
 	}
 
 }

@@ -30,7 +30,7 @@ public class SoftLayoutPreference extends ListPreference {
 			int code = OpenWnnEvent.CHANGE_INPUT_VIEW;
 			OpenWnnEvent ev = new OpenWnnEvent(code);
 			try {
-				wnn.onEvent(ev);
+//				wnn.onEvent(ev);
 			} catch (Exception ex) {
 			}
 		}

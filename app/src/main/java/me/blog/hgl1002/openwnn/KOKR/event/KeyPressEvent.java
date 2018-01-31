@@ -2,13 +2,12 @@ package me.blog.hgl1002.openwnn.KOKR.event;
 
 public class KeyPressEvent extends Event {
 	private final int keyCode;
-	private final boolean shift, caps;
 	private final int repeated;
+	private final int metaState;
 
-	public KeyPressEvent(int keyCode, boolean shift, boolean caps, int repeated) {
+	public KeyPressEvent(int keyCode, int metaState, int repeated) {
 		this.keyCode = keyCode;
-		this.shift = shift;
-		this.caps = caps;
+		this.metaState = metaState;
 		this.repeated = repeated;
 	}
 
@@ -16,15 +15,18 @@ public class KeyPressEvent extends Event {
 		return keyCode;
 	}
 
-	public boolean isShift() {
-		return shift;
-	}
-
-	public boolean isCaps() {
-		return caps;
+	public int getMetaState() {
+		return metaState;
 	}
 
 	public int getRepeated() {
 		return repeated;
 	}
+
+	public static class KeyReleaseEvent extends KeyPressEvent {
+		public KeyReleaseEvent(int keyCode, int metaState, int repeated) {
+			super(keyCode, metaState, repeated);
+		}
+	}
+
 }

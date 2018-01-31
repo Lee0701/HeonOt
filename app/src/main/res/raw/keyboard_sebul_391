@@ -4,102 +4,102 @@
   "timeout": false,
   "table": [
     {
-      "keycode": 49,
+      "keycode": 8,
       "normal": "4546",
       "shift": "4521"
     },
     {
-      "keycode": 50,
+      "keycode": 9,
       "normal": "4539",
       "shift": "4528"
     },
     {
-      "keycode": 51,
+      "keycode": 10,
       "normal": "4536",
       "shift": "4541"
     },
     {
-      "keycode": 52,
+      "keycode": 11,
       "normal": "4461",
       "shift": "4533"
     },
     {
-      "keycode": 53,
+      "keycode": 12,
       "normal": "4466",
       "shift": "4532"
     },
     {
-      "keycode": 54,
+      "keycode": 13,
       "normal": "4451",
       "shift": "61"
     },
     {
-      "keycode": 55,
+      "keycode": 14,
       "normal": "4456",
       "shift": "8220"
     },
     {
-      "keycode": 56,
+      "keycode": 15,
       "normal": "4468",
       "shift": "8221"
     },
     {
-      "keycode": 57,
+      "keycode": 16,
       "normal": "4462",
       "shift": "39"
     },
     {
-      "keycode": 48,
+      "keycode": 7,
       "normal": "4367",
       "shift": "126"
     },
     {
-      "keycode": 113,
+      "keycode": 45,
       "normal": "4538",
       "shift": "4545"
     },
     {
-      "keycode": 119,
+      "keycode": 51,
       "normal": "4527",
       "shift": "4544"
     },
     {
-      "keycode": 101,
+      "keycode": 33,
       "normal": "4455",
       "shift": "4524"
     },
     {
-      "keycode": 114,
+      "keycode": 46,
       "normal": "4450",
       "shift": "4534"
     },
     {
-      "keycode": 116,
+      "keycode": 48,
       "normal": "4453",
       "shift": "4531"
     },
     {
-      "keycode": 121,
+      "keycode": 53,
       "normal": "4357",
       "shift": "53"
     },
     {
-      "keycode": 117,
+      "keycode": 49,
       "normal": "4355",
       "shift": "54"
     },
     {
-      "keycode": 105,
+      "keycode": 37,
       "normal": "4358",
       "shift": "55"
     },
     {
-      "keycode": 111,
+      "keycode": 43,
       "normal": "4366",
       "shift": "56"
     },
     {
-      "keycode": 112,
+      "keycode": 44,
       "normal": "4369",
       "shift": "57"
     },
@@ -109,47 +109,47 @@
       "shift": "41"
     },
     {
-      "keycode": 97,
+      "keycode": 29,
       "normal": "4540",
       "shift": "4526"
     },
     {
-      "keycode": 115,
+      "keycode": 47,
       "normal": "4523",
       "shift": "4525"
     },
     {
-      "keycode": 100,
+      "keycode": 32,
       "normal": "4469",
       "shift": "4530"
     },
     {
-      "keycode": 102,
+      "keycode": 34,
       "normal": "4449",
       "shift": "4529"
     },
     {
-      "keycode": 103,
+      "keycode": 35,
       "normal": "4467",
       "shift": "4452"
     },
     {
-      "keycode": 104,
+      "keycode": 36,
       "normal": "4354",
       "shift": "48"
     },
     {
-      "keycode": 106,
+      "keycode": 38,
       "normal": "4363",
       "shift": "49"
     },
     {
-      "keycode": 107,
+      "keycode": 39,
       "normal": "4352",
       "shift": "50"
     },
     {
-      "keycode": 108,
+      "keycode": 40,
       "normal": "4364",
       "shift": "51"
     },
@@ -164,37 +164,37 @@
       "shift": "183"
     },
     {
-      "keycode": 122,
+      "keycode": 54,
       "normal": "4535",
       "shift": "4542"
     },
     {
-      "keycode": 120,
+      "keycode": 52,
       "normal": "4520",
       "shift": "4537"
     },
     {
-      "keycode": 99,
+      "keycode": 31,
       "normal": "4454",
       "shift": "4543"
     },
     {
-      "keycode": 118,
+      "keycode": 50,
       "normal": "4457",
       "shift": "4522"
     },
     {
-      "keycode": 98,
+      "keycode": 30,
       "normal": "4462",
       "shift": "63"
     },
     {
-      "keycode": 110,
+      "keycode": 42,
       "normal": "4361",
       "shift": "45"
     },
     {
-      "keycode": 109,
+      "keycode": 41,
       "normal": "4370",
       "shift": "34"
     },
