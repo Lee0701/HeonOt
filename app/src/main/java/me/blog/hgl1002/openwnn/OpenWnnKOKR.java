@@ -13,10 +13,11 @@ import android.view.inputmethod.EditorInfo;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import me.blog.hgl1002.openwnn.KOKR.InputMethod;
-import me.blog.hgl1002.openwnn.KOKR.KeystrokePreference;
 import me.blog.hgl1002.openwnn.KOKR.event.*;
 import me.blog.hgl1002.openwnn.KOKR.event.FinishComposingEvent;
 import me.blog.hgl1002.openwnn.KOKR.generator.CharacterGenerator;
@@ -24,6 +25,10 @@ import me.blog.hgl1002.openwnn.KOKR.generator.EmptyCharacterGenerator;
 import me.blog.hgl1002.openwnn.KOKR.generator.UnicodeCharacterGenerator;
 import me.blog.hgl1002.openwnn.KOKR.hardkeyboard.DefaultHardKeyboard;
 import me.blog.hgl1002.openwnn.KOKR.hardkeyboard.HardKeyboard;
+import me.blog.hgl1002.openwnn.KOKR.hardkeyboard.KeyStroke;
+import me.blog.hgl1002.openwnn.KOKR.scripting.StringRecursionTreeBuilder;
+import me.blog.hgl1002.openwnn.KOKR.scripting.TreeEvaluator;
+import me.blog.hgl1002.openwnn.KOKR.scripting.nodes.TreeNode;
 import me.blog.hgl1002.openwnn.KOKR.softkeyboard.SoftKeyboard;
 import me.blog.hgl1002.openwnn.KOKR.softkeyboard.DefaultSoftKeyboard;
 
@@ -94,9 +99,9 @@ public class OpenWnnKOKR extends InputMethodService implements Listener {
 
 	List<Listener> listeners = new ArrayList<>();
 
-	List<InputMethod> mInputMethods;
-	int mCurrentInputMethodId;
-	InputMethod mCurrentInputMethod;
+	List<InputMethod> inputMethods;
+	int currentInputMethodId;
+	InputMethod currentInputMethod;
 
 	boolean consumeDownEvent;
 
@@ -133,7 +138,9 @@ public class OpenWnnKOKR extends InputMethodService implements Listener {
 
 	Handler mTimeOutHandler;
 
-	KeystrokePreference.KeyStroke mHardLangKey;
+	protected Map<KeyStroke, TreeNode> shortcuts;
+
+	protected TreeEvaluator evaluator;
 
 	private static OpenWnnKOKR mSelf;
 	public static OpenWnnKOKR getInstance() {
@@ -143,7 +150,7 @@ public class OpenWnnKOKR extends InputMethodService implements Listener {
 	public OpenWnnKOKR() {
 		super();
 		mSelf = this;
-		mInputMethods = new ArrayList<>();
+		inputMethods = new ArrayList<>();
 	}
 	
 	public OpenWnnKOKR(Context context) {
@@ -154,6 +161,7 @@ public class OpenWnnKOKR extends InputMethodService implements Listener {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		evaluator = new TreeEvaluator();
 		{
 			SoftKeyboard softKeyboard = new DefaultSoftKeyboard(R.xml.keyboard_full_10cols);
 			softKeyboard.addListener(this);
@@ -163,7 +171,7 @@ public class OpenWnnKOKR extends InputMethodService implements Listener {
 			characterGenerator.addListener(this);
 			hardKeyboard.addListener(characterGenerator);
 			InputMethod qwerty = new InputMethod(softKeyboard, hardKeyboard, characterGenerator);
-			mInputMethods.add(qwerty);
+			inputMethods.add(qwerty);
 		}
 		{
 			String str = "";
@@ -183,20 +191,31 @@ public class OpenWnnKOKR extends InputMethodService implements Listener {
 			characterGenerator.addListener(this);
 			hardKeyboard.addListener(characterGenerator);
 			InputMethod sebul391 = new InputMethod(softKeyboard, hardKeyboard, characterGenerator);
-			mInputMethods.add(sebul391);
+			inputMethods.add(sebul391);
 		}
-		mCurrentInputMethod = mInputMethods.get(mCurrentInputMethodId);
+		shortcuts = new HashMap<>();
+		{
+			KeyStroke stroke = new KeyStroke(false, false, false, true, KeyEvent.KEYCODE_SPACE);
+			TreeNode node = new StringRecursionTreeBuilder().build("A = !A");
+			shortcuts.put(stroke, node);
+		}
+		{
+			KeyStroke stroke = new KeyStroke(false, false, false, false, KeyEvent.KEYCODE_LANGUAGE_SWITCH);
+			TreeNode node = new StringRecursionTreeBuilder().build("A = !A");
+			shortcuts.put(stroke, node);
+		}
+		currentInputMethod = inputMethods.get(currentInputMethodId);
 	}
 
 	@Override
 	public View onCreateInputView() {
-		for(InputMethod method : mInputMethods) {
+		for(InputMethod method : inputMethods) {
 			method.init();
 		}
 		int hiddenState = getResources().getConfiguration().hardKeyboardHidden;
 		boolean hidden = (hiddenState == Configuration.HARDKEYBOARDHIDDEN_YES);
 //		((DefaultSoftKeyboardKOKR) mInputViewManager).setHardKeyboardHidden(hidden);
-		return mCurrentInputMethod.getSoftKeyboard().createView(this);
+		return currentInputMethod.getSoftKeyboard().createView(this);
 	}
 
 	@Override
@@ -221,7 +240,6 @@ public class OpenWnnKOKR extends InputMethodService implements Listener {
 		mStandardJamo = pref.getBoolean("system_use_standard_jamo", mStandardJamo);
 		mLangKeyAction = pref.getString("system_action_on_lang_key_press", LANGKEY_SWITCH_KOR_ENG);
 		mLangKeyLongAction = pref.getString("system_action_on_lang_key_long_press", LANGKEY_LIST_METHODS);
-		mHardLangKey = KeystrokePreference.parseKeyStroke(pref.getString("system_hardware_lang_key_stroke", "---s62"));
 
 		mFlickUpAction = pref.getString("keyboard_action_on_flick_up", FLICK_SHIFT);
 		mFlickDownAction = pref.getString("keyboard_action_on_flick_down", FLICK_SYMBOL);
@@ -268,13 +286,23 @@ public class OpenWnnKOKR extends InputMethodService implements Listener {
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		mCurrentInputMethod.getHardKeyboard().input(new KeyPressEvent(keyCode, event.getMetaState(), event.getRepeatCount()));
+		for(KeyStroke stroke : shortcuts.keySet()) {
+			if(stroke.getKeyCode() == keyCode
+					&& stroke.isAlt() == event.isAltPressed()
+					&& stroke.isShift() == event.isShiftPressed()) {
+				evaluator.setVariables(getVariables());
+				Long result = evaluator.eval(shortcuts.get(stroke));
+				setVariables(evaluator.getVariables());
+				return true;
+			}
+		}
+		currentInputMethod.getHardKeyboard().input(new KeyPressEvent(keyCode, event.getMetaState(), event.getRepeatCount()));
 		return true;
 	}
 
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
-		mCurrentInputMethod.getHardKeyboard().input(new KeyPressEvent.KeyReleaseEvent(keyCode, event.getMetaState(), event.getRepeatCount()));
+		currentInputMethod.getHardKeyboard().input(new KeyPressEvent.KeyReleaseEvent(keyCode, event.getMetaState(), event.getRepeatCount()));
 		return false;
 	}
 
@@ -292,8 +320,8 @@ public class OpenWnnKOKR extends InputMethodService implements Listener {
 	}
 
 	private void finishComposing() {
-		if(mCurrentInputMethod.getCharacterGenerator() instanceof UnicodeCharacterGenerator) {
-			((UnicodeCharacterGenerator) mCurrentInputMethod.getCharacterGenerator()).finishComposing();
+		if(currentInputMethod.getCharacterGenerator() instanceof UnicodeCharacterGenerator) {
+			((UnicodeCharacterGenerator) currentInputMethod.getCharacterGenerator()).finishComposing();
 		}
 	}
 
@@ -337,9 +365,26 @@ public class OpenWnnKOKR extends InputMethodService implements Listener {
 		else if(e instanceof SoftKeyPressEvent) {
 			SoftKeyPressEvent event = (SoftKeyPressEvent) e;
 			if(e instanceof SoftKeyPressEvent.SoftKeyReleaseEvent) {
-				mCurrentInputMethod.getHardKeyboard().input(new KeyPressEvent(event.getKeyCode(), 0, 0));
+				onKeyDown(event.getKeyCode(), new KeyEvent(KeyEvent.ACTION_DOWN, event.getKeyCode()));
+				onKeyUp(event.getKeyCode(), new KeyEvent(KeyEvent.ACTION_UP, event.getKeyCode()));
 			}
 		}
+	}
+
+	public Map<String, Long> getVariables() {
+		return new HashMap<String, Long>() {{
+			put("A", (long) currentInputMethodId);
+		}};
+	}
+
+	public void setVariables(Map<String, Long> variables) {
+		try {
+			int inputMethodId = (int) (long) variables.get("A");
+			if(inputMethodId != currentInputMethodId) {
+				currentInputMethodId = inputMethodId;
+				currentInputMethod = inputMethods.get(currentInputMethodId);
+			}
+		} catch(NullPointerException e) {}
 	}
 
 	public void addListener(Listener listener) {

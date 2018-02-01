@@ -44,7 +44,7 @@
 		<Key android:codes="74" android:keyLabel=";" android:keyEdgeFlags="right"/>
 	</Row>
 
-	<Row android:rowEdgeFlags="bottom">
+	<Row>
 		<Key android:codes="54" android:keyLabel="z" android:keyEdgeFlags="left"/>
 		<Key android:codes="52" android:keyLabel="x"/>
 		<Key android:codes="31" android:keyLabel="c"/>
@@ -57,6 +57,18 @@
 		<Key android:codes="67" android:keyLabel="DEL"
 			android:keyWidth="10%p" android:isRepeatable="true"
 			android:keyEdgeFlags="right"/>
+	</Row>
+
+	<Row android:rowEdgeFlags="bottom">
+		<Key android:codes="-114" android:keyLabel="ALT"
+			android:keyWidth="10%p" android:keyEdgeFlags="left"/>
+		<Key android:codes="204" android:keyLabel="A"/>
+		<Key android:codes="59" android:isModifier="true" android:keyLabel="SFT"/>
+		<Key android:codes="62" android:keyLabel=" "
+			android:keyWidth="40%p"/>
+		<Key android:codes="56" android:keyLabel="."/>
+		<Key android:codes="66" android:keyLabel="RET"
+			android:keyWidth="20%p" android:keyEdgeFlags="right"/>
 	</Row>
 
 </Keyboard>

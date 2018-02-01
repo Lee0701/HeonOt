@@ -12,7 +12,7 @@ public class TreeEvaluator {
 	Map<String, Long> variables = new HashMap<>();
 	Map<String, Long> constants = new HashMap<>();
 
-	public long parse(TreeNode node) {
+	public long eval(TreeNode node) {
 		if (node instanceof ConstantTreeNode) {
 			ConstantTreeNode dataTreeNode = (ConstantTreeNode) node;
 			return dataTreeNode.getValue();
@@ -38,17 +38,17 @@ public class TreeEvaluator {
 	public long unaryOperation(UnaryTreeNode node) {
 		switch(node.getOperator()) {
 		case PLUS:
-			return parse(node.getCenter());
+			return eval(node.getCenter());
 
 		case MINUS:
-			return -parse(node.getCenter());
+			return -eval(node.getCenter());
 
 		case NOT:
-			long value = parse(node.getCenter());
+			long value = eval(node.getCenter());
 			return (value == 0) ? 1 : 0;
 
 		case INVERT:
-			return ~parse(node.getCenter());
+			return ~eval(node.getCenter());
 
 		case INCREMENT_LEFT:
 		case INCREMENT_RIGHT:
@@ -97,7 +97,7 @@ public class TreeEvaluator {
 			if(leftNode instanceof VariableTreeNode) {
 				VariableTreeNode variable = (VariableTreeNode) leftNode;
 				String name = variable.getName();
-				long value = parse(rightNode);
+				long value = eval(rightNode);
 				Long resultValue = variables.get(name);
 				if(resultValue == null) resultValue = 0L;
 				switch(node.getOperator()) {
@@ -142,7 +142,7 @@ public class TreeEvaluator {
 			}
 		}
 
-		long left = parse(node.getLeft()), right = parse(node.getRight());
+		long left = eval(node.getLeft()), right = eval(node.getRight());
 		switch(node.getOperator()) {
 		case ADDITION:
 			return left + right;
@@ -204,7 +204,7 @@ public class TreeEvaluator {
 	}
 
 	public long ternaryOperation(TernaryTreeNode node) {
-		long left = parse(node.getLeft()), right = parse(node.getRight()), center = parse(node.getCenter());
+		long left = eval(node.getLeft()), right = eval(node.getRight()), center = eval(node.getCenter());
 		switch(node.getOperator()) {
 		case CONDITION:
 			return (left == 0) ? right : center;
@@ -219,7 +219,7 @@ public class TreeEvaluator {
 		case COMMA:
 			long last = 0;
 			for(TreeNode n : node.getNodes()) {
-				last = parse(n);
+				last = eval(n);
 			}
 			return last;
 

@@ -22,7 +22,7 @@ public class ExpressionTest {
 		}};
 		TreeEvaluator evaluator = new TreeEvaluator();
 		evaluator.setVariables(variables);
-		long result = evaluator.parse(node);
+		long result = evaluator.eval(node);
 		System.out.println(result);
 	}
 
