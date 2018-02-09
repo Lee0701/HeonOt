@@ -93,8 +93,20 @@ public class LayoutConverter {
 	public int convertCode(int code) {
 		if(code >= 0x30 && code <= 0x39) return code - 41;
 		if(code >= 0x61 && code <= 0x7a) return code - 68;
-		if(code == 0x20) return 62;
-		if(code == -100) return 67;
+		switch(code) {
+		case 44: return 55;
+		case 46: return 56;
+		case 32: return 62;
+		case 96: return 68;
+		case 45: return 69;
+		case 61: return 70;
+		case 91: return 71;
+		case 93: return 72;
+		case 92: return 73;
+		case 59: return 74;
+		case 39: return 75;
+		case 47: return 76;
+		}
 		return code;
 	}
 

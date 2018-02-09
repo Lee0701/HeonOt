@@ -154,12 +154,12 @@
       "shift": "51"
     },
     {
-      "keycode": 59,
+      "keycode": 74,
       "normal": "4359",
       "shift": "52"
     },
     {
-      "keycode": 39,
+      "keycode": 75,
       "normal": "4368",
       "shift": "183"
     },
@@ -199,42 +199,42 @@
       "shift": "34"
     },
     {
-      "keycode": 44,
+      "keycode": 55,
       "normal": "44",
       "shift": "44"
     },
     {
-      "keycode": 46,
+      "keycode": 56,
       "normal": "46",
       "shift": "46"
     },
     {
-      "keycode": 47,
+      "keycode": 76,
       "normal": "4457",
       "shift": "33"
     },
     {
-      "keycode": 45,
+      "keycode": 69,
       "normal": "41",
       "shift": "59"
     },
     {
-      "keycode": 61,
+      "keycode": 70,
       "normal": "62",
       "shift": "43"
     },
     {
-      "keycode": 91,
+      "keycode": 71,
       "normal": "40",
       "shift": "37"
     },
     {
-      "keycode": 93,
+      "keycode": 72,
       "normal": "60",
       "shift": "47"
     },
     {
-      "keycode": 92,
+      "keycode": 73,
       "normal": "58",
       "shift": "92"
     },

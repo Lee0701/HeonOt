@@ -20,6 +20,7 @@ import me.blog.hgl1002.openwnn.KOKR.event.Event;
 import me.blog.hgl1002.openwnn.KOKR.event.InputCharEvent;
 import me.blog.hgl1002.openwnn.KOKR.event.KeyPressEvent;
 import me.blog.hgl1002.openwnn.KOKR.event.Listener;
+import me.blog.hgl1002.openwnn.KOKR.event.SetPropertyEvent;
 import me.blog.hgl1002.openwnn.KOKR.generator.UnicodeJamoHandler;
 import me.blog.hgl1002.openwnn.KOKR.hardkeyboard.def.DefaultHardKeyboardMap;
 
@@ -57,6 +58,7 @@ public class DefaultHardKeyboard implements HardKeyboard {
 	private void loadLayout(JSONObject layout) throws JSONException {
 
 		this.table = new HashMap<>();
+		this.combinationTable = new HashMap<>();
 
 		JSONArray table = layout.getJSONArray("table");
 		JSONArray combination = layout.getJSONArray("combination");
@@ -77,13 +79,14 @@ public class DefaultHardKeyboard implements HardKeyboard {
 
 		if(combination != null) {
 			for(int i = 0 ; i < combination.length() ; i++) {
-				JSONObject o = table.getJSONObject(i);
+				JSONObject o = combination.getJSONObject(i);
 				int a = o.getInt("a");
 				int b = o.getInt("b");
 				String result = o.getString("result");
 				UnicodeJamoHandler.JamoPair pair = new UnicodeJamoHandler.JamoPair((char) a, (char) b);
 				combinationTable.put(pair, (char) Integer.parseInt(result));
 			}
+			Event.fire(listeners, new SetPropertyEvent("combination-table", combinationTable));
 		}
 
 	}
@@ -110,7 +113,7 @@ public class DefaultHardKeyboard implements HardKeyboard {
 	public void input(KeyPressEvent event) {
 		int key = event.getKeyCode();
 		if(event instanceof KeyPressEvent.KeyReleaseEvent) {
-			if(!shiftPressing){
+			if(!shiftPressing) {
 				if(key == KeyEvent.KEYCODE_SHIFT_LEFT || key == KeyEvent.KEYCODE_SHIFT_RIGHT){
 					hardShift = 0;
 					shiftPressing = true;
@@ -121,10 +124,10 @@ public class DefaultHardKeyboard implements HardKeyboard {
 					}
 				}
 			}
-			if(!altPressing ){
+			if(!altPressing) {
 				if(key == KeyEvent.KEYCODE_ALT_LEFT || key == KeyEvent.KEYCODE_ALT_RIGHT){
 					hardAlt = 0;
-					altPressing   = true;
+					altPressing = true;
 				}
 			}
 			return;
@@ -179,7 +182,7 @@ public class DefaultHardKeyboard implements HardKeyboard {
 				shiftPressing = true;
 			}
 		} else {
-			if(capsLock == true) {
+			if(capsLock) {
 				capsLock = false;
 				hardShift = 0;
 				shiftPressing = false;

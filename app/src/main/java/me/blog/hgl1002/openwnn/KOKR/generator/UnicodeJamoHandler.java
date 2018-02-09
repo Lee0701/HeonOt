@@ -41,6 +41,18 @@ public class UnicodeJamoHandler {
 			this.a = a;
 			this.b = b;
 		}
+		@Override
+		public int hashCode() {
+			int result = 1;
+			result = 37 * result + (int) a;
+			result = 37 * result + (int) b;
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			return obj.hashCode() == this.hashCode();
+		}
 	}
 
 }

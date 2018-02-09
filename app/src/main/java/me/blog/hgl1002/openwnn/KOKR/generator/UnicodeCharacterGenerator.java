@@ -14,6 +14,7 @@ import me.blog.hgl1002.openwnn.KOKR.event.FinishComposingEvent;
 import me.blog.hgl1002.openwnn.KOKR.event.CommitCharEvent;
 import me.blog.hgl1002.openwnn.KOKR.event.InputCharEvent;
 import me.blog.hgl1002.openwnn.KOKR.event.Listener;
+import me.blog.hgl1002.openwnn.KOKR.event.SetPropertyEvent;
 
 import static me.blog.hgl1002.openwnn.KOKR.generator.UnicodeJamoHandler.JamoPair;
 
@@ -193,6 +194,22 @@ public class UnicodeCharacterGenerator implements CharacterGenerator {
 			Object o = event.getCharacter();
 			if(o instanceof Long) this.input((long) o);
 			else if(o instanceof Integer) this.input((int) o);
+		}
+		if(e instanceof SetPropertyEvent) {
+			SetPropertyEvent event = (SetPropertyEvent) e;
+			this.setProperty(event.getKey(), event.getValue());
+		}
+	}
+
+	public void setProperty(String key, Object value) {
+		switch(key) {
+		case "combination-table":
+			try {
+				this.combinationTable = (Map<JamoPair, Character>) value;
+			} catch(ClassCastException ex) {
+				ex.printStackTrace();
+			}
+			break;
 		}
 	}
 
