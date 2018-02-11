@@ -164,13 +164,9 @@ public class OpenWnnKOKR extends InputMethodService implements Listener {
 		evaluator = new TreeEvaluator();
 		{
 			SoftKeyboard softKeyboard = new DefaultSoftKeyboard(R.xml.keyboard_full_10cols);
-			softKeyboard.addListener(this);
 			HardKeyboard hardKeyboard = new DefaultHardKeyboard();
-			hardKeyboard.addListener(this);
 			CharacterGenerator characterGenerator = new EmptyCharacterGenerator();
-			characterGenerator.addListener(this);
-			hardKeyboard.addListener(characterGenerator);
-			InputMethod qwerty = new InputMethod(softKeyboard, hardKeyboard, characterGenerator);
+			InputMethod qwerty = new InputMethod(this, softKeyboard, hardKeyboard, characterGenerator);
 			inputMethods.add(qwerty);
 		}
 		{
@@ -184,13 +180,9 @@ public class OpenWnnKOKR extends InputMethodService implements Listener {
 				e.printStackTrace();
 			}
 			SoftKeyboard softKeyboard = new DefaultSoftKeyboard(R.xml.keyboard_full_10cols);
-			softKeyboard.addListener(this);
 			HardKeyboard hardKeyboard = new DefaultHardKeyboard(str);
-			hardKeyboard.addListener(this);
 			CharacterGenerator characterGenerator = new UnicodeCharacterGenerator();
-			characterGenerator.addListener(this);
-			hardKeyboard.addListener(characterGenerator);
-			InputMethod sebul391 = new InputMethod(softKeyboard, hardKeyboard, characterGenerator);
+			InputMethod sebul391 = new InputMethod(this, softKeyboard, hardKeyboard, characterGenerator);
 			inputMethods.add(sebul391);
 		}
 		shortcuts = new HashMap<>();
@@ -383,6 +375,7 @@ public class OpenWnnKOKR extends InputMethodService implements Listener {
 			if(inputMethodId != currentInputMethodId) {
 				currentInputMethodId = inputMethodId;
 				currentInputMethod = inputMethods.get(currentInputMethodId);
+				setInputView(onCreateInputView());
 			}
 		} catch(NullPointerException e) {}
 	}

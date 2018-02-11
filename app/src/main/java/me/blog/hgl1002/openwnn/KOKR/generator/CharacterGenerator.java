@@ -8,6 +8,8 @@ public interface CharacterGenerator extends Listener {
 
 	void input(long code);
 
+	String testInput(long code);
+
 	void backspace(int mode);
 
 	void addListener(Listener listener);

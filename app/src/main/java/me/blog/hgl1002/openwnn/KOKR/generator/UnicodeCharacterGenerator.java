@@ -36,6 +36,18 @@ public class UnicodeCharacterGenerator implements CharacterGenerator {
 
 	@Override
 	public void input(long code) {
+		State state = this.processInput(code);
+		Event.fire(listeners, new ComposeCharEvent(state.composing, state.lastInput));
+		states.push(state);
+	}
+
+	@Override
+	public String testInput(long code) {
+		State state = this.processInput(code);
+		return state.composing;
+	}
+
+	private State processInput(long code) {
 		if(states.empty()) states.push(new State());
 		State state = new State(states.peek());
 
@@ -110,9 +122,7 @@ public class UnicodeCharacterGenerator implements CharacterGenerator {
 
 		state.composing = state.syllable.toString(true);
 
-		Event.fire(listeners, new ComposeCharEvent(state.composing, state.lastInput));
-
-		states.push(state);
+		return state;
 	}
 
 	@Override

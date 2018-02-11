@@ -26,6 +26,7 @@ import me.blog.hgl1002.openwnn.KOKR.KeyboardKOKR;
 import me.blog.hgl1002.openwnn.KOKR.event.DeleteCharEvent;
 import me.blog.hgl1002.openwnn.KOKR.event.Event;
 import me.blog.hgl1002.openwnn.KOKR.event.Listener;
+import me.blog.hgl1002.openwnn.KOKR.event.SetPropertyEvent;
 import me.blog.hgl1002.openwnn.KOKR.event.SoftKeyPressEvent;
 import me.blog.hgl1002.openwnn.R;
 
@@ -54,7 +55,16 @@ public class DefaultSoftKeyboard implements SoftKeyboard, KeyboardView.OnKeyboar
 
 	protected boolean displayMode;
 
-	SoftKeyboardPreference preference;
+	private int keyHeightPortrait = 50, keyHeightLandscape = 42;
+	private int longPressTimeout = 300;
+	private boolean useFlick;
+	private int flickSensitivity = 100, spaceSlideSensitivity = 100;
+	private int vibrateDuration = 30;
+	private boolean showPreview = false;
+	private int keyIcon = 0;
+
+
+	protected Map<Integer, String> labels;
 
 /*
 	SparseArray<SparseArray<Integer>> mKeyIcons = new SparseArray<SparseArray<Integer>>() {{
@@ -90,7 +100,7 @@ public class DefaultSoftKeyboard implements SoftKeyboard, KeyboardView.OnKeyboar
 		public void run() {
 			setPreviewEnabled(keyCode);
 			//TODO: Fire Long click Event
-			try { vibrator.vibrate(preference.getVibrateDuration() *2); } catch (Exception ex) { }
+			try { vibrator.vibrate(vibrateDuration * 2); } catch (Exception ex) { }
 			performed = true;
 		}
 	}
@@ -134,12 +144,12 @@ public class DefaultSoftKeyboard implements SoftKeyboard, KeyboardView.OnKeyboar
 
 			/* key click sound & vibration */
 			if (vibrator != null) {
-				try { vibrator.vibrate(preference.getVibrateDuration()); } catch (Exception ex) { }
+				try { vibrator.vibrate(vibrateDuration); } catch (Exception ex) { }
 			}
 			if (sound != null) {
 				try { sound.seekTo(0); sound.start(); } catch (Exception ex) { }
 			}
-			if(!disableKeyInput) Event.fire(listeners, new SoftKeyPressEvent(keyCode));
+			onKeyDown(keyCode);
 		}
 
 		public boolean onMove(float x, float y) {
@@ -147,7 +157,7 @@ public class DefaultSoftKeyboard implements SoftKeyboard, KeyboardView.OnKeyboar
 			dy = y - downY;
 			switch(keyCode) {
 			case KeyEvent.KEYCODE_SPACE:	//TODO: Space
-				if(Math.abs(dx) >= preference.getSpaceSlideSensitivity()) space = keyCode;
+				if(Math.abs(dx) >= spaceSlideSensitivity) space = keyCode;
 				break;
 
 			case KeyEvent.KEYCODE_DEL:	//TODO: Backspace
@@ -162,8 +172,8 @@ public class DefaultSoftKeyboard implements SoftKeyboard, KeyboardView.OnKeyboar
 				backspace = -1;
 				break;
 			}
-			if(dy > preference.getFlickSensitivity() || dy < -preference.getFlickSensitivity()
-					|| dx < -preference.getFlickSensitivity() || dx > preference.getFlickSensitivity() || space != -1) {
+			if(dy > flickSensitivity || dy < -flickSensitivity
+					|| dx < -flickSensitivity || dx > flickSensitivity || space != -1) {
 				handler.removeCallbacksAndMessages(null);
 			}
 			if(space != -1) {
@@ -209,31 +219,31 @@ public class DefaultSoftKeyboard implements SoftKeyboard, KeyboardView.OnKeyboar
 				backspace = -1;
 				return false;
 			}
-			if(dy > preference.getFlickSensitivity()) {
+			if(dy > flickSensitivity) {
 				if(Math.abs(dy) > Math.abs(dx)) {
 					//TODO: flick down
 				}
 				return false;
 			}
-			if(dy < -preference.getFlickSensitivity()) {
+			if(dy < -flickSensitivity) {
 				if(Math.abs(dy) > Math.abs(dx)) {
 					//TODO: flick up
 				}
 				return false;
 			}
-			if(dx < -preference.getFlickSensitivity()) {
+			if(dx < -flickSensitivity) {
 				if(Math.abs(dx) > Math.abs(dy)) {
 					//TODO: flick left
 				}
 				return false;
 			}
-			if(dx > preference.getFlickSensitivity()) {
+			if(dx > flickSensitivity) {
 				if(Math.abs(dx) > Math.abs(dy)) {
 					//TODO: flick right
 				}
 				return false;
 			}
-			if(!longClickHandler.performed && !disableKeyInput) Event.fire(listeners, new SoftKeyPressEvent.SoftKeyReleaseEvent(keyCode));;
+			if(!longClickHandler.performed) onKeyUp(keyCode);
 			return false;
 		}
 
@@ -300,8 +310,6 @@ public class DefaultSoftKeyboard implements SoftKeyboard, KeyboardView.OnKeyboar
 
 	@Override
 	public void init() {
-		SoftKeyboardPreference defaultPreference = new SoftKeyboardPreference();
-		this.setPreference(defaultPreference);
 	}
 
 	@Override
@@ -328,6 +336,8 @@ public class DefaultSoftKeyboard implements SoftKeyboard, KeyboardView.OnKeyboar
 
 		keyboardView.setOnTouchListener(new OnKeyboardViewTouchListener());
 
+		updateLabels(keyboard, labels);
+
 		return mainView;
 	}
 
@@ -341,7 +351,7 @@ public class DefaultSoftKeyboard implements SoftKeyboard, KeyboardView.OnKeyboar
 			return;
 		}
 
-		Event.fire(listeners, new SoftKeyPressEvent(primaryCode));
+		Event.fire(listeners, new SoftKeyPressEvent.SoftKeyReleaseEvent(primaryCode));
 	}
 
 	@Override
@@ -359,19 +369,11 @@ public class DefaultSoftKeyboard implements SoftKeyboard, KeyboardView.OnKeyboar
 
 	}
 
-	public SoftKeyboardPreference getPreference() {
-		return preference;
-	}
-
-	public void setPreference(SoftKeyboardPreference preference) {
-		this.preference = preference;
-	}
-
 	@SuppressWarnings("deprecation")
 	public Keyboard loadKeyboardLayout(Context context, int xmlLayoutResId) {
 		KeyboardKOKR keyboard = new KeyboardKOKR(context, xmlLayoutResId);
 		DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-		int height = (displayMode == PORTRAIT) ? preference.getKeyHeightPortrait() : preference.getKeyHeightLandscape();
+		int height = (displayMode == PORTRAIT) ? keyHeightPortrait : keyHeightLandscape;
 		height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, height, metrics);
 		keyboard.resize(height);
 		/*
@@ -398,6 +400,25 @@ public class DefaultSoftKeyboard implements SoftKeyboard, KeyboardView.OnKeyboar
 			String label = labels.get(key.codes[0]);
 			if(label != null) {
 				key.label = label;
+			}
+		}
+	}
+
+	@Override
+	public void onEvent(Event e) {
+		if(e instanceof SetPropertyEvent) {
+			SetPropertyEvent event = (SetPropertyEvent) e;
+			this.setProperty(event.getKey(), event.getValue());
+		}
+	}
+
+	public void setProperty(String key, Object value) {
+		switch (key) {
+		case "soft-key-labels":
+			try {
+				this.labels = (Map<Integer, String>) value;
+			} catch(ClassCastException ex) {
+				ex.printStackTrace();
 			}
 		}
 	}

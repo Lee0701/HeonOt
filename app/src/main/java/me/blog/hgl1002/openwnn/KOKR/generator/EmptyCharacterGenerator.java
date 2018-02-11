@@ -24,6 +24,11 @@ public class EmptyCharacterGenerator implements CharacterGenerator {
 	}
 
 	@Override
+	public String testInput(long code) {
+		return String.valueOf((char) code);
+	}
+
+	@Override
 	public void backspace(int mode) {
 		Event.fire(listeners, new DeleteCharEvent(1, 0));
 	}

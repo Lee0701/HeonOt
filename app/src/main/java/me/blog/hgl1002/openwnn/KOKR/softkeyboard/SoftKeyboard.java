@@ -5,7 +5,7 @@ import android.view.View;
 
 import me.blog.hgl1002.openwnn.KOKR.event.Listener;
 
-public interface SoftKeyboard {
+public interface SoftKeyboard extends Listener {
 
 	void init();
 

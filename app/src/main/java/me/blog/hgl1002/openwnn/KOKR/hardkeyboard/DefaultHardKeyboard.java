@@ -1,6 +1,5 @@
 package me.blog.hgl1002.openwnn.KOKR.hardkeyboard;
 
-import android.os.Build;
 import android.text.method.MetaKeyKeyListener;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
@@ -73,7 +72,6 @@ public class DefaultHardKeyboard implements HardKeyboard {
 
 				DefaultHardKeyboardMap map = new DefaultHardKeyboardMap(keyCode, Integer.parseInt(normal), Integer.parseInt(shift));
 				this.table.put(keyCode, map);
-
 			}
 		}
 
@@ -86,7 +84,6 @@ public class DefaultHardKeyboard implements HardKeyboard {
 				UnicodeJamoHandler.JamoPair pair = new UnicodeJamoHandler.JamoPair((char) a, (char) b);
 				combinationTable.put(pair, (char) Integer.parseInt(result));
 			}
-			Event.fire(listeners, new SetPropertyEvent("combination-table", combinationTable));
 		}
 
 	}
@@ -94,7 +91,11 @@ public class DefaultHardKeyboard implements HardKeyboard {
 	@Override
 	public void init() {
 		try {
-			if(layoutJson != null) this.loadLayout(new JSONObject(layoutJson));
+			if(layoutJson != null) {
+				this.loadLayout(new JSONObject(layoutJson));
+				Event.fire(listeners, new SetPropertyEvent("soft-key-labels", getLabels(this.table)));
+				Event.fire(listeners, new SetPropertyEvent("combination-table", combinationTable));
+			}
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -269,6 +270,17 @@ public class DefaultHardKeyboard implements HardKeyboard {
 			int charCode = hardShift > 0 ? map.getShift() : map.getNormal();
 			Event.fire(listeners, new InputCharEvent(charCode));
 		}
+	}
+
+	public Map<Integer, String> getLabels(Map<Integer, DefaultHardKeyboardMap> table) {
+		Map<Integer, String> result = new HashMap<>();
+		if(table == null) return result;
+		for(Integer keyCode : table.keySet()) {
+			DefaultHardKeyboardMap map = table.get(keyCode);
+			char charCode = (char) (hardShift > 0 ? map.getShift() : map.getNormal());
+			result.put(keyCode, String.valueOf(charCode));
+		}
+		return result;
 	}
 
 	@Override
