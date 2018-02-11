@@ -18,6 +18,7 @@ public class InputMethod {
 		softKeyboard.addListener(parent);
 		hardKeyboard.addListener(parent);
 		characterGenerator.addListener(parent);
+		softKeyboard.addListener(hardKeyboard);
 		hardKeyboard.addListener(softKeyboard);
 		hardKeyboard.addListener(characterGenerator);
 	}

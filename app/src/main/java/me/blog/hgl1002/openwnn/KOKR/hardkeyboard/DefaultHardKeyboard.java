@@ -20,6 +20,8 @@ import me.blog.hgl1002.openwnn.KOKR.event.InputCharEvent;
 import me.blog.hgl1002.openwnn.KOKR.event.KeyPressEvent;
 import me.blog.hgl1002.openwnn.KOKR.event.Listener;
 import me.blog.hgl1002.openwnn.KOKR.event.SetPropertyEvent;
+import me.blog.hgl1002.openwnn.KOKR.event.ShortcutRequestEvent;
+import me.blog.hgl1002.openwnn.KOKR.event.SoftKeyEvent;
 import me.blog.hgl1002.openwnn.KOKR.generator.UnicodeJamoHandler;
 import me.blog.hgl1002.openwnn.KOKR.hardkeyboard.def.DefaultHardKeyboardMap;
 
@@ -108,31 +110,40 @@ public class DefaultHardKeyboard implements HardKeyboard {
 			KeyPressEvent event = (KeyPressEvent) e;
 			this.input(event);
 		}
+		else if(e instanceof SoftKeyEvent) {
+			SoftKeyEvent event = (SoftKeyEvent) e;
+			if(event.getAction() == SoftKeyEvent.SoftKeyAction.PRESS) {
+				input(new KeyPressEvent(event.getKeyCode(), 0, 0));
+			} else if(event.getAction() == SoftKeyEvent.SoftKeyAction.RELEASE) {
+				input(new KeyPressEvent.KeyReleaseEvent(event.getKeyCode(), 0, 0));
+			}
+		}
 	}
 
 	@Override
 	public void input(KeyPressEvent event) {
-		int key = event.getKeyCode();
 		if(event instanceof KeyPressEvent.KeyReleaseEvent) {
-			if(!shiftPressing) {
-				if(key == KeyEvent.KEYCODE_SHIFT_LEFT || key == KeyEvent.KEYCODE_SHIFT_RIGHT){
-					hardShift = 0;
-					shiftPressing = true;
-					if(capsLockShift) {
-						hardShift = 2;
-						shiftPressing = true;
-						capsLockShift = false;
-					}
-				}
-			}
-			if(!altPressing) {
-				if(key == KeyEvent.KEYCODE_ALT_LEFT || key == KeyEvent.KEYCODE_ALT_RIGHT){
-					hardAlt = 0;
-					altPressing = true;
-				}
+			switch(event.getKeyCode()) {
+			case KeyEvent.KEYCODE_SHIFT_LEFT:
+			case KeyEvent.KEYCODE_SHIFT_RIGHT:
+				hardShift = 0;
+				shiftPressing = false;
+				break;
+
+			case KeyEvent.KEYCODE_ALT_LEFT:
+			case KeyEvent.KEYCODE_ALT_RIGHT:
+				hardAlt = 0;
+				altPressing = false;
+				break;
+
 			}
 			return;
 		}
+
+		ShortcutRequestEvent req = new ShortcutRequestEvent(event.getKeyCode(),
+				hardAlt > 0, hardShift > 0);
+		Event.fire(listeners, req);
+		if(req.isCancelled()) return;
 
 		switch(event.getKeyCode()) {
 		case KeyEvent.KEYCODE_DEL:
@@ -145,68 +156,21 @@ public class DefaultHardKeyboard implements HardKeyboard {
 
 		case KeyEvent.KEYCODE_ALT_LEFT:
 		case KeyEvent.KEYCODE_ALT_RIGHT:
-			if (event.getRepeated() == 0) {
-				if (++hardAlt > 2) { hardAlt = 0; }
-			}
+			hardAlt = 1;
 			altPressing = true;
 			return;
 
 		case KeyEvent.KEYCODE_SHIFT_LEFT:
 		case KeyEvent.KEYCODE_SHIFT_RIGHT:
-			if (event.getRepeated() == 0) {
-				if (++hardShift > 2) { hardShift = 0; }
-			}
-			shiftPressing = true;
-			if(capsLock) {
-				hardShift = 0;
-				shiftPressing = false;
-				capsLockShift = true;
-			}
+			hardShift = 1;
+			shiftPressing = false;
 			return;
 
 		case KeyEvent.KEYCODE_CAPS_LOCK:
-			capsLock = !capsLock;
-			if(capsLock) {
-				hardShift = 2;
-				shiftPressing = true;
-			} else {
-				hardShift = 0;
-				shiftPressing = false;
-			}
+
 			return;
 
 		}
-		if((event.getMetaState() & KeyEvent.META_CAPS_LOCK_ON) != 0) {
-			if(!capsLockShift) {
-				capsLock = true;
-				hardShift = 2;
-				shiftPressing = true;
-			}
-		} else {
-			if(capsLock) {
-				capsLock = false;
-				hardShift = 0;
-				shiftPressing = false;
-			}
-		}
-		if (hardShift == 1) {
-			shiftPressing = false;
-		}
-		if (hardAlt == 1) {
-			altPressing = false;
-		}
-		/*
-		if (!ev.isAltPressed()) {
-			if (hardAlt == 1) {
-				hardAlt = 0;
-			}
-		}
-		if (!ev.isShiftPressed()) {
-			if (hardShift == 1) {
-				hardShift = 0;
-			}
-		}
-		*/
 		/*
 		if (shiftPressing) {
 			switch () {

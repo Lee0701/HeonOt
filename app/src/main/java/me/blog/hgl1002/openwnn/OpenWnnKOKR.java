@@ -278,16 +278,6 @@ public class OpenWnnKOKR extends InputMethodService implements Listener {
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		for(KeyStroke stroke : shortcuts.keySet()) {
-			if(stroke.getKeyCode() == keyCode
-					&& stroke.isAlt() == event.isAltPressed()
-					&& stroke.isShift() == event.isShiftPressed()) {
-				evaluator.setVariables(getVariables());
-				Long result = evaluator.eval(shortcuts.get(stroke));
-				setVariables(evaluator.getVariables());
-				return true;
-			}
-		}
 		currentInputMethod.getHardKeyboard().input(new KeyPressEvent(keyCode, event.getMetaState(), event.getRepeatCount()));
 		return true;
 	}
@@ -354,11 +344,17 @@ public class OpenWnnKOKR extends InputMethodService implements Listener {
 			finishComposing();
 			getCurrentInputConnection().deleteSurroundingText(event.getBeforeLength(), event.getAfterLength());
 		}
-		else if(e instanceof SoftKeyPressEvent) {
-			SoftKeyPressEvent event = (SoftKeyPressEvent) e;
-			if(e instanceof SoftKeyPressEvent.SoftKeyReleaseEvent) {
-				onKeyDown(event.getKeyCode(), new KeyEvent(KeyEvent.ACTION_DOWN, event.getKeyCode()));
-				onKeyUp(event.getKeyCode(), new KeyEvent(KeyEvent.ACTION_UP, event.getKeyCode()));
+		else if(e instanceof ShortcutRequestEvent) {
+			ShortcutRequestEvent event = (ShortcutRequestEvent) e;
+			for(KeyStroke stroke : shortcuts.keySet()) {
+				if(stroke.getKeyCode() == event.getKeyCode()
+						&& stroke.isAlt() == event.isAltPressed()
+						&& stroke.isShift() == event.isShiftPressed()) {
+					evaluator.setVariables(getVariables());
+					Long result = evaluator.eval(shortcuts.get(stroke));
+					setVariables(evaluator.getVariables());
+					e.setCancelled(true);
+				}
 			}
 		}
 	}

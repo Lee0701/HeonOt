@@ -1,5 +1,7 @@
 package me.blog.hgl1002.openwnn.KOKR.event;
 
+import android.view.KeyEvent;
+
 public class KeyPressEvent extends Event {
 	private final int keyCode;
 	private final int repeated;
@@ -17,6 +19,14 @@ public class KeyPressEvent extends Event {
 
 	public int getMetaState() {
 		return metaState;
+	}
+
+	public boolean isShiftPressed() {
+		return (metaState & KeyEvent.META_SHIFT_ON) != 0;
+	}
+
+	public boolean isAltPressed() {
+		return (metaState & KeyEvent.META_ALT_ON) != 0;
 	}
 
 	public int getRepeated() {

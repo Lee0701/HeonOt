@@ -27,7 +27,8 @@ import me.blog.hgl1002.openwnn.KOKR.event.DeleteCharEvent;
 import me.blog.hgl1002.openwnn.KOKR.event.Event;
 import me.blog.hgl1002.openwnn.KOKR.event.Listener;
 import me.blog.hgl1002.openwnn.KOKR.event.SetPropertyEvent;
-import me.blog.hgl1002.openwnn.KOKR.event.SoftKeyPressEvent;
+import me.blog.hgl1002.openwnn.KOKR.event.SoftKeyEvent;
+import me.blog.hgl1002.openwnn.KOKR.event.SoftKeyEvent.*;
 import me.blog.hgl1002.openwnn.R;
 
 public class DefaultSoftKeyboard implements SoftKeyboard, KeyboardView.OnKeyboardActionListener {
@@ -99,7 +100,7 @@ public class DefaultSoftKeyboard implements SoftKeyboard, KeyboardView.OnKeyboar
 		}
 		public void run() {
 			setPreviewEnabled(keyCode);
-			//TODO: Fire Long click Event
+			onKey(SoftKeyAction.PRESS, keyCode, SoftKeyPressType.LONG);
 			try { vibrator.vibrate(vibrateDuration * 2); } catch (Exception ex) { }
 			performed = true;
 		}
@@ -130,6 +131,8 @@ public class DefaultSoftKeyboard implements SoftKeyboard, KeyboardView.OnKeyboar
 		LongClickHandler longClickHandler;
 		Handler handler;
 
+		SoftKeyEvent.SoftKeyPressType type;
+
 		public TouchPoint(Keyboard.Key key, float downX, float downY) {
 			this.key = key;
 			this.keyCode = key.codes[0];
@@ -149,10 +152,12 @@ public class DefaultSoftKeyboard implements SoftKeyboard, KeyboardView.OnKeyboar
 			if (sound != null) {
 				try { sound.seekTo(0); sound.start(); } catch (Exception ex) { }
 			}
-			onKeyDown(keyCode);
+			this.type = SoftKeyEvent.SoftKeyPressType.SIGNLE;
+			onKey(SoftKeyAction.PRESS, keyCode, type);
 		}
 
 		public boolean onMove(float x, float y) {
+			SoftKeyEvent.SoftKeyPressType t = type;
 			dx = x - downX;
 			dy = y - downY;
 			switch(keyCode) {
@@ -198,6 +203,66 @@ public class DefaultSoftKeyboard implements SoftKeyboard, KeyboardView.OnKeyboar
 					//TODO: backspace right
 				}
 			}
+			if(dy > flickSensitivity) {
+				if(Math.abs(dy) > Math.abs(dx)) {
+					//TODO: flick down
+					type = SoftKeyEvent.SoftKeyPressType.FLICK_DOWN;
+				}
+				return false;
+			}
+			if(dy < -flickSensitivity) {
+				if(Math.abs(dy) > Math.abs(dx)) {
+					//TODO: flick up
+					type = SoftKeyEvent.SoftKeyPressType.FLICK_UP;
+				}
+				return false;
+			}
+			if(dx < -flickSensitivity) {
+				if(Math.abs(dx) > Math.abs(dy)) {
+					//TODO: flick left
+					type = SoftKeyEvent.SoftKeyPressType.FLICK_LEFT;
+				}
+				return false;
+			}
+			if(dx > flickSensitivity) {
+				if(Math.abs(dx) > Math.abs(dy)) {
+					//TODO: flick right
+					type = SoftKeyEvent.SoftKeyPressType.FLICK_RIGHT;
+				}
+				return false;
+			}
+
+			if(dy > flickSensitivity) {
+				if(Math.abs(dy) > Math.abs(dx)) {
+					//TODO: flick down
+					type = SoftKeyEvent.SoftKeyPressType.FLICK_DOWN;
+				}
+				return false;
+			}
+			if(dy < -flickSensitivity) {
+				if(Math.abs(dy) > Math.abs(dx)) {
+					//TODO: flick up
+					type = SoftKeyEvent.SoftKeyPressType.FLICK_UP;
+				}
+				return false;
+			}
+			if(dx < -flickSensitivity) {
+				if(Math.abs(dx) > Math.abs(dy)) {
+					//TODO: flick left
+					type = SoftKeyEvent.SoftKeyPressType.FLICK_LEFT;
+				}
+				return false;
+			}
+			if(dx > flickSensitivity) {
+				if(Math.abs(dx) > Math.abs(dy)) {
+					//TODO: flick right
+					type = SoftKeyPressType.FLICK_RIGHT;
+				}
+				return false;
+			}
+			if(type != t) {
+				onKey(SoftKeyAction.CANCEL, keyCode, t);
+			}
 			beforeX = x;
 			beforeY = y;
 			return true;
@@ -219,31 +284,7 @@ public class DefaultSoftKeyboard implements SoftKeyboard, KeyboardView.OnKeyboar
 				backspace = -1;
 				return false;
 			}
-			if(dy > flickSensitivity) {
-				if(Math.abs(dy) > Math.abs(dx)) {
-					//TODO: flick down
-				}
-				return false;
-			}
-			if(dy < -flickSensitivity) {
-				if(Math.abs(dy) > Math.abs(dx)) {
-					//TODO: flick up
-				}
-				return false;
-			}
-			if(dx < -flickSensitivity) {
-				if(Math.abs(dx) > Math.abs(dy)) {
-					//TODO: flick left
-				}
-				return false;
-			}
-			if(dx > flickSensitivity) {
-				if(Math.abs(dx) > Math.abs(dy)) {
-					//TODO: flick right
-				}
-				return false;
-			}
-			if(!longClickHandler.performed) onKeyUp(keyCode);
+			onKey(SoftKeyAction.RELEASE, keyCode, type);
 			return false;
 		}
 
@@ -341,17 +382,8 @@ public class DefaultSoftKeyboard implements SoftKeyboard, KeyboardView.OnKeyboar
 		return mainView;
 	}
 
-	public void onKeyDown(int primaryCode) {
-		if(!disableKeyInput) Event.fire(listeners, new SoftKeyPressEvent(primaryCode));
-
-	}
-
-	public void onKeyUp(int primaryCode) {
-		if(disableKeyInput) {
-			return;
-		}
-
-		Event.fire(listeners, new SoftKeyPressEvent.SoftKeyReleaseEvent(primaryCode));
+	public void onKey(SoftKeyAction action, int primaryCode, SoftKeyPressType type) {
+		if(!disableKeyInput) Event.fire(listeners, new SoftKeyEvent(action, primaryCode, type));
 	}
 
 	@Override
