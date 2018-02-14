@@ -22,10 +22,11 @@ import io.github.lee0701.heonot.KOKR.event.CommitCharEvent;
 import io.github.lee0701.heonot.KOKR.event.ComposeCharEvent;
 import io.github.lee0701.heonot.KOKR.event.DeleteCharEvent;
 import io.github.lee0701.heonot.KOKR.event.Event;
+import io.github.lee0701.heonot.KOKR.event.EventSource;
 import io.github.lee0701.heonot.KOKR.event.FinishComposingEvent;
 import io.github.lee0701.heonot.KOKR.event.KeyPressEvent;
-import io.github.lee0701.heonot.KOKR.event.Listener;
-import io.github.lee0701.heonot.KOKR.event.ShortcutRequestEvent;
+import io.github.lee0701.heonot.KOKR.event.EventListener;
+import io.github.lee0701.heonot.KOKR.event.ShortcutEvent;
 import io.github.lee0701.heonot.KOKR.generator.EmptyCharacterGenerator;
 import io.github.lee0701.heonot.KOKR.generator.UnicodeCharacterGenerator;
 import io.github.lee0701.heonot.KOKR.hardkeyboard.DefaultHardKeyboard;
@@ -36,9 +37,8 @@ import io.github.lee0701.heonot.KOKR.scripting.StringRecursionTreeBuilder;
 import io.github.lee0701.heonot.KOKR.scripting.TreeEvaluator;
 import io.github.lee0701.heonot.KOKR.scripting.nodes.TreeNode;
 import io.github.lee0701.heonot.KOKR.softkeyboard.SoftKeyboard;
-import io.github.lee0701.heonot.R;
 
-public class HeonOt extends InputMethodService implements Listener {
+public class HeonOt extends InputMethodService implements EventListener, EventSource {
 
 	public static final int[][] SHIFT_CONVERT = {
 			{0x60, 0x7e},
@@ -91,7 +91,7 @@ public class HeonOt extends InputMethodService implements Listener {
 	public static final String FLICK_SYMBOL = "symbol";
 	public static final String FLICK_SYMBOL_SHIFT = "symbol_shift";
 
-	List<Listener> listeners = new ArrayList<>();
+	List<EventListener> listeners = new ArrayList<>();
 
 	List<InputMethod> inputMethods;
 	int currentInputMethodId;
@@ -338,8 +338,8 @@ public class HeonOt extends InputMethodService implements Listener {
 			finishComposing();
 			getCurrentInputConnection().deleteSurroundingText(event.getBeforeLength(), event.getAfterLength());
 		}
-		else if(e instanceof ShortcutRequestEvent) {
-			ShortcutRequestEvent event = (ShortcutRequestEvent) e;
+		else if(e instanceof ShortcutEvent) {
+			ShortcutEvent event = (ShortcutEvent) e;
 			for(KeyStroke stroke : shortcuts.keySet()) {
 				if(stroke.getKeyCode() == event.getKeyCode()
 						&& stroke.isAlt() == event.isAltPressed()
@@ -370,12 +370,19 @@ public class HeonOt extends InputMethodService implements Listener {
 		} catch(NullPointerException e) {}
 	}
 
-	public void addListener(Listener listener) {
+	@Override
+	public void addListener(EventListener listener) {
 		listeners.add(listener);
 	}
 
-	public void removeListener(Listener listener) {
+	@Override
+	public void removeListener(EventListener listener) {
 		listeners.remove(listener);
+	}
+
+	@Override
+	public List<EventListener> getListeners() {
+		return listeners;
 	}
 
 }

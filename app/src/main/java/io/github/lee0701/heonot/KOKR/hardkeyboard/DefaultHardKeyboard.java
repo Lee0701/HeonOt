@@ -19,15 +19,15 @@ import io.github.lee0701.heonot.KOKR.event.DeleteCharEvent;
 import io.github.lee0701.heonot.KOKR.event.Event;
 import io.github.lee0701.heonot.KOKR.event.InputCharEvent;
 import io.github.lee0701.heonot.KOKR.event.KeyPressEvent;
-import io.github.lee0701.heonot.KOKR.event.Listener;
+import io.github.lee0701.heonot.KOKR.event.EventListener;
 import io.github.lee0701.heonot.KOKR.event.SetPropertyEvent;
-import io.github.lee0701.heonot.KOKR.event.ShortcutRequestEvent;
+import io.github.lee0701.heonot.KOKR.event.ShortcutEvent;
 import io.github.lee0701.heonot.KOKR.event.SoftKeyEvent;
 import io.github.lee0701.heonot.KOKR.generator.UnicodeJamoHandler;
 
 public class DefaultHardKeyboard implements HardKeyboard {
 
-	List<Listener> listeners = new ArrayList<>();
+	List<EventListener> listeners = new ArrayList<>();
 
 	String layoutJson;
 
@@ -95,8 +95,8 @@ public class DefaultHardKeyboard implements HardKeyboard {
 		try {
 			if(layoutJson != null) {
 				this.loadLayout(new JSONObject(layoutJson));
-				Event.fire(listeners, new SetPropertyEvent("soft-key-labels", getLabels(this.table)));
-				Event.fire(listeners, new SetPropertyEvent("combination-table", combinationTable));
+				Event.fire(this, new SetPropertyEvent("soft-key-labels", getLabels(this.table)));
+				Event.fire(this, new SetPropertyEvent("combination-table", combinationTable));
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -140,18 +140,18 @@ public class DefaultHardKeyboard implements HardKeyboard {
 			return;
 		}
 
-		ShortcutRequestEvent req = new ShortcutRequestEvent(event.getKeyCode(),
+		ShortcutEvent req = new ShortcutEvent(event.getKeyCode(),
 				hardAlt > 0, hardShift > 0);
-		Event.fire(listeners, req);
+		Event.fire(this, req);
 		if(req.isCancelled()) return;
 
 		switch(event.getKeyCode()) {
 		case KeyEvent.KEYCODE_DEL:
-			Event.fire(listeners, new DeleteCharEvent(1, 0));
+			Event.fire(this, new DeleteCharEvent(1, 0));
 			return;
 
 		case KeyEvent.KEYCODE_SPACE:
-			Event.fire(listeners, new CommitCharEvent(' ', 1));
+			Event.fire(this, new CommitCharEvent(' ', 1));
 			return;
 
 		case KeyEvent.KEYCODE_ALT_LEFT:
@@ -226,13 +226,13 @@ public class DefaultHardKeyboard implements HardKeyboard {
 
 		if(table == null) {
 			int unicodeChar = KeyCharacterMap.load(KeyCharacterMap.VIRTUAL_KEYBOARD).get(event.getKeyCode(), shiftKeyToggle[hardShift] | altKeyToggle[hardAlt]);
-			Event.fire(listeners, new CommitCharEvent((char) unicodeChar, 1));
+			Event.fire(this, new CommitCharEvent((char) unicodeChar, 1));
 			return;
 		}
 		DefaultHardKeyboardMap map = table.get(event.getKeyCode());
 		if(map != null) {
 			int charCode = hardShift > 0 ? map.getShift() : map.getNormal();
-			Event.fire(listeners, new InputCharEvent(charCode));
+			Event.fire(this, new InputCharEvent(charCode));
 		}
 	}
 
@@ -248,12 +248,17 @@ public class DefaultHardKeyboard implements HardKeyboard {
 	}
 
 	@Override
-	public void addListener(Listener listener) {
+	public void addListener(EventListener listener) {
 		listeners.add(listener);
 	}
 
 	@Override
-	public void removeListener(Listener listener) {
+	public void removeListener(EventListener listener) {
 		listeners.remove(listener);
+	}
+
+	@Override
+	public List<EventListener> getListeners() {
+		return listeners;
 	}
 }

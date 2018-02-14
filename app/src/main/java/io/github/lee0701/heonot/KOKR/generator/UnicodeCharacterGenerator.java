@@ -10,7 +10,7 @@ import java.util.Stack;
 import io.github.lee0701.heonot.KOKR.event.ComposeCharEvent;
 import io.github.lee0701.heonot.KOKR.event.Event;
 import io.github.lee0701.heonot.KOKR.event.FinishComposingEvent;
-import io.github.lee0701.heonot.KOKR.event.Listener;
+import io.github.lee0701.heonot.KOKR.event.EventListener;
 import io.github.lee0701.heonot.KOKR.event.DeleteCharEvent;
 import io.github.lee0701.heonot.KOKR.event.CommitCharEvent;
 import io.github.lee0701.heonot.KOKR.event.InputCharEvent;
@@ -20,7 +20,7 @@ import static io.github.lee0701.heonot.KOKR.generator.UnicodeJamoHandler.JamoPai
 
 public class UnicodeCharacterGenerator implements CharacterGenerator {
 
-	List<Listener> listeners = new ArrayList<>();
+	List<EventListener> listeners = new ArrayList<>();
 
 	Stack<State> states = new Stack<>();
 
@@ -37,7 +37,7 @@ public class UnicodeCharacterGenerator implements CharacterGenerator {
 	@Override
 	public void input(long code) {
 		State state = this.processInput(code);
-		Event.fire(listeners, new ComposeCharEvent(state.composing, state.lastInput));
+		Event.fire(this, new ComposeCharEvent(state.composing, state.lastInput));
 		states.push(state);
 	}
 
@@ -115,7 +115,7 @@ public class UnicodeCharacterGenerator implements CharacterGenerator {
 
 		default:
 			finishComposing();
-			Event.fire(listeners, new CommitCharEvent(charCode, 1));
+			Event.fire(this, new CommitCharEvent(charCode, 1));
 			state = states.pop();
 			state.lastInput = State.INPUT_NON_HANGUL;
 		}
@@ -130,15 +130,15 @@ public class UnicodeCharacterGenerator implements CharacterGenerator {
 		try {
 			states.pop();
 			State state = states.peek();
-			Event.fire(listeners, new ComposeCharEvent(state.composing, state.lastInput));
+			Event.fire(this, new ComposeCharEvent(state.composing, state.lastInput));
 		} catch(EmptyStackException e) {
-			Event.fire(listeners, new FinishComposingEvent());
-			Event.fire(listeners, new DeleteCharEvent(1, 0));
+			Event.fire(this, new FinishComposingEvent());
+			Event.fire(this, new DeleteCharEvent(1, 0));
 		}
 	}
 
 	public void finishComposing() {
-		Event.fire(listeners, new FinishComposingEvent());
+		Event.fire(this, new FinishComposingEvent());
 		states.clear();
 		states.push(new State());
 	}
@@ -224,12 +224,17 @@ public class UnicodeCharacterGenerator implements CharacterGenerator {
 	}
 
 	@Override
-	public void addListener(Listener listener) {
+	public void addListener(EventListener listener) {
 		listeners.add(listener);
 	}
 
 	@Override
-	public void removeListener(Listener listener) {
+	public void removeListener(EventListener listener) {
 		listeners.remove(listener);
+	}
+
+	@Override
+	public List<EventListener> getListeners() {
+		return listeners;
 	}
 }

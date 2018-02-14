@@ -1,8 +1,9 @@
 package io.github.lee0701.heonot.KOKR.generator;
 
-import io.github.lee0701.heonot.KOKR.event.Listener;
+import io.github.lee0701.heonot.KOKR.event.EventListener;
+import io.github.lee0701.heonot.KOKR.event.EventSource;
 
-public interface CharacterGenerator extends Listener {
+public interface CharacterGenerator extends EventListener, EventSource {
 
 	void init();
 
@@ -11,9 +12,5 @@ public interface CharacterGenerator extends Listener {
 	String testInput(long code);
 
 	void backspace(int mode);
-
-	void addListener(Listener listener);
-
-	void removeListener(Listener listener);
 
 }

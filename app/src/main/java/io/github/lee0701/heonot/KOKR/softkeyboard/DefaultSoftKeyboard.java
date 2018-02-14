@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.github.lee0701.heonot.KOKR.event.Event;
-import io.github.lee0701.heonot.KOKR.event.Listener;
+import io.github.lee0701.heonot.KOKR.event.EventListener;
 import io.github.lee0701.heonot.KOKR.KeyboardKOKR;
 import io.github.lee0701.heonot.KOKR.event.DeleteCharEvent;
 import io.github.lee0701.heonot.KOKR.event.SetPropertyEvent;
@@ -41,7 +41,7 @@ public class DefaultSoftKeyboard implements SoftKeyboard, KeyboardView.OnKeyboar
 	public static final boolean PORTRAIT = false;
 	public static final boolean LANDSCAPE = true;
 
-	List<Listener> listeners = new ArrayList<>();
+	List<EventListener> listeners = new ArrayList<>();
 
 	protected ViewGroup mainView, subView;
 	protected KeyboardView keyboardView;
@@ -110,7 +110,7 @@ public class DefaultSoftKeyboard implements SoftKeyboard, KeyboardView.OnKeyboar
 	class BackspaceLongClickHandler implements Runnable {
 		@Override
 		public void run() {
-			Event.fire(listeners, new DeleteCharEvent(1, 0));
+			Event.fire(DefaultSoftKeyboard.this, new DeleteCharEvent(1, 0));
 			backspaceLongClickHandler.postDelayed(new BackspaceLongClickHandler(), 50);
 		}
 	}
@@ -383,7 +383,7 @@ public class DefaultSoftKeyboard implements SoftKeyboard, KeyboardView.OnKeyboar
 	}
 
 	public void onKey(SoftKeyAction action, int primaryCode, SoftKeyPressType type) {
-		if(!disableKeyInput) Event.fire(listeners, new SoftKeyEvent(action, primaryCode, type));
+		if(!disableKeyInput) Event.fire(this, new SoftKeyEvent(action, primaryCode, type));
 	}
 
 	@Override
@@ -486,12 +486,17 @@ public class DefaultSoftKeyboard implements SoftKeyboard, KeyboardView.OnKeyboar
 	}
 
 	@Override
-	public void addListener(Listener listener) {
+	public void addListener(EventListener listener) {
 		listeners.add(listener);
 	}
 
 	@Override
-	public void removeListener(Listener listener) {
+	public void removeListener(EventListener listener) {
 		listeners.remove(listener);
+	}
+
+	@Override
+	public List<EventListener> getListeners() {
+		return listeners;
 	}
 }

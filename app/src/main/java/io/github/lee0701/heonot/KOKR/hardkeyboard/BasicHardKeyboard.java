@@ -5,11 +5,11 @@ import java.util.List;
 
 import io.github.lee0701.heonot.KOKR.event.Event;
 import io.github.lee0701.heonot.KOKR.event.KeyPressEvent;
-import io.github.lee0701.heonot.KOKR.event.Listener;
+import io.github.lee0701.heonot.KOKR.event.EventListener;
 
 public class BasicHardKeyboard implements HardKeyboard {
 
-	List<Listener> listeners = new ArrayList<>();
+	List<EventListener> listeners = new ArrayList<>();
 
 	@Override
 	public void init() {
@@ -27,12 +27,17 @@ public class BasicHardKeyboard implements HardKeyboard {
 	}
 
 	@Override
-	public void addListener(Listener listener) {
+	public void addListener(EventListener listener) {
 		listeners.add(listener);
 	}
 
 	@Override
-	public void removeListener(Listener listener) {
+	public void removeListener(EventListener listener) {
 		listeners.remove(listener);
+	}
+
+	@Override
+	public List<EventListener> getListeners() {
+		return listeners;
 	}
 }

@@ -7,11 +7,11 @@ import io.github.lee0701.heonot.KOKR.event.CommitCharEvent;
 import io.github.lee0701.heonot.KOKR.event.DeleteCharEvent;
 import io.github.lee0701.heonot.KOKR.event.Event;
 import io.github.lee0701.heonot.KOKR.event.InputCharEvent;
-import io.github.lee0701.heonot.KOKR.event.Listener;
+import io.github.lee0701.heonot.KOKR.event.EventListener;
 
 public class EmptyCharacterGenerator implements CharacterGenerator {
 
-	List<Listener> listeners = new ArrayList<>();
+	List<EventListener> listeners = new ArrayList<>();
 
 	@Override
 	public void init() {
@@ -20,7 +20,7 @@ public class EmptyCharacterGenerator implements CharacterGenerator {
 
 	@Override
 	public void input(long code) {
-		Event.fire(listeners, new CommitCharEvent((char) code, 1));
+		Event.fire(this, new CommitCharEvent((char) code, 1));
 	}
 
 	@Override
@@ -30,7 +30,7 @@ public class EmptyCharacterGenerator implements CharacterGenerator {
 
 	@Override
 	public void backspace(int mode) {
-		Event.fire(listeners, new DeleteCharEvent(1, 0));
+		Event.fire(this, new DeleteCharEvent(1, 0));
 	}
 
 	@Override
@@ -44,12 +44,17 @@ public class EmptyCharacterGenerator implements CharacterGenerator {
 	}
 
 	@Override
-	public void addListener(Listener listener) {
+	public void addListener(EventListener listener) {
 		listeners.add(listener);
 	}
 
 	@Override
-	public void removeListener(Listener listener) {
+	public void removeListener(EventListener listener) {
 		listeners.remove(listener);
+	}
+
+	@Override
+	public List<EventListener> getListeners() {
+		return listeners;
 	}
 }
