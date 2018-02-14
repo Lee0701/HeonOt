@@ -9,6 +9,7 @@ import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputConnection;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -272,6 +273,16 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent e) {
+		switch(e.getKeyCode()) {
+		case KeyEvent.KEYCODE_BACK:
+		case KeyEvent.KEYCODE_HOME:
+		case KeyEvent.KEYCODE_VOLUME_DOWN:
+		case KeyEvent.KEYCODE_MUTE:
+		case KeyEvent.KEYCODE_VOLUME_UP:
+			ShortcutEvent event = new ShortcutEvent(e.getKeyCode(), e.isAltPressed(), e.isShiftPressed());
+			this.onEvent(event);
+			return event.isCancelled();
+		}
 		HardKeyEvent event = new HardKeyEvent(HardKeyEvent.HardKeyAction.PRESS, keyCode, e.getMetaState(), e.getRepeatCount());
 		currentInputMethod.getHardKeyboard().onEvent(event);
 		return !event.isCancelled();
@@ -279,6 +290,14 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent e) {
+		switch(e.getKeyCode()) {
+		case KeyEvent.KEYCODE_BACK:
+		case KeyEvent.KEYCODE_HOME:
+		case KeyEvent.KEYCODE_VOLUME_DOWN:
+		case KeyEvent.KEYCODE_MUTE:
+		case KeyEvent.KEYCODE_VOLUME_UP:
+			return false;
+		}
 		HardKeyEvent event = new HardKeyEvent(HardKeyEvent.HardKeyAction.RELEASE, keyCode, e.getMetaState(), e.getRepeatCount());
 		currentInputMethod.getHardKeyboard().onEvent(event);
 		return !event.isCancelled();
@@ -322,24 +341,25 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 
 	@Override
 	public void onEvent(Event e) {
+		InputConnection ic = getCurrentInputConnection();
 		if(e instanceof ComposeCharEvent) {
 			ComposeCharEvent event = (ComposeCharEvent) e;
 			String composing = event.getComposingChar();
-			getCurrentInputConnection().setComposingText(composing, 1);
+			if(ic != null) ic.setComposingText(composing, 1);
 		}
 		else if(e instanceof FinishComposingEvent) {
-			getCurrentInputConnection().finishComposingText();
+			if(ic != null) ic.finishComposingText();
 		}
 		else if(e instanceof CommitCharEvent) {
 			CommitCharEvent event = (CommitCharEvent) e;
 			finishComposing();
-			getCurrentInputConnection().commitText(String.valueOf(event.getCharacter()), event.getCursorPosition());
+			if(ic != null) ic.commitText(String.valueOf(event.getCharacter()), event.getCursorPosition());
 		}
 		else if(e instanceof DeleteCharEvent) {
 			if(e.getSource() instanceof HardKeyboard) return;
 			DeleteCharEvent event = (DeleteCharEvent) e;
 			finishComposing();
-			getCurrentInputConnection().deleteSurroundingText(event.getBeforeLength(), event.getAfterLength());
+			if(ic != null) ic.deleteSurroundingText(event.getBeforeLength(), event.getAfterLength());
 		}
 		else if(e instanceof ShortcutEvent) {
 			ShortcutEvent event = (ShortcutEvent) e;
