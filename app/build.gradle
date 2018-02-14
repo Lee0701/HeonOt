@@ -5,7 +5,7 @@ android {
     buildToolsVersion "25.0.2"
 
     defaultConfig {
-        applicationId "me.blog.hgl1002.openwnn"
+        applicationId "io.github.lee0701.heonot"
         minSdkVersion 4
         targetSdkVersion 25
         compileOptions {
