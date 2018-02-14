@@ -24,7 +24,7 @@ import io.github.lee0701.heonot.KOKR.event.DeleteCharEvent;
 import io.github.lee0701.heonot.KOKR.event.Event;
 import io.github.lee0701.heonot.KOKR.event.EventSource;
 import io.github.lee0701.heonot.KOKR.event.FinishComposingEvent;
-import io.github.lee0701.heonot.KOKR.event.KeyPressEvent;
+import io.github.lee0701.heonot.KOKR.event.HardKeyEvent;
 import io.github.lee0701.heonot.KOKR.event.EventListener;
 import io.github.lee0701.heonot.KOKR.event.ShortcutEvent;
 import io.github.lee0701.heonot.KOKR.generator.EmptyCharacterGenerator;
@@ -271,15 +271,17 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 	}
 
 	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		currentInputMethod.getHardKeyboard().input(new KeyPressEvent(keyCode, event.getMetaState(), event.getRepeatCount()));
-		return true;
+	public boolean onKeyDown(int keyCode, KeyEvent e) {
+		HardKeyEvent event = new HardKeyEvent(HardKeyEvent.HardKeyAction.PRESS, keyCode, e.getMetaState(), e.getRepeatCount());
+		currentInputMethod.getHardKeyboard().onEvent(event);
+		return !event.isCancelled();
 	}
 
 	@Override
-	public boolean onKeyUp(int keyCode, KeyEvent event) {
-		currentInputMethod.getHardKeyboard().input(new KeyPressEvent.KeyReleaseEvent(keyCode, event.getMetaState(), event.getRepeatCount()));
-		return false;
+	public boolean onKeyUp(int keyCode, KeyEvent e) {
+		HardKeyEvent event = new HardKeyEvent(HardKeyEvent.HardKeyAction.RELEASE, keyCode, e.getMetaState(), e.getRepeatCount());
+		currentInputMethod.getHardKeyboard().onEvent(event);
+		return !event.isCancelled();
 	}
 
 	@Override

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lee0701.heonot.KOKR.event.Event;
-import io.github.lee0701.heonot.KOKR.event.KeyPressEvent;
+import io.github.lee0701.heonot.KOKR.event.HardKeyEvent;
 import io.github.lee0701.heonot.KOKR.event.EventListener;
 
 public class BasicHardKeyboard implements HardKeyboard {
@@ -17,7 +17,7 @@ public class BasicHardKeyboard implements HardKeyboard {
 	}
 
 	@Override
-	public void input(KeyPressEvent event) {
+	public void input(HardKeyEvent event) {
 
 	}
 

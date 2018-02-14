@@ -15,9 +15,11 @@ public class InputMethod {
 		this.softKeyboard = softKeyboard;
 		this.hardKeyboard = hardKeyboard;
 		this.characterGenerator = characterGenerator;
+
 		softKeyboard.addListener(parent);
 		hardKeyboard.addListener(parent);
 		characterGenerator.addListener(parent);
+
 		softKeyboard.addListener(hardKeyboard);
 		hardKeyboard.addListener(softKeyboard);
 		hardKeyboard.addListener(characterGenerator);

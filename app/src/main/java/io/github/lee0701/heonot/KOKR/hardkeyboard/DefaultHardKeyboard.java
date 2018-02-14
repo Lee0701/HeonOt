@@ -1,5 +1,6 @@
 package io.github.lee0701.heonot.KOKR.hardkeyboard;
 
+import android.os.Build;
 import android.text.method.MetaKeyKeyListener;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
@@ -18,7 +19,7 @@ import io.github.lee0701.heonot.KOKR.event.CommitCharEvent;
 import io.github.lee0701.heonot.KOKR.event.DeleteCharEvent;
 import io.github.lee0701.heonot.KOKR.event.Event;
 import io.github.lee0701.heonot.KOKR.event.InputCharEvent;
-import io.github.lee0701.heonot.KOKR.event.KeyPressEvent;
+import io.github.lee0701.heonot.KOKR.event.HardKeyEvent;
 import io.github.lee0701.heonot.KOKR.event.EventListener;
 import io.github.lee0701.heonot.KOKR.event.SetPropertyEvent;
 import io.github.lee0701.heonot.KOKR.event.ShortcutEvent;
@@ -106,23 +107,23 @@ public class DefaultHardKeyboard implements HardKeyboard {
 
 	@Override
 	public void onEvent(Event e) {
-		if(e instanceof KeyPressEvent) {
-			KeyPressEvent event = (KeyPressEvent) e;
+		if(e instanceof HardKeyEvent) {
+			HardKeyEvent event = (HardKeyEvent) e;
 			this.input(event);
 		}
 		else if(e instanceof SoftKeyEvent) {
 			SoftKeyEvent event = (SoftKeyEvent) e;
 			if(event.getAction() == SoftKeyEvent.SoftKeyAction.PRESS) {
-				input(new KeyPressEvent(event.getKeyCode(), 0, 0));
+				input(new HardKeyEvent(HardKeyEvent.HardKeyAction.PRESS, event.getKeyCode(), 0, 0));
 			} else if(event.getAction() == SoftKeyEvent.SoftKeyAction.RELEASE) {
-				input(new KeyPressEvent.KeyReleaseEvent(event.getKeyCode(), 0, 0));
+				input(new HardKeyEvent(HardKeyEvent.HardKeyAction.RELEASE, event.getKeyCode(), 0, 0));
 			}
 		}
 	}
 
 	@Override
-	public void input(KeyPressEvent event) {
-		if(event instanceof KeyPressEvent.KeyReleaseEvent) {
+	public void input(HardKeyEvent event) {
+		if(event.getAction() == HardKeyEvent.HardKeyAction.RELEASE) {
 			switch(event.getKeyCode()) {
 			case KeyEvent.KEYCODE_SHIFT_LEFT:
 			case KeyEvent.KEYCODE_SHIFT_RIGHT:
@@ -171,58 +172,13 @@ public class DefaultHardKeyboard implements HardKeyboard {
 			return;
 
 		}
-		/*
-		if (shiftPressing) {
-			switch () {
-			case KeyEvent.KEYCODE_DPAD_UP:
-			case KeyEvent.KEYCODE_DPAD_DOWN:
-			case KeyEvent.KEYCODE_DPAD_LEFT:
-			case KeyEvent.KEYCODE_DPAD_RIGHT:
-				if (!selectionMode) {
-					selectionEnd = mInputConnection.getTextBeforeCursor(Integer.MAX_VALUE, 0).length();
-					selectionStart = selectionEnd;
-					selectionMode = true;
-				}
-				if (selectionMode) {
-					if (key == KeyEvent.KEYCODE_DPAD_LEFT) selectionEnd--;
-					if (key == KeyEvent.KEYCODE_DPAD_RIGHT) selectionEnd++;
-					if (key == KeyEvent.KEYCODE_DPAD_UP) {
-						int i = 1;
-						CharSequence text = "";
-						boolean end;
-						while(!(end = mInputConnection.getTextBeforeCursor(i, 0).equals(text)) && (text = mInputConnection.getTextBeforeCursor(i, 0)).charAt(0) != '\n') i++;
-						if(end) selectionEnd -= mInputConnection.getTextBeforeCursor(Integer.MAX_VALUE, 0).length();
-						else selectionEnd -= i;
-					}
-					if (key == KeyEvent.KEYCODE_DPAD_DOWN) {
-						int i = 1;
-						CharSequence text = "";
-						boolean end;
-						while(!(end = mInputConnection.getTextAfterCursor(i, 0).equals(text)) && (text = mInputConnection.getTextAfterCursor(i, 0)).charAt(text.length()-1) != '\n') i++;
-						if(end) selectionEnd += mInputConnection.getTextAfterCursor(Character.MAX_VALUE, 0).length();
-						else selectionEnd += i;
-					}
-					int start = selectionStart, end = selectionEnd;
-					if (selectionStart > selectionEnd) {
-						start = selectionEnd;
-						end = selectionStart;
-					}
-					mInputConnection.setSelection(start, end);
-				}
-				return true;
-
-			default:
-				selectionMode = false;
-				break;
-			}
-		} else {
-			selectionMode = false;
-		}
-
+		//TODO: Add text selection code.
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			if (ev.isCtrlPressed()) return false;
+			if (event.isCtrlPressed()) {
+//				event.setCancelled(true);
+				return;
+			}
 		}
-		*/
 
 		if(table == null) {
 			int unicodeChar = KeyCharacterMap.load(KeyCharacterMap.VIRTUAL_KEYBOARD).get(event.getKeyCode(), shiftKeyToggle[hardShift] | altKeyToggle[hardAlt]);
