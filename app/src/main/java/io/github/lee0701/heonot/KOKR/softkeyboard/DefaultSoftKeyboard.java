@@ -29,6 +29,7 @@ import io.github.lee0701.heonot.KOKR.event.DeleteCharEvent;
 import io.github.lee0701.heonot.KOKR.event.SetPropertyEvent;
 import io.github.lee0701.heonot.KOKR.event.SoftKeyEvent;
 import io.github.lee0701.heonot.KOKR.event.SoftKeyEvent.*;
+import io.github.lee0701.heonot.KOKR.event.UpdateStateEvent;
 import io.github.lee0701.heonot.R;
 
 public class DefaultSoftKeyboard implements SoftKeyboard, KeyboardView.OnKeyboardActionListener {
@@ -284,6 +285,7 @@ public class DefaultSoftKeyboard implements SoftKeyboard, KeyboardView.OnKeyboar
 				backspace = -1;
 				return false;
 			}
+			if(longClickHandler.performed && type == SoftKeyPressType.SIGNLE) type = SoftKeyPressType.LONG;
 			onKey(SoftKeyAction.RELEASE, keyCode, type);
 			return false;
 		}
@@ -441,6 +443,13 @@ public class DefaultSoftKeyboard implements SoftKeyboard, KeyboardView.OnKeyboar
 		if(e instanceof SetPropertyEvent) {
 			SetPropertyEvent event = (SetPropertyEvent) e;
 			this.setProperty(event.getKey(), event.getValue());
+		}
+		if(e instanceof UpdateStateEvent) {
+			if(labels != null) {
+				this.updateLabels(keyboard, labels);
+				keyboardView.invalidateAllKeys();
+				keyboardView.requestLayout();
+			}
 		}
 	}
 
