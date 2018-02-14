@@ -1,8 +1,5 @@
 {
-  "fullMoachigi": false,
-  "direct": false,
-  "timeout": false,
-  "table": [
+  "layout": [
     {
       "keycode": 8,
       "normal": "4546",

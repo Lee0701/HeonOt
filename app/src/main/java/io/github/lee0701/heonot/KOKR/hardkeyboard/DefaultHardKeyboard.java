@@ -25,17 +25,12 @@ import io.github.lee0701.heonot.KOKR.event.EventListener;
 import io.github.lee0701.heonot.KOKR.event.SetPropertyEvent;
 import io.github.lee0701.heonot.KOKR.event.ShortcutEvent;
 import io.github.lee0701.heonot.KOKR.event.SoftKeyEvent;
-import io.github.lee0701.heonot.KOKR.generator.UnicodeJamoHandler;
 
 public class DefaultHardKeyboard implements HardKeyboard {
 
 	List<EventListener> listeners = new ArrayList<>();
 
-	String layoutJson;
-
-	private Map<Integer, DefaultHardKeyboardMap> table;
-
-	private Map<UnicodeJamoHandler.JamoPair, Character> combinationTable;
+	private Map<Integer, DefaultHardKeyboardMap> layout;
 
 	boolean shiftInput;
 
@@ -46,63 +41,14 @@ public class DefaultHardKeyboard implements HardKeyboard {
 	private static final int[] shiftKeyToggle = {0, MetaKeyKeyListener.META_SHIFT_ON, MetaKeyKeyListener.META_CAP_LOCKED};
 	private static final int[] altKeyToggle = {0, MetaKeyKeyListener.META_ALT_ON, MetaKeyKeyListener.META_ALT_LOCKED};
 
-	boolean selectionMode;
-	int selectionStart, selectionEnd;
-
 	public DefaultHardKeyboard() {
-
-	}
-
-	public DefaultHardKeyboard(String layoutJson) {
-		this.layoutJson = layoutJson;
-	}
-
-	private void loadLayout(JSONObject layout) throws JSONException {
-
-		this.table = new HashMap<>();
-		this.combinationTable = new HashMap<>();
-
-		JSONArray table = layout.getJSONArray("table");
-		JSONArray combination = layout.getJSONArray("combination");
-
-		if(table != null) {
-			for(int i = 0 ; i < table.length() ; i++) {
-				JSONObject o = table.getJSONObject(i);
-
-				int keyCode = o.getInt("keycode");
-				String normal = o.getString("normal");
-				String shift = o.getString("shift");
-
-				DefaultHardKeyboardMap map = new DefaultHardKeyboardMap(keyCode, Integer.parseInt(normal), Integer.parseInt(shift));
-				this.table.put(keyCode, map);
-			}
-		}
-
-		if(combination != null) {
-			for(int i = 0 ; i < combination.length() ; i++) {
-				JSONObject o = combination.getJSONObject(i);
-				int a = o.getInt("a");
-				int b = o.getInt("b");
-				String result = o.getString("result");
-				UnicodeJamoHandler.JamoPair pair = new UnicodeJamoHandler.JamoPair((char) a, (char) b);
-				combinationTable.put(pair, (char) Integer.parseInt(result));
-			}
-		}
 
 	}
 
 	@Override
 	public void init() {
-		try {
-			if(layoutJson != null) {
-				this.loadLayout(new JSONObject(layoutJson));
-				Event.fire(this, new SetPropertyEvent("soft-key-labels", getLabels(this.table)));
-				Event.fire(this, new SetPropertyEvent("combination-table", combinationTable));
-			}
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
 		shiftPressing = altPressing = false;
+		Event.fire(this, new SetPropertyEvent("soft-key-labels", getLabels(this.layout)));
 	}
 
 	@Override
@@ -227,14 +173,14 @@ public class DefaultHardKeyboard implements HardKeyboard {
 			}
 		}
 
-		if(table == null) {
+		if(layout == null) {
 			int hardShift = capsLock ? 2 : shiftPressing ? 1 : 0;
 			int hardAlt = altPressing ? 1 : 0;
 			int unicodeChar = KeyCharacterMap.load(KeyCharacterMap.VIRTUAL_KEYBOARD).get(event.getKeyCode(), shiftKeyToggle[hardShift] | altKeyToggle[hardAlt]);
 			Event.fire(this, new CommitCharEvent((char) unicodeChar, 1));
 			return;
 		}
-		DefaultHardKeyboardMap map = table.get(event.getKeyCode());
+		DefaultHardKeyboardMap map = layout.get(event.getKeyCode());
 		if(map != null) {
 			int charCode = shiftPressing ? map.getShift() : map.getNormal();
 			Event.fire(this, new InputCharEvent(charCode));
@@ -242,7 +188,7 @@ public class DefaultHardKeyboard implements HardKeyboard {
 	}
 
 	private void updateSoftKeyLabels() {
-		Event.fire(this, new SetPropertyEvent("soft-key-labels", getLabels(this.table)));
+		Event.fire(this, new SetPropertyEvent("soft-key-labels", getLabels(this.layout)));
 		Event.fire(this, new UpdateStateEvent());
 	}
 
@@ -255,6 +201,14 @@ public class DefaultHardKeyboard implements HardKeyboard {
 			result.put(keyCode, String.valueOf(charCode));
 		}
 		return result;
+	}
+
+	public Map<Integer, DefaultHardKeyboardMap> getLayout() {
+		return layout;
+	}
+
+	public void setLayout(Map<Integer, DefaultHardKeyboardMap> layout) {
+		this.layout = layout;
 	}
 
 	@Override
@@ -271,4 +225,29 @@ public class DefaultHardKeyboard implements HardKeyboard {
 	public List<EventListener> getListeners() {
 		return listeners;
 	}
+
+	public static Map<Integer, DefaultHardKeyboardMap> loadLayout(String layoutJson) throws JSONException {
+
+		Map<Integer, DefaultHardKeyboardMap> layout = new HashMap<>();
+
+		JSONArray table = new JSONObject(layoutJson).getJSONArray("layout");
+		if(table != null) {
+			for(int i = 0 ; i < table.length() ; i++) {
+				JSONObject o = table.getJSONObject(i);
+
+				int keyCode = o.getInt("keycode");
+				String normal = o.getString("normal");
+				String shift = o.getString("shift");
+				String caps = o.optString("caps", null);
+				if(caps == null) caps = shift;
+
+				DefaultHardKeyboardMap map = new DefaultHardKeyboardMap(keyCode,
+						Integer.parseInt(normal), Integer.parseInt(shift), Integer.parseInt(caps));
+				layout.put(keyCode, map);
+			}
+		}
+
+		return layout;
+	}
+
 }

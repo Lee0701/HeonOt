@@ -1,5 +1,9 @@
 package io.github.lee0701.heonot.KOKR.generator;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.EmptyStackException;
 import java.util.HashMap;
@@ -226,6 +230,14 @@ public class UnicodeCharacterGenerator implements CharacterGenerator {
 		}
 	}
 
+	public Map<JamoPair, Character> getCombinationTable() {
+		return combinationTable;
+	}
+
+	public void setCombinationTable(Map<JamoPair, Character> combinationTable) {
+		this.combinationTable = combinationTable;
+	}
+
 	@Override
 	public void addListener(EventListener listener) {
 		listeners.add(listener);
@@ -240,4 +252,25 @@ public class UnicodeCharacterGenerator implements CharacterGenerator {
 	public List<EventListener> getListeners() {
 		return listeners;
 	}
+
+	public static Map<JamoPair, Character> loadCombinationTable(String combJson) throws JSONException {
+		Map<JamoPair, Character> combinationTable = new HashMap<>();
+
+		JSONObject object = new JSONObject(combJson);
+
+		JSONArray combination = object.getJSONArray("combination");
+		if(combination != null) {
+			for(int i = 0 ; i < combination.length() ; i++) {
+				JSONObject o = combination.getJSONObject(i);
+				int a = o.getInt("a");
+				int b = o.getInt("b");
+				String result = o.getString("result");
+				UnicodeJamoHandler.JamoPair pair = new UnicodeJamoHandler.JamoPair((char) a, (char) b);
+				combinationTable.put(pair, (char) Integer.parseInt(result));
+			}
+		}
+
+		return combinationTable;
+	}
+
 }

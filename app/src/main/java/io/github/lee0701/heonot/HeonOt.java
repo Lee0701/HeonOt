@@ -11,6 +11,8 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 
+import org.json.JSONException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -165,18 +167,22 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 			inputMethods.add(qwerty);
 		}
 		{
-			String str = "";
+			SoftKeyboard softKeyboard = new io.github.lee0701.heonot.KOKR.softkeyboard.DefaultSoftKeyboard(R.xml.keyboard_full_10cols);
+			DefaultHardKeyboard hardKeyboard = new DefaultHardKeyboard();
 			try {
-				InputStream is = getResources().openRawResource(R.raw.keyboard_sebul_391);
-				byte[] bytes = new byte[is.available()];
-				is.read(bytes);
-				str = new String(bytes);
-			} catch (IOException e) {
+				String layout = getRawString("layout_sebeol_391");
+				hardKeyboard.setLayout(DefaultHardKeyboard.loadLayout(layout));
+
+			} catch (JSONException | IOException e) {
 				e.printStackTrace();
 			}
-			SoftKeyboard softKeyboard = new io.github.lee0701.heonot.KOKR.softkeyboard.DefaultSoftKeyboard(R.xml.keyboard_full_10cols);
-			HardKeyboard hardKeyboard = new DefaultHardKeyboard(str);
-			CharacterGenerator characterGenerator = new UnicodeCharacterGenerator();
+			UnicodeCharacterGenerator characterGenerator = new UnicodeCharacterGenerator();
+			try {
+				String combination = getRawString("comb_sebeol_391");
+				characterGenerator.setCombinationTable(UnicodeCharacterGenerator.loadCombinationTable(combination));
+			} catch (JSONException | IOException e) {
+				e.printStackTrace();
+			}
 			InputMethod sebul391 = new InputMethod(this, softKeyboard, hardKeyboard, characterGenerator);
 			inputMethods.add(sebul391);
 		}
@@ -391,6 +397,13 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 				setInputView(onCreateInputView());
 			}
 		} catch(NullPointerException e) {}
+	}
+
+	public String getRawString(String resName) throws IOException {
+		InputStream is = getResources().openRawResource(getResources().getIdentifier(resName, "raw", getPackageName()));
+		byte[] bytes = new byte[is.available()];
+		is.read(bytes);
+		return new String(bytes);
 	}
 
 	@Override
