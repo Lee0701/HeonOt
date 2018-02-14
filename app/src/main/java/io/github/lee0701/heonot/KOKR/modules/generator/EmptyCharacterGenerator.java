@@ -1,4 +1,4 @@
-package io.github.lee0701.heonot.KOKR.generator;
+package io.github.lee0701.heonot.KOKR.modules.generator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,9 +9,7 @@ import io.github.lee0701.heonot.KOKR.event.Event;
 import io.github.lee0701.heonot.KOKR.event.InputCharEvent;
 import io.github.lee0701.heonot.KOKR.event.EventListener;
 
-public class EmptyCharacterGenerator implements CharacterGenerator {
-
-	List<EventListener> listeners = new ArrayList<>();
+public class EmptyCharacterGenerator extends CharacterGenerator {
 
 	@Override
 	public void init() {
@@ -21,11 +19,6 @@ public class EmptyCharacterGenerator implements CharacterGenerator {
 	@Override
 	public void input(long code) {
 		Event.fire(this, new CommitCharEvent((char) code, 1));
-	}
-
-	@Override
-	public String testInput(long code) {
-		return String.valueOf((char) code);
 	}
 
 	@Override
@@ -46,18 +39,4 @@ public class EmptyCharacterGenerator implements CharacterGenerator {
 		}
 	}
 
-	@Override
-	public void addListener(EventListener listener) {
-		listeners.add(listener);
-	}
-
-	@Override
-	public void removeListener(EventListener listener) {
-		listeners.remove(listener);
-	}
-
-	@Override
-	public List<EventListener> getListeners() {
-		return listeners;
-	}
 }

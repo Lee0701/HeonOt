@@ -8,6 +8,8 @@ public interface EventSource {
 
 	void removeListener(EventListener listener);
 
+	void clearListeners();
+
 	List<EventListener> getListeners();
 
 }

@@ -1,4 +1,4 @@
-package io.github.lee0701.heonot.KOKR.hardkeyboard;
+package io.github.lee0701.heonot.KOKR.modules.hardkeyboard;
 
 public class KeyStroke {
 

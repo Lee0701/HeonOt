@@ -1,4 +1,4 @@
-package io.github.lee0701.heonot.KOKR.softkeyboard;
+package io.github.lee0701.heonot.KOKR.modules.softkeyboard;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -32,7 +32,7 @@ import io.github.lee0701.heonot.KOKR.event.SoftKeyEvent.*;
 import io.github.lee0701.heonot.KOKR.event.UpdateStateEvent;
 import io.github.lee0701.heonot.R;
 
-public class DefaultSoftKeyboard implements SoftKeyboard, KeyboardView.OnKeyboardActionListener {
+public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.OnKeyboardActionListener {
 
 	protected static final int DEFAULT_FLICK_SENSITIVITY = 100;
 
@@ -41,8 +41,6 @@ public class DefaultSoftKeyboard implements SoftKeyboard, KeyboardView.OnKeyboar
 
 	public static final boolean PORTRAIT = false;
 	public static final boolean LANDSCAPE = true;
-
-	List<EventListener> listeners = new ArrayList<>();
 
 	protected ViewGroup mainView, subView;
 	protected KeyboardView keyboardView;
@@ -494,18 +492,4 @@ public class DefaultSoftKeyboard implements SoftKeyboard, KeyboardView.OnKeyboar
 
 	}
 
-	@Override
-	public void addListener(EventListener listener) {
-		listeners.add(listener);
-	}
-
-	@Override
-	public void removeListener(EventListener listener) {
-		listeners.remove(listener);
-	}
-
-	@Override
-	public List<EventListener> getListeners() {
-		return listeners;
-	}
 }

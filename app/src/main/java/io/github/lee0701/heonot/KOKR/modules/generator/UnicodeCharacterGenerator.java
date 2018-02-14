@@ -1,30 +1,27 @@
-package io.github.lee0701.heonot.KOKR.generator;
+package io.github.lee0701.heonot.KOKR.modules.generator;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.EmptyStackException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import io.github.lee0701.heonot.KOKR.event.CommitComposingCharEvent;
 import io.github.lee0701.heonot.KOKR.event.ComposeCharEvent;
 import io.github.lee0701.heonot.KOKR.event.Event;
-import io.github.lee0701.heonot.KOKR.event.FinishComposingEvent;
-import io.github.lee0701.heonot.KOKR.event.EventListener;
 import io.github.lee0701.heonot.KOKR.event.DeleteCharEvent;
 import io.github.lee0701.heonot.KOKR.event.CommitCharEvent;
+import io.github.lee0701.heonot.KOKR.event.FinishComposingEvent;
 import io.github.lee0701.heonot.KOKR.event.InputCharEvent;
 import io.github.lee0701.heonot.KOKR.event.SetPropertyEvent;
+import io.github.lee0701.heonot.KOKR.modules.hardkeyboard.HardKeyboard;
 
-import static io.github.lee0701.heonot.KOKR.generator.UnicodeJamoHandler.JamoPair;
+import static io.github.lee0701.heonot.KOKR.modules.generator.UnicodeJamoHandler.JamoPair;
 
-public class UnicodeCharacterGenerator implements CharacterGenerator {
-
-	List<EventListener> listeners = new ArrayList<>();
+public class UnicodeCharacterGenerator extends CharacterGenerator {
 
 	Stack<State> states = new Stack<>();
 
@@ -45,12 +42,6 @@ public class UnicodeCharacterGenerator implements CharacterGenerator {
 		states.push(state);
 	}
 
-	@Override
-	public String testInput(long code) {
-		State state = this.processInput(code);
-		return state.composing;
-	}
-
 	private State processInput(long code) {
 		if(states.empty()) states.push(new State());
 		State state = new State(states.peek());
@@ -65,7 +56,7 @@ public class UnicodeCharacterGenerator implements CharacterGenerator {
 					state.syllable.cho = combination;
 					state.lastInput |= State.INPUT_COMBINED;
 				} else {
-					finishComposing();
+					commitComposingChar();
 					startNewSyllable(new UnicodeHangulSyllable(charCode, (char) 0, (char) 0));
 					state = states.pop();
 					state.lastInput |= State.INPUT_COMBINATION_FAILED | State.INPUT_NEW_SYLLABLE_STARTED;
@@ -85,7 +76,7 @@ public class UnicodeCharacterGenerator implements CharacterGenerator {
 					state.syllable.jung = combination;
 					state.lastInput |= State.INPUT_COMBINED;
 				} else {
-					finishComposing();
+					commitComposingChar();
 					startNewSyllable(new UnicodeHangulSyllable((char) 0, charCode, (char) 0));
 					state = states.pop();
 					state.lastInput |= State.INPUT_COMBINATION_FAILED | State.INPUT_NEW_SYLLABLE_STARTED;
@@ -105,7 +96,7 @@ public class UnicodeCharacterGenerator implements CharacterGenerator {
 					state.syllable.jong = combination;
 					state.lastInput |= State.INPUT_COMBINED;
 				} else {
-					finishComposing();
+					commitComposingChar();
 					startNewSyllable(new UnicodeHangulSyllable((char) 0, (char) 0, charCode));
 					state = states.pop();
 					state.lastInput |= State.INPUT_COMBINATION_FAILED | State.INPUT_NEW_SYLLABLE_STARTED;
@@ -118,7 +109,7 @@ public class UnicodeCharacterGenerator implements CharacterGenerator {
 		}
 
 		default:
-			finishComposing();
+			commitComposingChar();
 			Event.fire(this, new CommitCharEvent(charCode, 1));
 			state = states.pop();
 			state.lastInput = State.INPUT_NON_HANGUL;
@@ -141,7 +132,7 @@ public class UnicodeCharacterGenerator implements CharacterGenerator {
 		}
 	}
 
-	public void finishComposing() {
+	public void commitComposingChar() {
 		Event.fire(this, new FinishComposingEvent());
 		states.clear();
 		states.push(new State());
@@ -214,7 +205,10 @@ public class UnicodeCharacterGenerator implements CharacterGenerator {
 			this.setProperty(event.getKey(), event.getValue());
 		}
 		else if(e instanceof DeleteCharEvent) {
-			this.backspace(0);
+			if(e.getSource() instanceof HardKeyboard) this.backspace(0);
+		}
+		else if(e instanceof CommitComposingCharEvent) {
+			commitComposingChar();
 		}
 	}
 
@@ -236,21 +230,6 @@ public class UnicodeCharacterGenerator implements CharacterGenerator {
 
 	public void setCombinationTable(Map<JamoPair, Character> combinationTable) {
 		this.combinationTable = combinationTable;
-	}
-
-	@Override
-	public void addListener(EventListener listener) {
-		listeners.add(listener);
-	}
-
-	@Override
-	public void removeListener(EventListener listener) {
-		listeners.remove(listener);
-	}
-
-	@Override
-	public List<EventListener> getListeners() {
-		return listeners;
 	}
 
 	public static Map<JamoPair, Character> loadCombinationTable(String combJson) throws JSONException {

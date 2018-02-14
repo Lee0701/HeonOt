@@ -1,4 +1,4 @@
-package io.github.lee0701.heonot.KOKR.generator;
+package io.github.lee0701.heonot.KOKR.modules.generator;
 
 public class UnicodeJamoHandler {
 

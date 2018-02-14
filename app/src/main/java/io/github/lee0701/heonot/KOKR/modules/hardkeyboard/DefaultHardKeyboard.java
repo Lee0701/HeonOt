@@ -1,4 +1,4 @@
-package io.github.lee0701.heonot.KOKR.hardkeyboard;
+package io.github.lee0701.heonot.KOKR.modules.hardkeyboard;
 
 import android.os.Build;
 import android.text.method.MetaKeyKeyListener;
@@ -9,26 +9,21 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import io.github.lee0701.heonot.KOKR.event.UpdateStateEvent;
-import io.github.lee0701.heonot.KOKR.hardkeyboard.def.DefaultHardKeyboardMap;
+import io.github.lee0701.heonot.KOKR.modules.hardkeyboard.def.DefaultHardKeyboardMap;
 import io.github.lee0701.heonot.KOKR.event.CommitCharEvent;
 import io.github.lee0701.heonot.KOKR.event.DeleteCharEvent;
 import io.github.lee0701.heonot.KOKR.event.Event;
 import io.github.lee0701.heonot.KOKR.event.InputCharEvent;
 import io.github.lee0701.heonot.KOKR.event.HardKeyEvent;
-import io.github.lee0701.heonot.KOKR.event.EventListener;
 import io.github.lee0701.heonot.KOKR.event.SetPropertyEvent;
 import io.github.lee0701.heonot.KOKR.event.ShortcutEvent;
 import io.github.lee0701.heonot.KOKR.event.SoftKeyEvent;
 
-public class DefaultHardKeyboard implements HardKeyboard {
-
-	List<EventListener> listeners = new ArrayList<>();
+public class DefaultHardKeyboard extends HardKeyboard {
 
 	private Map<Integer, DefaultHardKeyboardMap> layout;
 
@@ -209,21 +204,6 @@ public class DefaultHardKeyboard implements HardKeyboard {
 
 	public void setLayout(Map<Integer, DefaultHardKeyboardMap> layout) {
 		this.layout = layout;
-	}
-
-	@Override
-	public void addListener(EventListener listener) {
-		listeners.add(listener);
-	}
-
-	@Override
-	public void removeListener(EventListener listener) {
-		listeners.remove(listener);
-	}
-
-	@Override
-	public List<EventListener> getListeners() {
-		return listeners;
 	}
 
 	public static Map<Integer, DefaultHardKeyboardMap> loadLayout(String layoutJson) throws JSONException {

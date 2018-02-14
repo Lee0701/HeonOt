@@ -1,4 +1,4 @@
-package io.github.lee0701.heonot.KOKR.hardkeyboard.def;
+package io.github.lee0701.heonot.KOKR.modules.hardkeyboard.def;
 
 public class DefaultHardKeyboardMap {
 	private final int keyCode, normal, shift, caps;

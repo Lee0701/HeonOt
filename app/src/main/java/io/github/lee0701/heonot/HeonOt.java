@@ -26,20 +26,22 @@ import io.github.lee0701.heonot.KOKR.event.ComposeCharEvent;
 import io.github.lee0701.heonot.KOKR.event.DeleteCharEvent;
 import io.github.lee0701.heonot.KOKR.event.Event;
 import io.github.lee0701.heonot.KOKR.event.EventSource;
+import io.github.lee0701.heonot.KOKR.event.CommitComposingCharEvent;
 import io.github.lee0701.heonot.KOKR.event.FinishComposingEvent;
 import io.github.lee0701.heonot.KOKR.event.HardKeyEvent;
 import io.github.lee0701.heonot.KOKR.event.EventListener;
 import io.github.lee0701.heonot.KOKR.event.ShortcutEvent;
-import io.github.lee0701.heonot.KOKR.generator.EmptyCharacterGenerator;
-import io.github.lee0701.heonot.KOKR.generator.UnicodeCharacterGenerator;
-import io.github.lee0701.heonot.KOKR.hardkeyboard.DefaultHardKeyboard;
-import io.github.lee0701.heonot.KOKR.generator.CharacterGenerator;
-import io.github.lee0701.heonot.KOKR.hardkeyboard.HardKeyboard;
-import io.github.lee0701.heonot.KOKR.hardkeyboard.KeyStroke;
+import io.github.lee0701.heonot.KOKR.modules.generator.EmptyCharacterGenerator;
+import io.github.lee0701.heonot.KOKR.modules.generator.UnicodeCharacterGenerator;
+import io.github.lee0701.heonot.KOKR.modules.hardkeyboard.DefaultHardKeyboard;
+import io.github.lee0701.heonot.KOKR.modules.generator.CharacterGenerator;
+import io.github.lee0701.heonot.KOKR.modules.hardkeyboard.HardKeyboard;
+import io.github.lee0701.heonot.KOKR.modules.hardkeyboard.KeyStroke;
+import io.github.lee0701.heonot.KOKR.modules.softkeyboard.DefaultSoftKeyboard;
 import io.github.lee0701.heonot.KOKR.scripting.StringRecursionTreeBuilder;
 import io.github.lee0701.heonot.KOKR.scripting.TreeEvaluator;
 import io.github.lee0701.heonot.KOKR.scripting.nodes.TreeNode;
-import io.github.lee0701.heonot.KOKR.softkeyboard.SoftKeyboard;
+import io.github.lee0701.heonot.KOKR.modules.softkeyboard.SoftKeyboard;
 
 public class HeonOt extends InputMethodService implements EventListener, EventSource {
 
@@ -160,14 +162,14 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 		super.onCreate();
 		evaluator = new TreeEvaluator();
 		{
-			SoftKeyboard softKeyboard = new io.github.lee0701.heonot.KOKR.softkeyboard.DefaultSoftKeyboard(R.xml.keyboard_full_10cols);
+			SoftKeyboard softKeyboard = new DefaultSoftKeyboard(R.xml.keyboard_full_10cols);
 			HardKeyboard hardKeyboard = new DefaultHardKeyboard();
 			CharacterGenerator characterGenerator = new EmptyCharacterGenerator();
-			InputMethod qwerty = new InputMethod(this, softKeyboard, hardKeyboard, characterGenerator);
+			InputMethod qwerty = new InputMethod(softKeyboard, hardKeyboard, characterGenerator);
 			inputMethods.add(qwerty);
 		}
 		{
-			SoftKeyboard softKeyboard = new io.github.lee0701.heonot.KOKR.softkeyboard.DefaultSoftKeyboard(R.xml.keyboard_full_10cols);
+			SoftKeyboard softKeyboard = new DefaultSoftKeyboard(R.xml.keyboard_full_10cols);
 			DefaultHardKeyboard hardKeyboard = new DefaultHardKeyboard();
 			try {
 				String layout = getRawString("layout_sebeol_391");
@@ -183,7 +185,7 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 			} catch (JSONException | IOException e) {
 				e.printStackTrace();
 			}
-			InputMethod sebul391 = new InputMethod(this, softKeyboard, hardKeyboard, characterGenerator);
+			InputMethod sebul391 = new InputMethod(softKeyboard, hardKeyboard, characterGenerator);
 			inputMethods.add(sebul391);
 		}
 		shortcuts = new HashMap<>();
@@ -197,23 +199,26 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 			TreeNode node = new StringRecursionTreeBuilder().build("A = !A");
 			shortcuts.put(stroke, node);
 		}
+
+		for(InputMethod method : inputMethods) {
+			method.init();
+		}
+
 		currentInputMethod = inputMethods.get(currentInputMethodId);
+		currentInputMethod.registerListeners(this);
+
 	}
 
 	@Override
 	public View onCreateInputView() {
-		for(InputMethod method : inputMethods) {
-			method.init();
-		}
 		int hiddenState = getResources().getConfiguration().hardKeyboardHidden;
 		boolean hidden = (hiddenState == Configuration.HARDKEYBOARDHIDDEN_YES);
-//		((DefaultSoftKeyboardKOKR) mInputViewManager).setHardKeyboardHidden(hidden);
-		return currentInputMethod.getSoftKeyboard().createView(this);
+		return currentInputMethod.createView(this);
 	}
 
 	@Override
 	public void onStartInputView(EditorInfo attribute, boolean restarting) {
-		finishComposing();
+		commitComposingChar();
 		if(restarting) {
 			super.onStartInputView(attribute, restarting);
 		} else {
@@ -271,7 +276,6 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 			if (getCurrentInputConnection() != null) {
 				int hiddenState = newConfig.hardKeyboardHidden;
 				boolean hidden = (hiddenState == Configuration.HARDKEYBOARDHIDDEN_YES);
-//				((DefaultSoftKeyboardKOKR) mInputViewManager).setHardKeyboardHidden(hidden);
 			}
 		} catch (Exception ex) {
 		}
@@ -290,7 +294,7 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 			return event.isCancelled();
 		}
 		HardKeyEvent event = new HardKeyEvent(HardKeyEvent.HardKeyAction.PRESS, keyCode, e.getMetaState(), e.getRepeatCount());
-		currentInputMethod.getHardKeyboard().onEvent(event);
+		Event.fire(this, event);
 		return !event.isCancelled();
 	}
 
@@ -305,27 +309,23 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 			return false;
 		}
 		HardKeyEvent event = new HardKeyEvent(HardKeyEvent.HardKeyAction.RELEASE, keyCode, e.getMetaState(), e.getRepeatCount());
-		currentInputMethod.getHardKeyboard().onEvent(event);
+		Event.fire(this, event);
 		return !event.isCancelled();
 	}
 
 	@Override
 	public void onFinishInput() {
-		finishComposing();
 		super.onFinishInput();
 	}
 
 	@Override
 	public void onViewClicked(boolean focusChanged) {
-		getCurrentInputConnection().finishComposingText();
 		super.onViewClicked(focusChanged);
-		finishComposing();
+		commitComposingChar();
 	}
 
-	private void finishComposing() {
-		if(currentInputMethod.getCharacterGenerator() instanceof UnicodeCharacterGenerator) {
-			((UnicodeCharacterGenerator) currentInputMethod.getCharacterGenerator()).finishComposing();
-		}
+	private void commitComposingChar() {
+		Event.fire(this, new CommitComposingCharEvent());
 	}
 
 	@Override
@@ -358,13 +358,13 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 		}
 		else if(e instanceof CommitCharEvent) {
 			CommitCharEvent event = (CommitCharEvent) e;
-			finishComposing();
+			commitComposingChar();
 			if(ic != null) ic.commitText(String.valueOf(event.getCharacter()), event.getCursorPosition());
 		}
 		else if(e instanceof DeleteCharEvent) {
 			if(e.getSource() instanceof HardKeyboard) return;
 			DeleteCharEvent event = (DeleteCharEvent) e;
-			finishComposing();
+			commitComposingChar();
 			if(ic != null) ic.deleteSurroundingText(event.getBeforeLength(), event.getAfterLength());
 		}
 		else if(e instanceof ShortcutEvent) {
@@ -390,11 +390,19 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 
 	public void setVariables(Map<String, Long> variables) {
 		try {
-			int inputMethodId = (int) (long) variables.get("A");
+			final int inputMethodId = (int) (long) variables.get("A");
 			if(inputMethodId != currentInputMethodId) {
-				currentInputMethodId = inputMethodId;
-				currentInputMethod = inputMethods.get(currentInputMethodId);
-				setInputView(onCreateInputView());
+				new Handler().post(new Runnable() {
+					@Override
+					public void run() {
+						currentInputMethod.clearListeners();
+						HeonOt.this.clearListeners();
+						currentInputMethodId = inputMethodId;
+						currentInputMethod = inputMethods.get(currentInputMethodId);
+						currentInputMethod.registerListeners(HeonOt.this);
+						setInputView(onCreateInputView());
+					}
+				});
 			}
 		} catch(NullPointerException e) {}
 	}
@@ -414,6 +422,11 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 	@Override
 	public void removeListener(EventListener listener) {
 		listeners.remove(listener);
+	}
+
+	@Override
+	public void clearListeners() {
+		listeners.clear();
 	}
 
 	@Override

@@ -1,7 +1,5 @@
 package io.github.lee0701.heonot.KOKR.event;
 
-import java.util.List;
-
 public abstract class Event {
 
 	private EventSource source;
