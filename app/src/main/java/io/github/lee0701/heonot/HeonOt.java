@@ -336,6 +336,7 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 			getCurrentInputConnection().commitText(String.valueOf(event.getCharacter()), event.getCursorPosition());
 		}
 		else if(e instanceof DeleteCharEvent) {
+			if(e.getSource() instanceof HardKeyboard) return;
 			DeleteCharEvent event = (DeleteCharEvent) e;
 			finishComposing();
 			getCurrentInputConnection().deleteSurroundingText(event.getBeforeLength(), event.getAfterLength());

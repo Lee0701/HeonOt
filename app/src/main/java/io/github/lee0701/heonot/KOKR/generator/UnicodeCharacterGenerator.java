@@ -205,9 +205,12 @@ public class UnicodeCharacterGenerator implements CharacterGenerator {
 			if(o instanceof Long) this.input((long) o);
 			else if(o instanceof Integer) this.input((int) o);
 		}
-		if(e instanceof SetPropertyEvent) {
+		else if(e instanceof SetPropertyEvent) {
 			SetPropertyEvent event = (SetPropertyEvent) e;
 			this.setProperty(event.getKey(), event.getValue());
+		}
+		else if(e instanceof DeleteCharEvent) {
+			this.backspace(0);
 		}
 	}
 

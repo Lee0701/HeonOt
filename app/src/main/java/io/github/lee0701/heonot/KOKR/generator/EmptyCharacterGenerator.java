@@ -41,6 +41,9 @@ public class EmptyCharacterGenerator implements CharacterGenerator {
 			if(o instanceof Long) this.input((long) o);
 			else if(o instanceof Integer) this.input((int) o);
 		}
+		else if(e instanceof DeleteCharEvent) {
+			Event.fire(this, e);
+		}
 	}
 
 	@Override
