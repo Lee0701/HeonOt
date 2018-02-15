@@ -1,5 +1,8 @@
 package io.github.lee0701.heonot.KOKR.modules;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +18,13 @@ public abstract class InputMethodModule implements EventListener, EventSource {
 	public abstract void init();
 
 	public void setProperty(String key, Object value) {
+	}
+
+	public JSONObject toJSONObject() throws JSONException {
+		JSONObject object = new JSONObject();
+		object.put("name", this.name);
+		object.put("class", this.getClass().getName());
+		return object;
 	}
 
 	public String getName() {

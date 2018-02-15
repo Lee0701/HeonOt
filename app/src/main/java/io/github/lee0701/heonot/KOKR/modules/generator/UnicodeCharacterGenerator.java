@@ -242,7 +242,7 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 			}
 			break;
 
-		case "full-moajugi":
+		case "full-moachigi":
 			try {
 				this.fullMoachigi = (Boolean) value;
 			} catch(ClassCastException | NullPointerException ex) {
@@ -250,6 +250,51 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 			}
 			break;
 		}
+	}
+
+	@Override
+	public JSONObject toJSONObject() throws JSONException {
+		JSONObject object = super.toJSONObject();
+		JSONArray properties = new JSONArray();
+
+		JSONObject combinationTable = new JSONObject();
+		combinationTable.put("key", "combination-table");
+		JSONObject combination = this.storeCombinationTable();
+		combinationTable.put("value", combination);
+
+		properties.put(combinationTable);
+
+		JSONObject moajugi = new JSONObject();
+		moajugi.put("key", "moajugi");
+		moajugi.put("value", this.moajugi);
+		JSONObject firstMidEnd = new JSONObject();
+		firstMidEnd.put("key", "first-mid-end");
+		firstMidEnd.put("value", this.firstMidEnd);
+		JSONObject fullMoachigi = new JSONObject();
+		fullMoachigi.put("key", "full-moachigi");
+		fullMoachigi.put("value", this.fullMoachigi);
+		properties.put(moajugi);
+		properties.put(firstMidEnd);
+		properties.put(fullMoachigi);
+
+		object.put("properties", properties);
+
+		return object;
+	}
+
+	public JSONObject storeCombinationTable() throws JSONException {
+		JSONObject object = new JSONObject();
+		JSONArray combination = new JSONArray();
+		for(JamoPair pair : this.combinationTable.keySet()) {
+			Character result = this.combinationTable.get(pair);
+			JSONObject entry = new JSONObject();
+			entry.put("a", pair.a);
+			entry.put("b", pair.b);
+			entry.put("result", Integer.toString(result));
+			combination.put(entry);
+		}
+		object.put("combination", combination);
+		return object;
 	}
 
 	public Map<JamoPair, Character> getCombinationTable() {

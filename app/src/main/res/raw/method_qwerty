@@ -1,4 +1,5 @@
 {
+  "name": "Alphabet QWERTY",
   "modules": [
     {
       "name": "Soft Keyboard",

@@ -13,6 +13,9 @@ import android.view.inputmethod.InputConnection;
 
 import org.json.JSONException;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -39,48 +42,11 @@ import io.github.lee0701.heonot.KOKR.scripting.nodes.TreeNode;
 
 public class HeonOt extends InputMethodService implements EventListener, EventSource {
 
-	public static final String LANGKEY_SWITCH_KOR_ENG = "switch_kor_eng";
-	public static final String LANGKEY_SWITCH_NEXT_METHOD = "switch_next_method";
-	public static final String LANGKEY_LIST_METHODS = "list_methods";
-
-	public static final String FLICK_NONE = "none";
-	public static final String FLICK_SHIFT = "shift";
-	public static final String FLICK_SYMBOL = "symbol";
-	public static final String FLICK_SYMBOL_SHIFT = "symbol_shift";
-
 	List<EventListener> listeners = new ArrayList<>();
 
 	List<InputMethod> inputMethods;
 	int currentInputMethodId;
 	InputMethod currentInputMethod;
-
-	boolean mMoachigi;
-	boolean mHardwareMoachigi;
-	boolean mFullMoachigi = true;
-	int mMoachigiDelay;
-	boolean mQuickPeriod;
-	boolean mSpaceResetJohab;
-
-	boolean mStandardJamo;
-	String mLangKeyAction;
-	String mLangKeyLongAction;
-
-	String mFlickUpAction;
-	String mFlickDownAction;
-	String mFlickLeftAction;
-	String mFlickRightAction;
-	String mLongPressAction;
-
-	boolean mAltDirect;
-
-	boolean mSpace, mCharInput;
-	boolean mInput;
-
-	boolean mBackspaceSelectionMode;
-	int mBackspaceSelectionStart;
-	int mBackspaceSelectionEnd;
-
-	Handler mTimeOutHandler;
 
 	protected Map<KeyStroke, TreeNode> shortcuts;
 
@@ -106,21 +72,26 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 	public void onCreate() {
 		super.onCreate();
 		evaluator = new TreeEvaluator();
-		{
+
+		File methodsDir = new File(getFilesDir(), "methods");
+
+		if(!methodsDir.exists()) {
+			methodsDir.mkdir();
 			try {
 				String method = getRawString("method_qwerty");
-				inputMethods.add(InputMethod.load(method));
+				inputMethods.add(InputMethod.loadJSON(method));
 			} catch (JSONException | IOException e) {
 				e.printStackTrace();
 			}
-		}
-		{
 			try {
 				String method = getRawString("method_sebeol_391");
-				inputMethods.add(InputMethod.load(method));
+				inputMethods.add(InputMethod.loadJSON(method));
 			} catch (JSONException | IOException e) {
 				e.printStackTrace();
 			}
+			storeMethods(methodsDir);
+		} else {
+			loadMethods(methodsDir);
 		}
 		shortcuts = new HashMap<>();
 		{
@@ -138,6 +109,37 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 		currentInputMethod.registerListeners(this);
 		currentInputMethod.init();
 
+	}
+
+	private void loadMethods(File methodsDir) {
+		int i = 0;
+		inputMethods.clear();
+		for(File file : methodsDir.listFiles()) {
+			if(file.getName().endsWith(".json")) {
+				try {
+					FileInputStream fis = new FileInputStream(file);
+					byte[] bytes = new byte[fis.available()];
+					fis.read(bytes);
+					InputMethod method = InputMethod.loadJSON(new String(bytes));
+					inputMethods.add(i, method);
+				} catch(IOException | JSONException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	private void storeMethods(File methodsDir) {
+		for(int i = 0 ; i < inputMethods.size() ; i++) {
+			InputMethod method = inputMethods.get(i);
+			File file = new File(methodsDir, i + ".json");
+			try {
+				FileOutputStream fos = new FileOutputStream(file);
+				fos.write(method.toJSON(-1).getBytes());
+			} catch(IOException | JSONException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	@Override
@@ -158,34 +160,6 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 		}
 		
 		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-
-		mMoachigi = pref.getBoolean("keyboard_use_moachigi", mMoachigi);
-		mHardwareMoachigi = pref.getBoolean("hardware_use_moachigi", mHardwareMoachigi);
-		mFullMoachigi = pref.getBoolean("hardware_full_moachigi", mFullMoachigi);
-		mMoachigiDelay = pref.getInt("hardware_full_moachigi_delay", 100);
-		mQuickPeriod = pref.getBoolean("keyboard_quick_period", false);
-		mSpaceResetJohab = pref.getBoolean("keyboard_space_reset_composing", false);
-
-		mStandardJamo = pref.getBoolean("system_use_standard_jamo", mStandardJamo);
-		mLangKeyAction = pref.getString("system_action_on_lang_key_press", LANGKEY_SWITCH_KOR_ENG);
-		mLangKeyLongAction = pref.getString("system_action_on_lang_key_long_press", LANGKEY_LIST_METHODS);
-
-		mFlickUpAction = pref.getString("keyboard_action_on_flick_up", FLICK_SHIFT);
-		mFlickDownAction = pref.getString("keyboard_action_on_flick_down", FLICK_SYMBOL);
-		mFlickLeftAction = pref.getString("keyboard_action_on_flick_left", FLICK_NONE);
-		mFlickRightAction = pref.getString("keyboard_action_on_flick_right", FLICK_NONE);
-		mLongPressAction = pref.getString("system_action_on_long_press", FLICK_SHIFT);
-
-		//TODO: Implement this
-//		if(hardKeyboardHidden) mQwertyEngine.setMoachigi(mMoachigi);
-//		else mQwertyEngine.setMoachigi(mHardwareMoachigi);
-//		mQwertyEngine.setFirstMidEnd(mStandardJamo);
-//		m12keyEngine.setFirstMidEnd(mStandardJamo);
-
-		mAltDirect = pref.getBoolean("hardware_alt_direct", true);
-
-
-		mCharInput = false;
 
 	}
 

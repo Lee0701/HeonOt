@@ -18,6 +18,10 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -469,6 +473,21 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 			}
 			break;
 		}
+	}
+
+	@Override
+	public JSONObject toJSONObject() throws JSONException {
+		JSONObject object = super.toJSONObject();
+		JSONArray properties = new JSONArray();
+
+		JSONObject keyboard = new JSONObject();
+		keyboard.put("key", "keyboard");
+		keyboard.put("value", this.keyboardResName);
+		properties.put(keyboard);
+
+		object.put("properties", properties);
+
+		return object;
 	}
 
 	@Override

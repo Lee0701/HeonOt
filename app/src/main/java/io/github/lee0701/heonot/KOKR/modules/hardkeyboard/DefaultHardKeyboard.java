@@ -2,6 +2,7 @@ package io.github.lee0701.heonot.KOKR.modules.hardkeyboard;
 
 import android.os.Build;
 import android.text.method.MetaKeyKeyListener;
+import android.util.Pair;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 
@@ -219,12 +220,46 @@ public class DefaultHardKeyboard extends HardKeyboard {
 		return result;
 	}
 
+	@Override
+	public JSONObject toJSONObject() throws JSONException {
+		JSONObject object = super.toJSONObject();
+		JSONArray properties = new JSONArray();
+
+		if(layout != null) {
+			JSONObject layout = new JSONObject();
+			layout.put("key", "layout");
+			layout.put("value", storeLayout());
+			properties.put(layout);
+		}
+
+		object.put("properties", properties);
+
+		return object;
+	}
+
 	public Map<Integer, DefaultHardKeyboardMap> getLayout() {
 		return layout;
 	}
 
 	public void setLayout(Map<Integer, DefaultHardKeyboardMap> layout) {
 		this.layout = layout;
+	}
+
+	public JSONObject storeLayout() throws JSONException {
+		JSONObject object = new JSONObject();
+		JSONArray layout = new JSONArray();
+
+		for(Integer keyCode : this.layout.keySet()) {
+			DefaultHardKeyboardMap map = this.layout.get(keyCode);
+			JSONObject entry = new JSONObject();
+			entry.put("keycode", (int) keyCode);
+			entry.put("normal", Integer.toString(map.getNormal()));
+			entry.put("shift", Integer.toString(map.getShift()));
+			layout.put(entry);
+		}
+
+		object.put("layout", layout);
+		return object;
 	}
 
 	public static Map<Integer, DefaultHardKeyboardMap> loadLayout(String layoutJson) throws JSONException {

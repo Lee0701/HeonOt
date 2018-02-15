@@ -1,5 +1,8 @@
 package io.github.lee0701.heonot.KOKR.modules.generator;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
