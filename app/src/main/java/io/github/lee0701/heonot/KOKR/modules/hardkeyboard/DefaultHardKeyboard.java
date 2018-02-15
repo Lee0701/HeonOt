@@ -56,6 +56,27 @@ public class DefaultHardKeyboard extends HardKeyboard {
 			SoftKeyEvent event = (SoftKeyEvent) e;
 			onSoftKey(event);
 		}
+		else if(e instanceof SetPropertyEvent) {
+			SetPropertyEvent event = (SetPropertyEvent) e;
+			this.setProperty(event.getKey(), event.getValue());
+		}
+	}
+
+	@Override
+	public void setProperty(String key, Object value) {
+		switch(key) {
+		case "layout":
+			try {
+				if (value instanceof Map) {
+					this.layout = (Map<Integer, DefaultHardKeyboardMap>) value;
+				} else if (value instanceof JSONObject) {
+					this.layout = loadLayout((JSONObject) value);
+				}
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+			break;
+		}
 	}
 
 	private void onSoftKey(SoftKeyEvent event) {
@@ -208,9 +229,13 @@ public class DefaultHardKeyboard extends HardKeyboard {
 
 	public static Map<Integer, DefaultHardKeyboardMap> loadLayout(String layoutJson) throws JSONException {
 
+		return loadLayout(new JSONObject(layoutJson));
+	}
+
+	public static Map<Integer, DefaultHardKeyboardMap> loadLayout(JSONObject layoutObject) throws JSONException {
 		Map<Integer, DefaultHardKeyboardMap> layout = new HashMap<>();
 
-		JSONArray table = new JSONObject(layoutJson).getJSONArray("layout");
+		JSONArray table = layoutObject.getJSONArray("layout");
 		if(table != null) {
 			for(int i = 0 ; i < table.length() ; i++) {
 				JSONObject o = table.getJSONObject(i);

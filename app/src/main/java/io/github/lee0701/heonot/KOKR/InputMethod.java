@@ -1,8 +1,13 @@
 package io.github.lee0701.heonot.KOKR;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.view.View;
 import android.widget.LinearLayout;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,8 +15,6 @@ import java.util.List;
 
 import io.github.lee0701.heonot.KOKR.modules.InputMethodModule;
 import io.github.lee0701.heonot.KOKR.modules.softkeyboard.SoftKeyboard;
-import io.github.lee0701.heonot.KOKR.modules.generator.CharacterGenerator;
-import io.github.lee0701.heonot.KOKR.modules.hardkeyboard.HardKeyboard;
 import io.github.lee0701.heonot.HeonOt;
 
 public class InputMethod {
@@ -53,6 +56,40 @@ public class InputMethod {
 			}
 		}
 		return view;
+	}
+
+	public static InputMethod load(String methodJson) throws JSONException {
+		JSONObject methodObject = new JSONObject(methodJson);
+		JSONArray modulesArray = methodObject.optJSONArray("modules");
+
+		List<InputMethodModule> modules = new ArrayList<>();
+		if(modulesArray != null) {
+			for(int i = 0 ; i < modulesArray.length() ; i++) {
+				JSONObject module = modulesArray.getJSONObject(i);
+				String name = module.optString("name");
+				String className = module.getString("class");
+				try {
+					Class<?> moduleClass = Class.forName(className);
+					InputMethodModule m = (InputMethodModule) moduleClass.getDeclaredConstructor().newInstance();
+					m.setName(name);
+					JSONArray props = module.getJSONArray("properties");
+					for(int j = 0 ; j < props.length() ; j++) {
+						JSONObject prop = props.getJSONObject(j);
+						String key = prop.optString("key", null);
+						Object value = prop.opt("value");
+						if(key != null) m.setProperty(key, value);
+					}
+					modules.add(m);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		InputMethodModule[] arr = new InputMethodModule[modules.size()];
+		InputMethod method = new InputMethod(modules.toArray(arr));
+
+		return method;
 	}
 
 }

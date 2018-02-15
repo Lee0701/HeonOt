@@ -27,7 +27,7 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 
 	Map<UnicodeJamoHandler.JamoPair, Character> combinationTable = new HashMap<>();
 
-	boolean moachigi, firstMidEnd;
+	boolean moajugi, fullMoachigi, firstMidEnd;
 
 	@Override
 	public void init() {
@@ -212,12 +212,40 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 		}
 	}
 
+	@Override
 	public void setProperty(String key, Object value) {
 		switch(key) {
 		case "combination-table":
 			try {
-				this.combinationTable = (Map<JamoPair, Character>) value;
-			} catch(ClassCastException ex) {
+				if(value instanceof Map) {
+					this.combinationTable = (Map<JamoPair, Character>) value;
+				} else if(value instanceof JSONObject) {
+					this.combinationTable = loadCombinationTable((JSONObject) value);
+				}
+			} catch(Exception ex) {
+				ex.printStackTrace();
+			}
+			break;
+		case "moajugi":
+			try {
+				this.moajugi = (Boolean) value;
+			} catch(ClassCastException | NullPointerException ex) {
+				ex.printStackTrace();
+			}
+			break;
+
+		case "first-mid-end":
+			try {
+				this.firstMidEnd = (Boolean) value;
+			} catch(ClassCastException | NullPointerException ex) {
+				ex.printStackTrace();
+			}
+			break;
+
+		case "full-moajugi":
+			try {
+				this.fullMoachigi = (Boolean) value;
+			} catch(ClassCastException | NullPointerException ex) {
 				ex.printStackTrace();
 			}
 			break;
@@ -233,18 +261,20 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 	}
 
 	public static Map<JamoPair, Character> loadCombinationTable(String combJson) throws JSONException {
+		return loadCombinationTable(new JSONObject(combJson));
+	}
+
+	public static Map<JamoPair, Character> loadCombinationTable(JSONObject jsonObject) throws JSONException {
 		Map<JamoPair, Character> combinationTable = new HashMap<>();
 
-		JSONObject object = new JSONObject(combJson);
-
-		JSONArray combination = object.getJSONArray("combination");
+		JSONArray combination = jsonObject.getJSONArray("combination");
 		if(combination != null) {
 			for(int i = 0 ; i < combination.length() ; i++) {
 				JSONObject o = combination.getJSONObject(i);
 				int a = o.getInt("a");
 				int b = o.getInt("b");
 				String result = o.getString("result");
-				UnicodeJamoHandler.JamoPair pair = new UnicodeJamoHandler.JamoPair((char) a, (char) b);
+				JamoPair pair = new JamoPair((char) a, (char) b);
 				combinationTable.put(pair, (char) Integer.parseInt(result));
 			}
 		}

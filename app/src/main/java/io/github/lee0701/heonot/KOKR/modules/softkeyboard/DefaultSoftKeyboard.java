@@ -45,6 +45,7 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 	protected ViewGroup mainView, subView;
 	protected KeyboardView keyboardView;
 
+	protected String keyboardResName;
 	protected int keyboardResId;
 	protected KeyboardKOKR keyboard;
 
@@ -345,10 +346,6 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 
 	}
 
-	public DefaultSoftKeyboard(int keyboardResId) {
-		this.keyboardResId = keyboardResId;
-	}
-
 	@Override
 	public void init() {
 	}
@@ -372,12 +369,17 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 		mainView.addView(subView);
 		mainView.addView(keyboardView);
 
+		if(keyboardResName != null) {
+			keyboardResId = context.getResources().getIdentifier(keyboardResName, "xml", context.getPackageName());
+			keyboardResName = null;
+		}
+
 		keyboard = new KeyboardKOKR(context, keyboardResId);
+		updateLabels(keyboard, labels);
+
 		keyboardView.setKeyboard(keyboard);
 
 		keyboardView.setOnTouchListener(new OnKeyboardViewTouchListener());
-
-		updateLabels(keyboard, labels);
 
 		return mainView;
 	}
@@ -423,7 +425,7 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 		return keyboard;
 	}
 
-	protected void updateLabels(Keyboard kbd, Map<Integer, String> labels) {
+	protected void 	updateLabels(Keyboard kbd, Map<Integer, String> labels) {
 		if(!(kbd instanceof KeyboardKOKR)) return;
 		if(labels == null) {
 			return;
@@ -451,14 +453,21 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 		}
 	}
 
+	@Override
 	public void setProperty(String key, Object value) {
 		switch (key) {
+		case "keyboard":
+			if(value instanceof String) {
+				keyboardResName = (String) value;
+			}
+			break;
 		case "soft-key-labels":
 			try {
 				this.labels = (Map<Integer, String>) value;
 			} catch(ClassCastException ex) {
 				ex.printStackTrace();
 			}
+			break;
 		}
 	}
 

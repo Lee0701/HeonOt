@@ -1,0 +1,26 @@
+{
+  "modules": [
+    {
+      "name": "Soft Keyboard",
+      "class": "io.github.lee0701.heonot.KOKR.modules.softkeyboard.DefaultSoftKeyboard",
+      "properties": [
+        {
+          "key": "keyboard",
+          "value": "keyboard_full_10cols"
+        }
+      ]
+    },
+    {
+      "name": "Hard Keyboard",
+      "class": "io.github.lee0701.heonot.KOKR.modules.hardkeyboard.DefaultHardKeyboard",
+      "properties": [
+      ]
+    },
+    {
+      "name": "Character Generator",
+      "class": "io.github.lee0701.heonot.KOKR.modules.generator.EmptyCharacterGenerator",
+      "properties": [
+      ]
+    }
+  ]
+}

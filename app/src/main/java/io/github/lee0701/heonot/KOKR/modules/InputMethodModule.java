@@ -14,6 +14,17 @@ public abstract class InputMethodModule implements EventListener, EventSource {
 
 	public abstract void init();
 
+	public void setProperty(String key, Object value) {
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
 	@Override
 	public void addListener(EventListener listener) {
 		listeners.add(listener);

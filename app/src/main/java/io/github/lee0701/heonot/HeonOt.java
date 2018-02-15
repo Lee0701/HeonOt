@@ -31,61 +31,13 @@ import io.github.lee0701.heonot.KOKR.event.FinishComposingEvent;
 import io.github.lee0701.heonot.KOKR.event.HardKeyEvent;
 import io.github.lee0701.heonot.KOKR.event.EventListener;
 import io.github.lee0701.heonot.KOKR.event.ShortcutEvent;
-import io.github.lee0701.heonot.KOKR.modules.generator.EmptyCharacterGenerator;
-import io.github.lee0701.heonot.KOKR.modules.generator.UnicodeCharacterGenerator;
-import io.github.lee0701.heonot.KOKR.modules.hardkeyboard.DefaultHardKeyboard;
-import io.github.lee0701.heonot.KOKR.modules.generator.CharacterGenerator;
 import io.github.lee0701.heonot.KOKR.modules.hardkeyboard.HardKeyboard;
 import io.github.lee0701.heonot.KOKR.modules.hardkeyboard.KeyStroke;
-import io.github.lee0701.heonot.KOKR.modules.softkeyboard.DefaultSoftKeyboard;
 import io.github.lee0701.heonot.KOKR.scripting.StringRecursionTreeBuilder;
 import io.github.lee0701.heonot.KOKR.scripting.TreeEvaluator;
 import io.github.lee0701.heonot.KOKR.scripting.nodes.TreeNode;
-import io.github.lee0701.heonot.KOKR.modules.softkeyboard.SoftKeyboard;
 
 public class HeonOt extends InputMethodService implements EventListener, EventSource {
-
-	public static final int[][] SHIFT_CONVERT = {
-			{0x60, 0x7e},
-			{0x31, 0x21},
-			{0x32, 0x40},
-			{0x33, 0x23},
-			{0x34, 0x24},
-			{0x35, 0x25},
-			{0x36, 0x5e},
-			{0x37, 0x26},
-			{0x38, 0x2a},
-			{0x39, 0x28},
-			{0x30, 0x29},
-			{0x2d, 0x5f},
-			{0x3d, 0x2b},
-			
-			{0x5b, 0x7b},
-			{0x5d, 0x7d},
-			{0x5c, 0x7c},
-
-			{0x3b, 0x3a},
-			{0x27, 0x22},
-			
-			{0x2c, 0x3c},
-			{0x2e, 0x3e},
-			{0x2f, 0x3f},
-	};
-
-	public static final int[][] FLICK_TABLE_12KEY = {
-			{-201, 0x31},
-			{-202, 0x32},
-			{-203, 0x33},
-			{-204, 0x34},
-			{-205, 0x35},
-			{-206, 0x36},
-			{-207, 0x37},
-			{-208, 0x38},
-			{-209, 0x39},
-			{-213, 0x2c},
-			{-210, 0x30},
-			{-211, 0x21},
-	};
 
 	public static final String LANGKEY_SWITCH_KOR_ENG = "switch_kor_eng";
 	public static final String LANGKEY_SWITCH_NEXT_METHOD = "switch_next_method";
@@ -102,13 +54,6 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 	int currentInputMethodId;
 	InputMethod currentInputMethod;
 
-	boolean consumeDownEvent;
-
-	int[][] mAltSymbols;
-
-	boolean mDirectInputMode;
-	boolean mEnableTimeout;
-	
 	boolean mMoachigi;
 	boolean mHardwareMoachigi;
 	boolean mFullMoachigi = true;
@@ -162,31 +107,20 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 		super.onCreate();
 		evaluator = new TreeEvaluator();
 		{
-			SoftKeyboard softKeyboard = new DefaultSoftKeyboard(R.xml.keyboard_full_10cols);
-			HardKeyboard hardKeyboard = new DefaultHardKeyboard();
-			CharacterGenerator characterGenerator = new EmptyCharacterGenerator();
-			InputMethod qwerty = new InputMethod(softKeyboard, hardKeyboard, characterGenerator);
-			inputMethods.add(qwerty);
+			try {
+				String method = getRawString("method_qwerty");
+				inputMethods.add(InputMethod.load(method));
+			} catch (JSONException | IOException e) {
+				e.printStackTrace();
+			}
 		}
 		{
-			SoftKeyboard softKeyboard = new DefaultSoftKeyboard(R.xml.keyboard_full_10cols);
-			DefaultHardKeyboard hardKeyboard = new DefaultHardKeyboard();
 			try {
-				String layout = getRawString("layout_sebeol_391");
-				hardKeyboard.setLayout(DefaultHardKeyboard.loadLayout(layout));
-
+				String method = getRawString("method_sebeol_391");
+				inputMethods.add(InputMethod.load(method));
 			} catch (JSONException | IOException e) {
 				e.printStackTrace();
 			}
-			UnicodeCharacterGenerator characterGenerator = new UnicodeCharacterGenerator();
-			try {
-				String combination = getRawString("comb_sebeol_391");
-				characterGenerator.setCombinationTable(UnicodeCharacterGenerator.loadCombinationTable(combination));
-			} catch (JSONException | IOException e) {
-				e.printStackTrace();
-			}
-			InputMethod sebul391 = new InputMethod(softKeyboard, hardKeyboard, characterGenerator);
-			inputMethods.add(sebul391);
 		}
 		shortcuts = new HashMap<>();
 		{
@@ -200,12 +134,9 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 			shortcuts.put(stroke, node);
 		}
 
-		for(InputMethod method : inputMethods) {
-			method.init();
-		}
-
 		currentInputMethod = inputMethods.get(currentInputMethodId);
 		currentInputMethod.registerListeners(this);
+		currentInputMethod.init();
 
 	}
 
@@ -400,6 +331,7 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 						currentInputMethodId = inputMethodId;
 						currentInputMethod = inputMethods.get(currentInputMethodId);
 						currentInputMethod.registerListeners(HeonOt.this);
+						currentInputMethod.init();
 						setInputView(onCreateInputView());
 					}
 				});
