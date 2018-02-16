@@ -49,6 +49,20 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 		char charCode = (char) (code & 0xffff);
 		switch(UnicodeJamoHandler.getType(charCode)) {
 		case CHO3: {
+			if(!fullMoachigi) {
+				if(!moajugi) {
+					if((state.lastInput & State.MASK_HANGUL_TYPE) != State.INPUT_CHO) {
+						commitComposingChar();
+						state = new State(states.peek());
+					}
+				} else {
+					if((state.syllable.containsJung() || state.syllable.containsJong()) && state.syllable.containsCho()) {
+						commitComposingChar();
+						state = new State(states.peek());
+					}
+				}
+			}
+			state.lastInput = 0;
 			if(state.syllable.containsCho()) {
 				JamoPair pair = new JamoPair(state.syllable.cho, charCode);
 				Character combination = combinationTable.get(pair);
@@ -69,6 +83,19 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 		}
 
 		case JUNG3: {
+			if(!moajugi && !fullMoachigi) {
+				switch(state.lastInput & State.MASK_HANGUL_TYPE) {
+				case State.INPUT_CHO:
+				case State.INPUT_JUNG:
+					break;
+
+				default:
+					commitComposingChar();
+					state = new State(states.peek());
+					break;
+				}
+			}
+			state.lastInput = 0;
 			if(state.syllable.containsJung()) {
 				JamoPair pair = new JamoPair(state.syllable.jung, charCode);
 				Character combination = combinationTable.get(pair);
@@ -89,6 +116,19 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 		}
 
 		case JONG3: {
+			if(!moajugi && !fullMoachigi) {
+				switch(state.lastInput & State.MASK_HANGUL_TYPE) {
+				case State.INPUT_JUNG:
+				case State.INPUT_JONG:
+					break;
+
+				default:
+					commitComposingChar();
+					state = new State(states.peek());
+					break;
+				}
+			}
+			state.lastInput = 0;
 			if(state.syllable.containsJong()) {
 				JamoPair pair = new JamoPair(state.syllable.jong, charCode);
 				Character combination = combinationTable.get(pair);
@@ -115,7 +155,7 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 			state.lastInput = State.INPUT_NON_HANGUL;
 		}
 
-		state.composing = state.syllable.toString(true);
+		state.composing = state.syllable.toString(firstMidEnd);
 
 		return state;
 	}
@@ -188,6 +228,7 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 			syllable = (UnicodeHangulSyllable) previousState.syllable.clone();
 			beforeJong = previousState.beforeJong;
 			composing = previousState.composing;
+			lastInput = previousState.lastInput;
 		}
 
 	}
