@@ -375,7 +375,6 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 
 		if(keyboardResName != null) {
 			keyboardResId = context.getResources().getIdentifier(keyboardResName, "xml", context.getPackageName());
-			keyboardResName = null;
 		}
 
 		keyboard = new KeyboardKOKR(context, keyboardResId);

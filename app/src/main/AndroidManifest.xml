@@ -1,21 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      android:versionCode="1"
-      android:versionName="1"
-	  package="io.github.lee0701.heonot">
+	package="io.github.lee0701.heonot"
+	android:versionCode="1"
+	android:versionName="1">
 
-    <uses-permission xmlns:android="http://schemas.android.com/apk/res/android" android:name="android.permission.VIBRATE"/>
-    <application android:icon="@drawable/icon" android:allowBackup="true" android:label="@string/app_name">
+	<uses-permission
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		android:name="android.permission.VIBRATE"/>
 
-        <service android:name="io.github.lee0701.heonot.HeonOt" android:label="@string/ime_name"
-		 android:permission="android.permission.BIND_INPUT_METHOD"
-		 android:id="@+id/openwnn_korean">
-            <intent-filter>
-                <action android:name="android.view.InputMethod" />
-            </intent-filter>
-            <meta-data android:name="android.view.im" android:resource="@xml/method_ko" />
-        </service>
+	<application
+		android:allowBackup="true"
+		android:icon="@drawable/icon"
+		android:label="@string/app_name"
+		android:theme="@style/AppTheme">
+		<service
+			android:id="@+id/openwnn_korean"
+			android:name=".HeonOt"
+			android:label="@string/ime_name"
+			android:permission="android.permission.BIND_INPUT_METHOD">
+			<intent-filter>
+				<action android:name="android.view.InputMethod"/>
+			</intent-filter>
 
-    </application>
+			<meta-data
+				android:name="android.view.im"
+				android:resource="@xml/method_ko"/>
+		</service>
 
-</manifest> 
+		<activity android:name=".Settings" android:label="@string/app_name">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.LAUNCHER" />
+			</intent-filter>
+		</activity>
+	</application>
 
+</manifest>

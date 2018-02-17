@@ -269,6 +269,14 @@
       "class": "io.github.lee0701.heonot.KOKR.modules.generator.UnicodeCharacterGenerator",
       "properties": [
         {
+          "key": "moajugi",
+          "value": true
+        },
+        {
+          "key": "first-mid-end",
+          "value": true
+        },
+        {
           "key": "combination-table",
           "value": {
             "combination": [

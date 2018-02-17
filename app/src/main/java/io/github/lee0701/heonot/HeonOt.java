@@ -112,16 +112,17 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 	}
 
 	private void loadMethods(File methodsDir) {
-		int i = 0;
 		inputMethods.clear();
 		for(File file : methodsDir.listFiles()) {
 			if(file.getName().endsWith(".json")) {
+				String fileName = file.getName().replace(".json", "");
+				int index = Integer.parseInt(fileName);
 				try {
 					FileInputStream fis = new FileInputStream(file);
 					byte[] bytes = new byte[fis.available()];
 					fis.read(bytes);
 					InputMethod method = InputMethod.loadJSON(new String(bytes));
-					inputMethods.add(i, method);
+					inputMethods.add(index, method);
 				} catch(IOException | JSONException e) {
 					e.printStackTrace();
 				}
@@ -129,7 +130,7 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 		}
 	}
 
-	private void storeMethods(File methodsDir) {
+	public void storeMethods(File methodsDir) {
 		for(int i = 0 ; i < inputMethods.size() ; i++) {
 			InputMethod method = inputMethods.get(i);
 			File file = new File(methodsDir, i + ".json");
@@ -340,4 +341,11 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 		return listeners;
 	}
 
+	public List<InputMethod> getInputMethods() {
+		return inputMethods;
+	}
+
+	public void setInputMethods(List<InputMethod> inputMethods) {
+		this.inputMethods = inputMethods;
+	}
 }

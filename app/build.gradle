@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "io.github.lee0701.heonot"
-        minSdkVersion 4
+        minSdkVersion 9
         targetSdkVersion 25
         compileOptions {
             sourceCompatibility JavaVersion.VERSION_1_7
@@ -35,4 +35,8 @@ android {
         testCompile 'org.json:json:20160810'
     }
 
+}
+dependencies {
+    implementation 'com.android.support:appcompat-v7:25.+'
+    implementation 'com.android.support.constraint:constraint-layout:+'
 }
