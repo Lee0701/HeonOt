@@ -39,4 +39,5 @@ android {
 dependencies {
     implementation 'com.android.support:appcompat-v7:25.+'
     implementation 'com.android.support.constraint:constraint-layout:+'
+    implementation 'com.android.support:design:25.4.0'
 }

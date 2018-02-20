@@ -1,5 +1,9 @@
 package io.github.lee0701.heonot.KOKR.modules;
 
+import android.content.Context;
+import android.view.View;
+import android.widget.LinearLayout;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -9,7 +13,7 @@ import java.util.List;
 import io.github.lee0701.heonot.KOKR.event.EventListener;
 import io.github.lee0701.heonot.KOKR.event.EventSource;
 
-public abstract class InputMethodModule implements EventListener, EventSource {
+public abstract class InputMethodModule implements EventListener, EventSource, Cloneable {
 
 	protected String name = "Module";
 
@@ -17,8 +21,15 @@ public abstract class InputMethodModule implements EventListener, EventSource {
 
 	public abstract void init();
 
+	public View createSettingsView(Context context) {
+		return new LinearLayout(context);
+	}
+
 	public void setProperty(String key, Object value) {
 	}
+
+	@Override
+	public abstract Object clone();
 
 	public JSONObject toJSONObject() throws JSONException {
 		JSONObject object = new JSONObject();

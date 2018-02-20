@@ -42,4 +42,8 @@ public class EmptyCharacterGenerator extends CharacterGenerator {
 		}
 	}
 
+	@Override
+	public Object clone() {
+		return new EmptyCharacterGenerator();
+	}
 }

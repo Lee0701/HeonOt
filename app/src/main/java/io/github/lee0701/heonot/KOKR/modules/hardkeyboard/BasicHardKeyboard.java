@@ -24,4 +24,8 @@ public class BasicHardKeyboard extends HardKeyboard {
 
 	}
 
+	@Override
+	public Object clone() {
+		return new BasicHardKeyboard();
+	}
 }

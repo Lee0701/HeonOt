@@ -19,7 +19,7 @@ import io.github.lee0701.heonot.KOKR.modules.InputMethodModule;
 import io.github.lee0701.heonot.KOKR.modules.softkeyboard.SoftKeyboard;
 import io.github.lee0701.heonot.HeonOt;
 
-public class InputMethod {
+public class InputMethod implements Cloneable {
 
 	private String name = "";
 
@@ -122,5 +122,24 @@ public class InputMethod {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public List<InputMethodModule> getModules() {
+		return modules;
+	}
+
+	public void setModules(List<InputMethodModule> modules) {
+		this.modules = modules;
+	}
+
+	@Override
+	public Object clone() {
+		InputMethodModule[] modules = new InputMethodModule[this.modules.size()];
+		for(int i = 0 ; i < modules.length ; i++) {
+			modules[i] = (InputMethodModule) this.modules.get(i).clone();
+		}
+		InputMethod cloned = new InputMethod(modules);
+		cloned.setName(getName());
+		return cloned;
 	}
 }

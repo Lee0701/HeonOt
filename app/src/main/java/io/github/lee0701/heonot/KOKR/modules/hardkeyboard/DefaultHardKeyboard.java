@@ -1,10 +1,18 @@
 package io.github.lee0701.heonot.KOKR.modules.hardkeyboard;
 
+import android.content.Context;
+import android.content.DialogInterface;
+import android.inputmethodservice.Keyboard;
+import android.inputmethodservice.KeyboardView;
 import android.os.Build;
+import android.support.v7.app.AlertDialog;
 import android.text.method.MetaKeyKeyListener;
 import android.util.Pair;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,6 +31,7 @@ import io.github.lee0701.heonot.KOKR.event.HardKeyEvent;
 import io.github.lee0701.heonot.KOKR.event.SetPropertyEvent;
 import io.github.lee0701.heonot.KOKR.event.ShortcutEvent;
 import io.github.lee0701.heonot.KOKR.event.SoftKeyEvent;
+import io.github.lee0701.heonot.R;
 
 public class DefaultHardKeyboard extends HardKeyboard {
 
@@ -191,17 +200,23 @@ public class DefaultHardKeyboard extends HardKeyboard {
 		}
 
 		if(layout == null) {
-			int hardShift = capsLock ? 2 : shiftPressing ? 1 : 0;
-			int hardAlt = altPressing ? 1 : 0;
-			int unicodeChar = KeyCharacterMap.load(KeyCharacterMap.VIRTUAL_KEYBOARD).get(event.getKeyCode(), shiftKeyToggle[hardShift] | altKeyToggle[hardAlt]);
-			Event.fire(this, new CommitCharEvent((char) unicodeChar, 1));
+			directInput(event.getKeyCode());
 			return;
 		}
 		DefaultHardKeyboardMap map = layout.get(event.getKeyCode());
 		if(map != null) {
 			int charCode = shiftPressing ? map.getShift() : map.getNormal();
 			Event.fire(this, new InputCharEvent(charCode));
+		} else {
+			directInput(event.getKeyCode());
 		}
+	}
+
+	private void directInput(int keyCode) {
+		int hardShift = capsLock ? 2 : shiftPressing ? 1 : 0;
+		int hardAlt = altPressing ? 1 : 0;
+		int unicodeChar = KeyCharacterMap.load(KeyCharacterMap.VIRTUAL_KEYBOARD).get(keyCode, shiftKeyToggle[hardShift] | altKeyToggle[hardAlt]);
+		Event.fire(this, new CommitCharEvent((char) unicodeChar, 1));
 	}
 
 	private void updateSoftKeyLabels() {
@@ -218,6 +233,78 @@ public class DefaultHardKeyboard extends HardKeyboard {
 			result.put(keyCode, String.valueOf(charCode));
 		}
 		return result;
+	}
+
+	@Override
+	public View createSettingsView(final Context context) {
+		LinearLayout settings = new LinearLayout(context);
+		KeyboardView keyboardView = new KeyboardView(context, null);
+		Keyboard keyboard = new Keyboard(context, R.xml.keyboard_full_10cols);
+		keyboardView.setKeyboard(keyboard);
+		keyboardView.setPreviewEnabled(false);
+		keyboardView.setOnKeyboardActionListener(new KeyboardView.OnKeyboardActionListener() {
+			@Override
+			public void onKey(final int primaryCode, int[] keyCodes) {
+				createKeyEditDialog(context, primaryCode).show();
+			}
+			@Override
+			public void onPress(int primaryCode) {}
+			@Override
+			public void onRelease(int primaryCode) {}
+			@Override
+			public void onText(CharSequence text) {}
+			@Override
+			public void swipeLeft() {}
+			@Override
+			public void swipeRight() {}
+			@Override
+			public void swipeDown() {}
+			@Override
+			public void swipeUp() {}
+		});
+		settings.addView(keyboardView);
+
+		return settings;
+	}
+
+	public AlertDialog createKeyEditDialog(Context context, final int keyCode) {
+		LinearLayout content = new LinearLayout(context);
+		content.setOrientation(LinearLayout.VERTICAL);
+		final EditText normal = new EditText(context);
+		final EditText shift = new EditText(context);
+		if(layout == null) {
+			layout = new HashMap<>();
+		}
+		DefaultHardKeyboardMap map = layout.get(keyCode);
+		if(map == null) layout.put(keyCode, map = new DefaultHardKeyboardMap(keyCode, 0, 0, 0));
+		normal.setText(Integer.toString(map.getNormal()));
+		shift.setText(Integer.toString(map.getShift()));
+		content.addView(normal);
+		content.addView(shift);
+		return new AlertDialog.Builder(context)
+				.setTitle("Key " + keyCode)
+				.setView(content)
+				.setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						layout.put(keyCode, new DefaultHardKeyboardMap(keyCode,
+								Integer.parseInt(normal.getText().toString()),
+								Integer.parseInt(shift.getText().toString()),
+								Integer.parseInt(shift.getText().toString())));
+					}
+				})
+				.setNeutralButton(R.string.button_delete, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						layout.remove(keyCode);
+					}
+				})
+				.setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+					}
+				})
+				.create();
 	}
 
 	@Override
@@ -290,4 +377,17 @@ public class DefaultHardKeyboard extends HardKeyboard {
 		return layout;
 	}
 
+	@Override
+	public Object clone() {
+		DefaultHardKeyboard clone = new DefaultHardKeyboard();
+		if(layout != null) {
+			Map<Integer, DefaultHardKeyboardMap> layout = new HashMap<>();
+			for(int i : this.layout.keySet()) {
+				if(this.layout.get(i) != null) layout.put(i, (DefaultHardKeyboardMap) this.layout.get(i).clone());
+			}
+			clone.setLayout(layout);
+		}
+		clone.setName(getName());
+		return clone;
+	}
 }

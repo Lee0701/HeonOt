@@ -9,6 +9,7 @@
 	<string name="button_ok">OK</string>
 	<string name="button_apply">Apply</string>
 	<string name="button_cancel">Cancel</string>
+	<string name="button_delete">Delete</string>
 
 	<string name="settings_saved">Settings Saved.</string>
 

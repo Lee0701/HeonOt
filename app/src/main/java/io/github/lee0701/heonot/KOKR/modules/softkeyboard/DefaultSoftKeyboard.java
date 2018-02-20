@@ -489,6 +489,22 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 		return object;
 	}
 
+	public String getKeyboardResName() {
+		return keyboardResName;
+	}
+
+	public void setKeyboardResName(String keyboardResName) {
+		this.keyboardResName = keyboardResName;
+	}
+
+	@Override
+	public Object clone() {
+		DefaultSoftKeyboard cloned = new DefaultSoftKeyboard();
+		cloned.setKeyboardResName(keyboardResName);
+		cloned.setName(getName());
+		return cloned;
+	}
+
 	@Override
 	public void onKey(int primaryCode, int[] keyCodes) {
 

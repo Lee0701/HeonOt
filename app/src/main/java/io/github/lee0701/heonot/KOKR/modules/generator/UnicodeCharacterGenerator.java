@@ -368,4 +368,44 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 		return combinationTable;
 	}
 
+	public boolean getMoajugi() {
+		return moajugi;
+	}
+
+	public void setMoajugi(boolean moajugi) {
+		this.moajugi = moajugi;
+	}
+
+	public boolean getFullMoachigi() {
+		return fullMoachigi;
+	}
+
+	public void setFullMoachigi(boolean fullMoachigi) {
+		this.fullMoachigi = fullMoachigi;
+	}
+
+	public boolean getFirstMidEnd() {
+		return firstMidEnd;
+	}
+
+	public void setFirstMidEnd(boolean firstMidEnd) {
+		this.firstMidEnd = firstMidEnd;
+	}
+
+	@Override
+	public Object clone() {
+		UnicodeCharacterGenerator cloned = new UnicodeCharacterGenerator();
+		Map<JamoPair, Character> combinations = new HashMap<>();
+		if(combinationTable != null) {
+			for(JamoPair key : this.combinationTable.keySet()) {
+				combinations.put((JamoPair) key.clone(), combinationTable.get(key).charValue());
+			}
+			cloned.setCombinationTable(combinations);
+		}
+		cloned.setMoajugi(getMoajugi());
+		cloned.setFullMoachigi(getFullMoachigi());
+		cloned.setFirstMidEnd(getFirstMidEnd());
+		cloned.setName(getName());
+		return cloned;
+	}
 }

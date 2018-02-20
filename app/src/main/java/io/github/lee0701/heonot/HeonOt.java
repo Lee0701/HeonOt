@@ -59,7 +59,6 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 	
 	public HeonOt() {
 		super();
-		mSelf = this;
 		inputMethods = new ArrayList<>();
 	}
 	
@@ -71,6 +70,13 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		mSelf = this;
+
+		init();
+
+	}
+
+	public void init() {
 		evaluator = new TreeEvaluator();
 
 		File methodsDir = new File(getFilesDir(), "methods");
@@ -108,7 +114,6 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 		currentInputMethod = inputMethods.get(currentInputMethodId);
 		currentInputMethod.registerListeners(this);
 		currentInputMethod.init();
-
 	}
 
 	private void loadMethods(File methodsDir) {
@@ -343,6 +348,14 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 
 	public List<InputMethod> getInputMethods() {
 		return inputMethods;
+	}
+
+	public List<InputMethod> getInputMethodsCloned() throws CloneNotSupportedException {
+		List<InputMethod> cloned = new ArrayList<>();
+		for(InputMethod method : inputMethods) {
+			cloned.add((InputMethod) method.clone());
+		}
+		return cloned;
 	}
 
 	public void setInputMethods(List<InputMethod> inputMethods) {

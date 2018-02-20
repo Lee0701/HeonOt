@@ -1,6 +1,6 @@
 package io.github.lee0701.heonot.KOKR.modules.hardkeyboard.def;
 
-public class DefaultHardKeyboardMap {
+public class DefaultHardKeyboardMap implements Cloneable {
 	private final int keyCode, normal, shift, caps;
 
 	public DefaultHardKeyboardMap(int keyCode, int normal, int shift, int caps) {
@@ -24,5 +24,11 @@ public class DefaultHardKeyboardMap {
 
 	public int getCaps() {
 		return caps;
+	}
+
+	@Override
+	public Object clone() {
+		DefaultHardKeyboardMap clone = new DefaultHardKeyboardMap(keyCode, normal, shift, caps);
+		return clone;
 	}
 }

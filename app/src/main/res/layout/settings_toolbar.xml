@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<android.support.design.widget.AppBarLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
-	android:orientation="vertical"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	tools:context="io.github.lee0701.heonot.Settings">
+	android:layout_height="wrap_content"
+	xmlns:app="http://schemas.android.com/apk/res-auto">
 
 	<android.support.v7.widget.Toolbar
 		android:id="@+id/toolbar"
@@ -17,10 +14,4 @@
 		android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
 		app:popupTheme="@style/Theme.AppCompat.Light"/>
 
-	<ListView
-		android:id="@+id/method_list"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:scrollbars="vertical"/>
-
-</LinearLayout>
+</android.support.design.widget.AppBarLayout>
