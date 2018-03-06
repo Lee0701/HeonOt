@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
 import android.media.MediaPlayer;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
@@ -22,12 +21,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import io.github.lee0701.heonot.KOKR.event.Event;
-import io.github.lee0701.heonot.KOKR.event.EventListener;
 import io.github.lee0701.heonot.KOKR.KeyboardKOKR;
 import io.github.lee0701.heonot.KOKR.event.DeleteCharEvent;
 import io.github.lee0701.heonot.KOKR.event.SetPropertyEvent;
@@ -66,7 +62,6 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 	private int flickSensitivity = 100, spaceSlideSensitivity = 100;
 	private int vibrateDuration = 30;
 	private boolean showPreview = false;
-	private int keyIcon = 0;
 
 
 	protected Map<Integer, String> labels;
@@ -94,8 +89,6 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 	}};
 */
 
-	int mLongPressTimeout = 500;
-
 	class LongClickHandler implements Runnable {
 		int keyCode;
 		boolean performed = false;
@@ -103,7 +96,6 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 			this.keyCode = keyCode;
 		}
 		public void run() {
-			setPreviewEnabled(keyCode);
 			onKey(SoftKeyAction.PRESS, keyCode, SoftKeyPressType.LONG);
 			try { vibrator.vibrate(vibrateDuration * 2); } catch (Exception ex) { }
 			performed = true;
@@ -143,7 +135,7 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 			this.downX = downX;
 			this.downY = downY;
 			handler = new Handler();
-			handler.postDelayed(longClickHandler = new LongClickHandler(keyCode), mLongPressTimeout);
+			handler.postDelayed(longClickHandler = new LongClickHandler(keyCode), longPressTimeout);
 
 			key.onPressed();
 			keyboardView.invalidateAllKeys();
@@ -156,7 +148,7 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 			if (sound != null) {
 				try { sound.seekTo(0); sound.start(); } catch (Exception ex) { }
 			}
-			this.type = SoftKeyEvent.SoftKeyPressType.SIGNLE;
+			this.type = SoftKeyPressType.SIGNLE;
 			onKey(SoftKeyAction.PRESS, keyCode, type);
 		}
 
@@ -209,58 +201,50 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 			}
 			if(dy > flickSensitivity) {
 				if(Math.abs(dy) > Math.abs(dx)) {
-					//TODO: flick down
-					type = SoftKeyEvent.SoftKeyPressType.FLICK_DOWN;
+					if(useFlick) type = SoftKeyEvent.SoftKeyPressType.FLICK_DOWN;
 				}
 				return false;
 			}
 			if(dy < -flickSensitivity) {
 				if(Math.abs(dy) > Math.abs(dx)) {
-					//TODO: flick up
-					type = SoftKeyEvent.SoftKeyPressType.FLICK_UP;
+					if(useFlick) type = SoftKeyEvent.SoftKeyPressType.FLICK_UP;
 				}
 				return false;
 			}
 			if(dx < -flickSensitivity) {
 				if(Math.abs(dx) > Math.abs(dy)) {
-					//TODO: flick left
-					type = SoftKeyEvent.SoftKeyPressType.FLICK_LEFT;
+					if(useFlick) type = SoftKeyEvent.SoftKeyPressType.FLICK_LEFT;
 				}
 				return false;
 			}
 			if(dx > flickSensitivity) {
 				if(Math.abs(dx) > Math.abs(dy)) {
-					//TODO: flick right
-					type = SoftKeyEvent.SoftKeyPressType.FLICK_RIGHT;
+					if(useFlick) type = SoftKeyEvent.SoftKeyPressType.FLICK_RIGHT;
 				}
 				return false;
 			}
 
 			if(dy > flickSensitivity) {
 				if(Math.abs(dy) > Math.abs(dx)) {
-					//TODO: flick down
-					type = SoftKeyEvent.SoftKeyPressType.FLICK_DOWN;
+					if(useFlick) type = SoftKeyEvent.SoftKeyPressType.FLICK_DOWN;
 				}
 				return false;
 			}
 			if(dy < -flickSensitivity) {
 				if(Math.abs(dy) > Math.abs(dx)) {
-					//TODO: flick up
-					type = SoftKeyEvent.SoftKeyPressType.FLICK_UP;
+					if(useFlick) type = SoftKeyEvent.SoftKeyPressType.FLICK_UP;
 				}
 				return false;
 			}
 			if(dx < -flickSensitivity) {
 				if(Math.abs(dx) > Math.abs(dy)) {
-					//TODO: flick left
-					type = SoftKeyEvent.SoftKeyPressType.FLICK_LEFT;
+					if(useFlick) type = SoftKeyEvent.SoftKeyPressType.FLICK_LEFT;
 				}
 				return false;
 			}
 			if(dx > flickSensitivity) {
 				if(Math.abs(dx) > Math.abs(dy)) {
-					//TODO: flick right
-					type = SoftKeyPressType.FLICK_RIGHT;
+					if(useFlick) type = SoftKeyPressType.FLICK_RIGHT;
 				}
 				return false;
 			}
@@ -279,6 +263,7 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 			keyboardView.requestLayout();
 
 			handler.removeCallbacksAndMessages(null);
+			backspaceLongClickHandler.removeCallbacksAndMessages(null);
 			if(space != -1) {
 				space = -1;
 				return false;
@@ -298,45 +283,27 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 	class OnKeyboardViewTouchListener implements View.OnTouchListener {
 		@Override
 		public boolean onTouch(View v, MotionEvent event) {
-			if(Build.VERSION.SDK_INT >= 8) {
-				int pointerIndex = event.getActionIndex();
-				int pointerId = event.getPointerId(pointerIndex);
-				int action = event.getActionMasked();
-				float x = event.getX(pointerIndex), y = event.getY(pointerIndex);
-				switch(action) {
-				case MotionEvent.ACTION_DOWN:
-				case MotionEvent.ACTION_POINTER_DOWN:
-					TouchPoint point = new TouchPoint(findKey(keyboard, (int) x, (int) y), x, y);
-					mTouchPoints.put(pointerId, point);
-					return true;
+			int pointerIndex = event.getActionIndex();
+			int pointerId = event.getPointerId(pointerIndex);
+			int action = event.getActionMasked();
+			float x = event.getX(pointerIndex), y = event.getY(pointerIndex);
+			switch(action) {
+			case MotionEvent.ACTION_DOWN:
+			case MotionEvent.ACTION_POINTER_DOWN:
+				TouchPoint point = new TouchPoint(findKey(keyboard, (int) x, (int) y), x, y);
+				mTouchPoints.put(pointerId, point);
+				v.performClick();
+				return true;
 
-				case MotionEvent.ACTION_MOVE:
-					return mTouchPoints.get(pointerId).onMove(x, y);
+			case MotionEvent.ACTION_MOVE:
+				return mTouchPoints.get(pointerId).onMove(x, y);
 
-				case MotionEvent.ACTION_UP:
-				case MotionEvent.ACTION_POINTER_UP:
-					mTouchPoints.get(pointerId).onUp();
-					mTouchPoints.remove(pointerId);
-					return true;
+			case MotionEvent.ACTION_UP:
+			case MotionEvent.ACTION_POINTER_UP:
+				mTouchPoints.get(pointerId).onUp();
+				mTouchPoints.remove(pointerId);
+				return true;
 
-				}
-			} else {
-				float x = event.getX(), y = event.getY();
-				switch(event.getAction()) {
-				case MotionEvent.ACTION_DOWN:
-					TouchPoint point = new TouchPoint(findKey(keyboard, (int) x, (int) y), x, y);
-					mTouchPoints.put(0, point);
-					return true;
-
-				case MotionEvent.ACTION_MOVE:
-					return mTouchPoints.get(0).onMove(x, y);
-
-				case MotionEvent.ACTION_UP:
-					mTouchPoints.get(0).onUp();
-					mTouchPoints.remove(0);
-					return true;
-
-				}
 			}
 			return false;
 		}
@@ -364,14 +331,11 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 
 		LayoutInflater inflater = LayoutInflater.from(context);
 
-		keyboardView = (KeyboardView) inflater.inflate(id, null);
-		keyboardView.setOnKeyboardActionListener(this);
-
 		mainView = (ViewGroup) inflater.inflate(R.layout.keyboard_default_main, null);
-		subView = (ViewGroup) inflater.inflate(R.layout.keyboard_default_sub, null);
+		subView = (ViewGroup) inflater.inflate(R.layout.keyboard_default_sub, mainView);
 
-		mainView.addView(subView);
-		mainView.addView(keyboardView);
+		keyboardView = (KeyboardView) inflater.inflate(id, mainView);
+		keyboardView.setOnKeyboardActionListener(this);
 
 		if(keyboardResName != null) {
 			keyboardResId = context.getResources().getIdentifier(keyboardResName, "xml", context.getPackageName());
@@ -389,21 +353,6 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 
 	public void onKey(SoftKeyAction action, int primaryCode, SoftKeyPressType type) {
 		if(!disableKeyInput) Event.fire(this, new SoftKeyEvent(action, primaryCode, type));
-	}
-
-	@Override
-	public void onPress(int x) {
-		setPreviewEnabled(x);
-	}
-
-	@Override
-	public void onRelease(int x) {
-		keyboardView.setPreviewEnabled(false);
-		backspaceLongClickHandler.removeCallbacksAndMessages(null);
-	}
-
-	public void setPreviewEnabled(int x) {
-
 	}
 
 	@SuppressWarnings("deprecation")
@@ -503,6 +452,16 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 		cloned.setKeyboardResName(keyboardResName);
 		cloned.setName(getName());
 		return cloned;
+	}
+
+	@Override
+	public void onPress(int primaryCode) {
+
+	}
+
+	@Override
+	public void onRelease(int primaryCode) {
+
 	}
 
 	@Override

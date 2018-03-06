@@ -303,17 +303,14 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 		try {
 			final int inputMethodId = (int) (long) variables.get("A");
 			if(inputMethodId != currentInputMethodId) {
-				new Handler().post(new Runnable() {
-					@Override
-					public void run() {
-						currentInputMethod.clearListeners();
-						HeonOt.this.clearListeners();
-						currentInputMethodId = inputMethodId;
-						currentInputMethod = inputMethods.get(currentInputMethodId);
-						currentInputMethod.registerListeners(HeonOt.this);
-						currentInputMethod.init();
-						setInputView(onCreateInputView());
-					}
+				new Handler().post(() -> {
+					currentInputMethod.clearListeners();
+					HeonOt.this.clearListeners();
+					currentInputMethodId = inputMethodId;
+					currentInputMethod = inputMethods.get(currentInputMethodId);
+					currentInputMethod.registerListeners(HeonOt.this);
+					currentInputMethod.init();
+					setInputView(onCreateInputView());
 				});
 			}
 		} catch(NullPointerException e) {}

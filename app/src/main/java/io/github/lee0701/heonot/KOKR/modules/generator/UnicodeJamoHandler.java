@@ -32,7 +32,7 @@ public class UnicodeJamoHandler {
 	}
 
 	public enum JamoType {
-		NON_HANGUL, CHO3, JUNG3, JONG3, CHO2, JUNG2;
+		NON_HANGUL, CHO3, JUNG3, JONG3, CHO2, JUNG2
 	}
 
 	public static class JamoPair implements Cloneable {
@@ -51,7 +51,7 @@ public class UnicodeJamoHandler {
 
 		@Override
 		public boolean equals(Object obj) {
-			return obj.hashCode() == this.hashCode();
+			return obj.getClass().equals(this.getClass()) && obj.hashCode() == this.hashCode();
 		}
 
 		@Override

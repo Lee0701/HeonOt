@@ -51,7 +51,7 @@ public class HardKeyEvent extends Event {
 	}
 
 	public enum HardKeyAction {
-		PRESS, RELEASE, CANCEL;
+		PRESS, RELEASE, CANCEL
 	}
 
 }

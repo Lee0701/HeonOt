@@ -32,22 +32,19 @@ public class HeonOtSettingsActivity extends SettingsActivity {
 		ListViewAdapter adapter = new ListViewAdapter(this, inputMethods);
 		listView.setAdapter(adapter);
 
-		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-				InputMethod method = inputMethods.get(position);
-				final EditText content = new EditText(HeonOtSettingsActivity.this);
-				try {
-					content.setText(method.toJSON(2));
-				} catch(JSONException e) {
-					e.printStackTrace();
-					Toast.makeText(HeonOtSettingsActivity.this, e.getClass().getName() + ":  " + e.getMessage(), Toast.LENGTH_LONG).show();
-					return;
-				}
-				Intent intent = new Intent(HeonOtSettingsActivity.this, InputMethodSettingsActivity.class);
-				intent.putExtra(EXTRA_METHOD_ID, position);
-				startActivity(intent);
+		listView.setOnItemClickListener((parent, view, position, id) -> {
+			InputMethod method = inputMethods.get(position);
+			final EditText content = new EditText(HeonOtSettingsActivity.this);
+			try {
+				content.setText(method.toJSON(2));
+			} catch(JSONException e) {
+				e.printStackTrace();
+				Toast.makeText(HeonOtSettingsActivity.this, e.getClass().getName() + ":  " + e.getMessage(), Toast.LENGTH_LONG).show();
+				return;
 			}
+			Intent intent = new Intent(HeonOtSettingsActivity.this, InputMethodSettingsActivity.class);
+			intent.putExtra(EXTRA_METHOD_ID, position);
+			startActivity(intent);
 		});
 
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);

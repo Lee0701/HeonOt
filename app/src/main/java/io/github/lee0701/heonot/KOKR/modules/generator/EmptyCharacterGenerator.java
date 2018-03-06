@@ -1,16 +1,9 @@
 package io.github.lee0701.heonot.KOKR.modules.generator;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import io.github.lee0701.heonot.KOKR.event.CommitCharEvent;
 import io.github.lee0701.heonot.KOKR.event.DeleteCharEvent;
 import io.github.lee0701.heonot.KOKR.event.Event;
 import io.github.lee0701.heonot.KOKR.event.InputCharEvent;
-import io.github.lee0701.heonot.KOKR.event.EventListener;
 
 public class EmptyCharacterGenerator extends CharacterGenerator {
 

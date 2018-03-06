@@ -31,11 +31,11 @@ public class SoftKeyEvent extends Event {
 	}
 
 	public enum SoftKeyAction {
-		PRESS, RELEASE, CANCEL;
+		PRESS, RELEASE, CANCEL
 	}
 
 	public enum SoftKeyPressType {
-		SIGNLE, LONG, FLICK_UP, FLICK_DOWN, FLICK_LEFT, FLICK_RIGHT;
+		SIGNLE, LONG, FLICK_UP, FLICK_DOWN, FLICK_LEFT, FLICK_RIGHT
 	}
 
 }

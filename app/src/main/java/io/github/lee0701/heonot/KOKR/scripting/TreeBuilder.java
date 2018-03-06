@@ -5,6 +5,6 @@ import java.util.Map;
 import io.github.lee0701.heonot.KOKR.scripting.nodes.TreeNode;
 
 public interface TreeBuilder {
-	public void setConstants(Map<String, Long> constants);
-	public TreeNode build(Object o);
+	void setConstants(Map<String, Long> constants);
+	TreeNode build(Object o);
 }

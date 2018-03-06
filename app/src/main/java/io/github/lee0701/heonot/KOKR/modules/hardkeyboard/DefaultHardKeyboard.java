@@ -275,7 +275,7 @@ public class DefaultHardKeyboard extends HardKeyboard {
 		normal.setEllipsize(TextUtils.TruncateAt.END);
 		normal.setSingleLine(true);
 		final EditText shift = new EditText(context);
-		shift.setHint(R.string.key_shift);
+		shift.setHint(R.string.key_shifted);
 		shift.setEllipsize(TextUtils.TruncateAt.END);
 		shift.setSingleLine(true);
 		if(layout == null) {

@@ -404,7 +404,7 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 		Map<JamoPair, Character> combinations = new HashMap<>();
 		if(combinationTable != null) {
 			for(JamoPair key : this.combinationTable.keySet()) {
-				combinations.put((JamoPair) key.clone(), combinationTable.get(key).charValue());
+				combinations.put((JamoPair) key.clone(), combinationTable.get(key));
 			}
 			cloned.setCombinationTable(combinations);
 		}

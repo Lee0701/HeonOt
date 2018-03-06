@@ -28,7 +28,6 @@ public class DefaultHardKeyboardMap implements Cloneable {
 
 	@Override
 	public Object clone() {
-		DefaultHardKeyboardMap clone = new DefaultHardKeyboardMap(keyCode, normal, shift, caps);
-		return clone;
+		return new DefaultHardKeyboardMap(keyCode, normal, shift, caps);
 	}
 }
