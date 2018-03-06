@@ -9,7 +9,7 @@ public abstract class TreeNode {
 	public static final int TYPE_TERNARY = 10;
 	public static final int TYPE_LIST = 11;
 
-	int operator;
+	private int operator;
 	public TreeNode(int operator) {
 		this.operator = operator;
 	}

@@ -22,7 +22,7 @@ public class InputMethod implements Cloneable {
 
 	private List<InputMethodModule> modules;
 
-	public InputMethod(InputMethodModule... modules) {
+	private InputMethod(InputMethodModule... modules) {
 		this.modules = new ArrayList<>(Arrays.asList(modules));
 	}
 

@@ -1,22 +1,21 @@
 package io.github.lee0701.heonot;
 
+import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import io.github.lee0701.heonot.inputmethod.InputMethod;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.lee0701.heonot.inputmethod.InputMethod;
-
 public abstract class SettingsActivity extends AppCompatActivity {
 
-	public static final String EXTRA_METHOD_ID = "io.github.lee0701.heonot.METHOD_ID";
+	static final String EXTRA_METHOD_ID = "io.github.lee0701.heonot.METHOD_ID";
 
-	HeonOt heonOt;
+	private HeonOt heonOt;
 
 	List<InputMethod> inputMethods = new ArrayList<>();
 

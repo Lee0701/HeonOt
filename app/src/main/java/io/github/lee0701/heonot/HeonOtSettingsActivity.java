@@ -8,17 +8,11 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
-
+import android.widget.*;
+import io.github.lee0701.heonot.inputmethod.InputMethod;
 import org.json.JSONException;
 
 import java.util.List;
-
-import io.github.lee0701.heonot.inputmethod.InputMethod;
 
 public class HeonOtSettingsActivity extends SettingsActivity {
 	@Override
@@ -56,7 +50,7 @@ public class HeonOtSettingsActivity extends SettingsActivity {
 		private LayoutInflater inflater;
 		private List<InputMethod> data;
 
-		public ListViewAdapter(Context context, List<InputMethod> data) {
+		ListViewAdapter(Context context, List<InputMethod> data) {
 			this.inflater = LayoutInflater.from(context);
 			this.data = data;
 		}

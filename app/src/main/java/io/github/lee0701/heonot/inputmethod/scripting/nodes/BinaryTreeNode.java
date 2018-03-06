@@ -2,7 +2,7 @@ package io.github.lee0701.heonot.inputmethod.scripting.nodes;
 
 public class BinaryTreeNode extends TreeNode {
 
-	TreeNode left, right;
+	private TreeNode left, right;
 
 	public BinaryTreeNode(int operator, TreeNode left, TreeNode right) {
 		super(operator);

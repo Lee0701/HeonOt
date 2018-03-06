@@ -4,7 +4,9 @@ import android.content.Context;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
-
+import io.github.lee0701.heonot.R;
+import io.github.lee0701.heonot.inputmethod.event.*;
+import io.github.lee0701.heonot.inputmethod.modules.hardkeyboard.HardKeyboard;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,26 +16,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
-import io.github.lee0701.heonot.inputmethod.event.CommitComposingCharEvent;
-import io.github.lee0701.heonot.inputmethod.event.ComposeCharEvent;
-import io.github.lee0701.heonot.inputmethod.event.Event;
-import io.github.lee0701.heonot.inputmethod.event.DeleteCharEvent;
-import io.github.lee0701.heonot.inputmethod.event.CommitCharEvent;
-import io.github.lee0701.heonot.inputmethod.event.FinishComposingEvent;
-import io.github.lee0701.heonot.inputmethod.event.InputCharEvent;
-import io.github.lee0701.heonot.inputmethod.event.SetPropertyEvent;
-import io.github.lee0701.heonot.inputmethod.modules.hardkeyboard.HardKeyboard;
-import io.github.lee0701.heonot.R;
-
 import static io.github.lee0701.heonot.inputmethod.modules.generator.UnicodeJamoHandler.JamoPair;
 
 public class UnicodeCharacterGenerator extends CharacterGenerator {
 
-	Stack<State> states = new Stack<>();
+	private Stack<State> states = new Stack<>();
 
-	Map<UnicodeJamoHandler.JamoPair, Character> combinationTable = new HashMap<>();
+	private Map<UnicodeJamoHandler.JamoPair, Character> combinationTable = new HashMap<>();
 
-	boolean moajugi, fullMoachigi, firstMidEnd;
+	private boolean moajugi, fullMoachigi, firstMidEnd;
 
 	@Override
 	public void init() {
@@ -219,18 +210,18 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 		String composing;
 		int lastInput;
 
-		public State(UnicodeHangulSyllable syllable) {
+		State(UnicodeHangulSyllable syllable) {
 			this.syllable = syllable;
 			last = beforeJong = 0;
 			composing = "";
 			lastInput = 0;
 		}
 
-		public State() {
+		State() {
 			this(new UnicodeHangulSyllable());
 		}
 
-		public State(State previousState) {
+		State(State previousState) {
 			syllable = (UnicodeHangulSyllable) previousState.syllable.clone();
 			beforeJong = previousState.beforeJong;
 			composing = previousState.composing;

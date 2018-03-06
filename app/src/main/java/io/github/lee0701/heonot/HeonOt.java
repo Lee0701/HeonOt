@@ -1,68 +1,51 @@
 package io.github.lee0701.heonot;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.inputmethodservice.InputMethodService;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
-
-import org.json.JSONException;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import io.github.lee0701.heonot.inputmethod.InputMethod;
-import io.github.lee0701.heonot.inputmethod.event.CommitCharEvent;
-import io.github.lee0701.heonot.inputmethod.event.ComposeCharEvent;
-import io.github.lee0701.heonot.inputmethod.event.DeleteCharEvent;
-import io.github.lee0701.heonot.inputmethod.event.Event;
-import io.github.lee0701.heonot.inputmethod.event.EventSource;
-import io.github.lee0701.heonot.inputmethod.event.CommitComposingCharEvent;
-import io.github.lee0701.heonot.inputmethod.event.FinishComposingEvent;
-import io.github.lee0701.heonot.inputmethod.event.HardKeyEvent;
-import io.github.lee0701.heonot.inputmethod.event.EventListener;
-import io.github.lee0701.heonot.inputmethod.event.SoftKeyEvent;
+import io.github.lee0701.heonot.inputmethod.event.*;
 import io.github.lee0701.heonot.inputmethod.modules.hardkeyboard.HardKeyboard;
 import io.github.lee0701.heonot.inputmethod.modules.hardkeyboard.KeyStroke;
 import io.github.lee0701.heonot.inputmethod.scripting.StringRecursionTreeBuilder;
 import io.github.lee0701.heonot.inputmethod.scripting.TreeEvaluator;
 import io.github.lee0701.heonot.inputmethod.scripting.nodes.TreeNode;
+import org.json.JSONException;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class HeonOt extends InputMethodService implements EventListener, EventSource {
 
-	List<EventListener> listeners = new ArrayList<>();
+	private List<EventListener> listeners = new ArrayList<>();
 
-	List<InputMethod> inputMethods;
-	int currentInputMethodId;
-	InputMethod currentInputMethod;
+	private List<InputMethod> inputMethods;
+	private int currentInputMethodId;
+	private InputMethod currentInputMethod;
 
-	protected Map<KeyStroke, TreeNode> shortcuts;
+	private Map<KeyStroke, TreeNode> shortcuts;
 
-	protected TreeEvaluator evaluator;
+	private TreeEvaluator evaluator;
 
 	private static HeonOt mSelf;
-	public static HeonOt getInstance() {
+	static HeonOt getInstance() {
 		return mSelf;
 	}
 	
-	public HeonOt() {
+	private HeonOt() {
 		super();
 		inputMethods = new ArrayList<>();
 	}
 	
-	public HeonOt(Context context) {
+	HeonOt(Context context) {
 		this();
 		attachBaseContext(context);
 	}
@@ -76,7 +59,7 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 
 	}
 
-	public void init() {
+	void init() {
 		evaluator = new TreeEvaluator();
 
 		File methodsDir = new File(getFilesDir(), "methods");
@@ -135,7 +118,7 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 		}
 	}
 
-	public void storeMethods(File methodsDir) {
+	void storeMethods(File methodsDir) {
 		for(int i = 0 ; i < inputMethods.size() ; i++) {
 			InputMethod method = inputMethods.get(i);
 			File file = new File(methodsDir, i + ".json");
@@ -302,13 +285,13 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 		return 1;
 	}
 
-	public Map<String, Long> getVariables() {
+	private Map<String, Long> getVariables() {
 		return new HashMap<String, Long>() {{
 			put("A", (long) currentInputMethodId);
 		}};
 	}
 
-	public void setVariables(Map<String, Long> variables) {
+	private void setVariables(Map<String, Long> variables) {
 		try {
 			final int inputMethodId = (int) (long) variables.get("A");
 			if(inputMethodId != currentInputMethodId) {
@@ -325,7 +308,7 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 		} catch(NullPointerException e) {}
 	}
 
-	public String getRawString(String resName) throws IOException {
+	private String getRawString(String resName) throws IOException {
 		InputStream is = getResources().openRawResource(getResources().getIdentifier(resName, "raw", getPackageName()));
 		byte[] bytes = new byte[is.available()];
 		is.read(bytes);
@@ -356,7 +339,7 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 		return inputMethods;
 	}
 
-	public List<InputMethod> getInputMethodsCloned() throws CloneNotSupportedException {
+	List<InputMethod> getInputMethodsCloned() throws CloneNotSupportedException {
 		List<InputMethod> cloned = new ArrayList<>();
 		for(InputMethod method : inputMethods) {
 			cloned.add((InputMethod) method.clone());
@@ -364,7 +347,7 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 		return cloned;
 	}
 
-	public void setInputMethods(List<InputMethod> inputMethods) {
+	void setInputMethods(List<InputMethod> inputMethods) {
 		this.inputMethods = inputMethods;
 	}
 }
