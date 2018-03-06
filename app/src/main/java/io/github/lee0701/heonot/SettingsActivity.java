@@ -10,7 +10,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.lee0701.heonot.KOKR.InputMethod;
+import io.github.lee0701.heonot.inputmethod.InputMethod;
 
 public abstract class SettingsActivity extends AppCompatActivity {
 

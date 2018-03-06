@@ -4,7 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import io.github.lee0701.heonot.KOKR.EngineMode;
+import io.github.lee0701.heonot.inputmethod.EngineMode;
 
 public class LayoutConverter {
 

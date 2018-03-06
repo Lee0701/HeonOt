@@ -3,14 +3,14 @@
   "modules": [
     {
       "name": "Soft Keyboard",
-      "class": "io.github.lee0701.heonot.KOKR.modules.softkeyboard.DefaultSoftKeyboard",
+      "class": "io.github.lee0701.heonot.inputmethod.modules.softkeyboard.DefaultSoftKeyboard",
       "properties": {
         "keyboard": "keyboard_full_10cols"
       }
     },
     {
       "name": "Hard Keyboard",
-      "class": "io.github.lee0701.heonot.KOKR.modules.hardkeyboard.DefaultHardKeyboard",
+      "class": "io.github.lee0701.heonot.inputmethod.modules.hardkeyboard.DefaultHardKeyboard",
       "properties": {
         "layout": {
           "layout": [
@@ -260,7 +260,7 @@
     },
     {
       "name": "Character Generator",
-      "class": "io.github.lee0701.heonot.KOKR.modules.generator.UnicodeCharacterGenerator",
+      "class": "io.github.lee0701.heonot.inputmethod.modules.generator.UnicodeCharacterGenerator",
       "properties": {
         "moajugi": true,
         "first-mid-end": true,

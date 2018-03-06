@@ -3,20 +3,20 @@
   "modules": [
     {
       "name": "Soft Keyboard",
-      "class": "io.github.lee0701.heonot.KOKR.modules.softkeyboard.DefaultSoftKeyboard",
+      "class": "io.github.lee0701.heonot.inputmethod.modules.softkeyboard.DefaultSoftKeyboard",
       "properties": {
         "keyboard": "keyboard_full_10cols"
       }
     },
     {
       "name": "Hard Keyboard",
-      "class": "io.github.lee0701.heonot.KOKR.modules.hardkeyboard.DefaultHardKeyboard",
+      "class": "io.github.lee0701.heonot.inputmethod.modules.hardkeyboard.DefaultHardKeyboard",
       "properties": {
       }
     },
     {
       "name": "Character Generator",
-      "class": "io.github.lee0701.heonot.KOKR.modules.generator.EmptyCharacterGenerator",
+      "class": "io.github.lee0701.heonot.inputmethod.modules.generator.EmptyCharacterGenerator",
       "properties": {
       }
     }

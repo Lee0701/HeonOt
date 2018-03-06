@@ -5,10 +5,10 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.github.lee0701.heonot.KOKR.scripting.StringRecursionTreeBuilder;
-import io.github.lee0701.heonot.KOKR.scripting.TreeBuilder;
-import io.github.lee0701.heonot.KOKR.scripting.TreeEvaluator;
-import io.github.lee0701.heonot.KOKR.scripting.nodes.TreeNode;
+import io.github.lee0701.heonot.inputmethod.scripting.StringRecursionTreeBuilder;
+import io.github.lee0701.heonot.inputmethod.scripting.TreeBuilder;
+import io.github.lee0701.heonot.inputmethod.scripting.TreeEvaluator;
+import io.github.lee0701.heonot.inputmethod.scripting.nodes.TreeNode;
 
 public class ExpressionTest {
 

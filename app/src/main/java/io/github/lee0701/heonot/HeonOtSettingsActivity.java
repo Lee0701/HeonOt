@@ -8,7 +8,6 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -19,7 +18,7 @@ import org.json.JSONException;
 
 import java.util.List;
 
-import io.github.lee0701.heonot.KOKR.InputMethod;
+import io.github.lee0701.heonot.inputmethod.InputMethod;
 
 public class HeonOtSettingsActivity extends SettingsActivity {
 	@Override

@@ -7,8 +7,8 @@ import android.util.TypedValue;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import io.github.lee0701.heonot.KOKR.InputMethod;
-import io.github.lee0701.heonot.KOKR.modules.InputMethodModule;
+import io.github.lee0701.heonot.inputmethod.InputMethod;
+import io.github.lee0701.heonot.inputmethod.modules.InputMethodModule;
 
 public class InputMethodSettingsActivity extends SettingsActivity {
 

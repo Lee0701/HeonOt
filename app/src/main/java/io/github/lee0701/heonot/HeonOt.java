@@ -23,22 +23,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.github.lee0701.heonot.KOKR.InputMethod;
-import io.github.lee0701.heonot.KOKR.event.CommitCharEvent;
-import io.github.lee0701.heonot.KOKR.event.ComposeCharEvent;
-import io.github.lee0701.heonot.KOKR.event.DeleteCharEvent;
-import io.github.lee0701.heonot.KOKR.event.Event;
-import io.github.lee0701.heonot.KOKR.event.EventSource;
-import io.github.lee0701.heonot.KOKR.event.CommitComposingCharEvent;
-import io.github.lee0701.heonot.KOKR.event.FinishComposingEvent;
-import io.github.lee0701.heonot.KOKR.event.HardKeyEvent;
-import io.github.lee0701.heonot.KOKR.event.EventListener;
-import io.github.lee0701.heonot.KOKR.event.SoftKeyEvent;
-import io.github.lee0701.heonot.KOKR.modules.hardkeyboard.HardKeyboard;
-import io.github.lee0701.heonot.KOKR.modules.hardkeyboard.KeyStroke;
-import io.github.lee0701.heonot.KOKR.scripting.StringRecursionTreeBuilder;
-import io.github.lee0701.heonot.KOKR.scripting.TreeEvaluator;
-import io.github.lee0701.heonot.KOKR.scripting.nodes.TreeNode;
+import io.github.lee0701.heonot.inputmethod.InputMethod;
+import io.github.lee0701.heonot.inputmethod.event.CommitCharEvent;
+import io.github.lee0701.heonot.inputmethod.event.ComposeCharEvent;
+import io.github.lee0701.heonot.inputmethod.event.DeleteCharEvent;
+import io.github.lee0701.heonot.inputmethod.event.Event;
+import io.github.lee0701.heonot.inputmethod.event.EventSource;
+import io.github.lee0701.heonot.inputmethod.event.CommitComposingCharEvent;
+import io.github.lee0701.heonot.inputmethod.event.FinishComposingEvent;
+import io.github.lee0701.heonot.inputmethod.event.HardKeyEvent;
+import io.github.lee0701.heonot.inputmethod.event.EventListener;
+import io.github.lee0701.heonot.inputmethod.event.SoftKeyEvent;
+import io.github.lee0701.heonot.inputmethod.modules.hardkeyboard.HardKeyboard;
+import io.github.lee0701.heonot.inputmethod.modules.hardkeyboard.KeyStroke;
+import io.github.lee0701.heonot.inputmethod.scripting.StringRecursionTreeBuilder;
+import io.github.lee0701.heonot.inputmethod.scripting.TreeEvaluator;
+import io.github.lee0701.heonot.inputmethod.scripting.nodes.TreeNode;
 
 public class HeonOt extends InputMethodService implements EventListener, EventSource {
 
