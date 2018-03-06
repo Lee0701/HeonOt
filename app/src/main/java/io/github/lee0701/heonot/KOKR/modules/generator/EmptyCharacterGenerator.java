@@ -25,7 +25,7 @@ public class EmptyCharacterGenerator extends CharacterGenerator {
 	}
 
 	@Override
-	public void backspace(int mode) {
+	public void backspace() {
 		Event.fire(this, new DeleteCharEvent(1, 0));
 	}
 

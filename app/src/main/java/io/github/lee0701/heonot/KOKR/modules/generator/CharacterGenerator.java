@@ -6,6 +6,6 @@ public abstract class CharacterGenerator extends InputMethodModule{
 
 	public abstract void input(long code);
 
-	public abstract void backspace(int mode);
+	public abstract void backspace();
 
 }

@@ -167,7 +167,7 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 	}
 
 	@Override
-	public void backspace(int mode) {
+	public void backspace() {
 		try {
 			states.pop();
 			State state = states.peek();
@@ -252,7 +252,7 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 			this.setProperty(event.getKey(), event.getValue());
 		}
 		else if(e instanceof DeleteCharEvent) {
-			if(e.getSource() instanceof HardKeyboard) this.backspace(0);
+			if(e.getSource() instanceof HardKeyboard) this.backspace();
 		}
 		else if(e instanceof CommitComposingCharEvent) {
 			commitComposingChar();
