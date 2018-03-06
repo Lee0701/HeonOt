@@ -10,6 +10,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import io.github.lee0701.heonot.KOKR.modules.InputMethodModule;
@@ -90,13 +91,12 @@ public class InputMethod implements Cloneable {
 					Class<?> moduleClass = Class.forName(className);
 					InputMethodModule m = (InputMethodModule) moduleClass.getDeclaredConstructor().newInstance();
 					m.setName(name);
-					JSONArray props = module.optJSONArray("properties");
-					if(props != null) {
-						for(int j = 0 ; j < props.length() ; j++) {
-							JSONObject prop = props.getJSONObject(j);
-							String key = prop.optString("key", null);
-							Object value = prop.opt("value");
-							if(key != null) m.setProperty(key, value);
+					JSONObject props = module.optJSONObject("properties");
+					if(props != null && props.names() != null) {
+						JSONArray names = props.names();
+						for(int j = 0 ; j < names.length() ; j++) {
+							String key = names.getString(j);
+							m.setProperty(key, props.opt(key));
 						}
 					}
 					modules.add(m);

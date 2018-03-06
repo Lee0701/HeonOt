@@ -302,27 +302,13 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 	@Override
 	public JSONObject toJSONObject() throws JSONException {
 		JSONObject object = super.toJSONObject();
-		JSONArray properties = new JSONArray();
+		JSONObject properties = new JSONObject();
 
-		JSONObject combinationTable = new JSONObject();
-		combinationTable.put("key", "combination-table");
-		JSONObject combination = this.storeCombinationTable();
-		combinationTable.put("value", combination);
+		properties.put("combination-table", this.storeCombinationTable());
 
-		properties.put(combinationTable);
-
-		JSONObject moajugi = new JSONObject();
-		moajugi.put("key", "moajugi");
-		moajugi.put("value", this.moajugi);
-		JSONObject firstMidEnd = new JSONObject();
-		firstMidEnd.put("key", "first-mid-end");
-		firstMidEnd.put("value", this.firstMidEnd);
-		JSONObject fullMoachigi = new JSONObject();
-		fullMoachigi.put("key", "full-moachigi");
-		fullMoachigi.put("value", this.fullMoachigi);
-		properties.put(moajugi);
-		properties.put(firstMidEnd);
-		properties.put(fullMoachigi);
+		properties.put("moajugi", this.moajugi);
+		properties.put("first-mid-end", this.firstMidEnd);
+		properties.put("full-moachigi", this.fullMoachigi);
 
 		object.put("properties", properties);
 

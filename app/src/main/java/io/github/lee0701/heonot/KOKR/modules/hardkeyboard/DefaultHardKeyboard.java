@@ -309,13 +309,10 @@ public class DefaultHardKeyboard extends HardKeyboard {
 	@Override
 	public JSONObject toJSONObject() throws JSONException {
 		JSONObject object = super.toJSONObject();
-		JSONArray properties = new JSONArray();
+		JSONObject properties = new JSONObject();
 
 		if(layout != null) {
-			JSONObject layout = new JSONObject();
-			layout.put("key", "layout");
-			layout.put("value", storeLayout());
-			properties.put(layout);
+			properties.put("layout", storeLayout());
 		}
 
 		object.put("properties", properties);

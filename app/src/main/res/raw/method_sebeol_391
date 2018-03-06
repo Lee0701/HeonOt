@@ -4,21 +4,16 @@
     {
       "name": "Soft Keyboard",
       "class": "io.github.lee0701.heonot.KOKR.modules.softkeyboard.DefaultSoftKeyboard",
-      "properties": [
-        {
-          "key": "keyboard",
-          "value": "keyboard_full_10cols"
-        }
-      ]
+      "properties": {
+        "keyboard": "keyboard_full_10cols"
+      }
     },
     {
       "name": "Hard Keyboard",
       "class": "io.github.lee0701.heonot.KOKR.modules.hardkeyboard.DefaultHardKeyboard",
-      "properties": [
-        {
-          "key": "layout",
-          "value": {
-            "layout": [
+      "properties": {
+        "layout": {
+          "layout": [
             {
               "keycode": 8,
               "normal": "4546",
@@ -260,26 +255,17 @@
               "shift": "44"
             }
           ]
-          }
         }
-      ]
+      }
     },
     {
       "name": "Character Generator",
       "class": "io.github.lee0701.heonot.KOKR.modules.generator.UnicodeCharacterGenerator",
-      "properties": [
-        {
-          "key": "moajugi",
-          "value": true
-        },
-        {
-          "key": "first-mid-end",
-          "value": true
-        },
-        {
-          "key": "combination-table",
-          "value": {
-            "combination": [
+      "properties": {
+        "moajugi": true,
+        "first-mid-end": true,
+        "combination-table": {
+          "combination": [
               {
                 "result": "4353",
                 "a": 4352,
@@ -406,9 +392,8 @@
                 "b": 4538
               }
             ]
-          }
         }
-      ]
+      }
     }
   ]
 }

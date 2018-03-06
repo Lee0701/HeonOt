@@ -34,8 +34,6 @@ import io.github.lee0701.heonot.R;
 
 public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.OnKeyboardActionListener {
 
-	protected static final int DEFAULT_FLICK_SENSITIVITY = 100;
-
 	protected static final int SPACE_SLIDE_UNIT = 30;
 	protected static final int BACKSPACE_SLIDE_UNIT = 250;
 
@@ -58,36 +56,13 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 
 	private int keyHeightPortrait = 50, keyHeightLandscape = 42;
 	private int longPressTimeout = 300;
-	private boolean useFlick;
+	private boolean useFlick = true;
 	private int flickSensitivity = 100, spaceSlideSensitivity = 100;
 	private int vibrateDuration = 30;
 	private boolean showPreview = false;
 
 
 	protected Map<Integer, String> labels;
-
-/*
-	SparseArray<SparseArray<Integer>> mKeyIcons = new SparseArray<SparseArray<Integer>>() {{
-		put(0, new SparseArray<Integer>() {{
-			put(KEYCODE_QWERTY_SHIFT, R.drawable.key_qwerty_shift);
-			put(KEYCODE_QWERTY_ENTER, R.drawable.key_qwerty_enter);
-			put(-10, R.drawable.key_qwerty_space);
-			put(KEYCODE_QWERTY_BACKSPACE, R.drawable.key_qwerty_del);
-			put(KEYCODE_JP12_ENTER, R.drawable.key_12key_enter);
-			put(KEYCODE_JP12_SPACE, R.drawable.key_12key_space);
-			put(KEYCODE_JP12_BACKSPACE, R.drawable.key_12key_del);
-		}});
-		put(1, new SparseArray<Integer>() {{
-			put(KEYCODE_QWERTY_SHIFT, R.drawable.key_qwerty_shift_b);
-			put(KEYCODE_QWERTY_ENTER, R.drawable.key_qwerty_enter_b);
-			put(-10, R.drawable.key_qwerty_space_b);
-			put(KEYCODE_QWERTY_BACKSPACE, R.drawable.key_qwerty_del_b);
-			put(KEYCODE_JP12_ENTER, R.drawable.key_12key_enter_b);
-			put(KEYCODE_JP12_SPACE, R.drawable.key_12key_space_b);
-			put(KEYCODE_JP12_BACKSPACE, R.drawable.key_12key_del_b);
-		}});
-	}};
-*/
 
 	class LongClickHandler implements Runnable {
 		int keyCode;
@@ -292,7 +267,6 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 			case MotionEvent.ACTION_POINTER_DOWN:
 				TouchPoint point = new TouchPoint(findKey(keyboard, (int) x, (int) y), x, y);
 				mTouchPoints.put(pointerId, point);
-				v.performClick();
 				return true;
 
 			case MotionEvent.ACTION_MOVE:
@@ -332,10 +306,13 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 		LayoutInflater inflater = LayoutInflater.from(context);
 
 		mainView = (ViewGroup) inflater.inflate(R.layout.keyboard_default_main, null);
-		subView = (ViewGroup) inflater.inflate(R.layout.keyboard_default_sub, mainView);
+		subView = (ViewGroup) inflater.inflate(R.layout.keyboard_default_sub, null);
 
-		keyboardView = (KeyboardView) inflater.inflate(id, mainView);
+		keyboardView = (KeyboardView) inflater.inflate(id, null);
 		keyboardView.setOnKeyboardActionListener(this);
+
+		mainView.addView(subView);
+		mainView.addView(keyboardView);
 
 		if(keyboardResName != null) {
 			keyboardResId = context.getResources().getIdentifier(keyboardResName, "xml", context.getPackageName());
@@ -345,7 +322,6 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 		updateLabels(keyboard, labels);
 
 		keyboardView.setKeyboard(keyboard);
-
 		keyboardView.setOnTouchListener(new OnKeyboardViewTouchListener());
 
 		return mainView;
@@ -362,17 +338,6 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 		int height = (displayMode == PORTRAIT) ? keyHeightPortrait : keyHeightLandscape;
 		height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, height, metrics);
 		keyboard.resize(height);
-		/*
-		SparseArray<Integer> keyIcons = mKeyIcons.get(preference.getKeyIcon());
-		for(Keyboard.Key key : keyboard.getKeys()) {
-			Integer keyIcon = keyIcons.get(key.codes[0]);
-			if(keyIcon != null) {
-				Drawable drawable = context.getResources().getDrawable(keyIcon);
-				key.icon = drawable;
-				key.iconPreview = drawable;
-			}
-		}
-		*/
 
 		return keyboard;
 	}
@@ -413,6 +378,7 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 				keyboardResName = (String) value;
 			}
 			break;
+
 		case "soft-key-labels":
 			try {
 				this.labels = (Map<Integer, String>) value;
@@ -420,37 +386,76 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 				ex.printStackTrace();
 			}
 			break;
+
+		case "key-height-portrait":
+			if(value instanceof Integer) {
+				this.keyHeightPortrait = (int) value;
+			}
+			break;
+
+		case "key-height-landscape":
+			if(value instanceof Integer) {
+				this.keyHeightLandscape = (int) value;
+			}
+			break;
+
+		case "long-press-timeout":
+			if(value instanceof Integer) {
+				this.longPressTimeout = (int) value;
+			}
+			break;
+
+		case "use-flick":
+			if(value instanceof Boolean) {
+				this.useFlick = (boolean) value;
+			}
+			break;
+
+		case "flick-sensitivity":
+			if(value instanceof Integer) {
+				this.flickSensitivity = (int) value;
+			}
+			break;
+
+		case "vibrate-duration":
+			if(value instanceof Integer) {
+				this.vibrateDuration = (int) value;
+			}
+			break;
+
 		}
 	}
 
 	@Override
 	public JSONObject toJSONObject() throws JSONException {
 		JSONObject object = super.toJSONObject();
-		JSONArray properties = new JSONArray();
+		JSONObject properties = new JSONObject();
 
-		JSONObject keyboard = new JSONObject();
-		keyboard.put("key", "keyboard");
-		keyboard.put("value", this.keyboardResName);
-		properties.put(keyboard);
+		properties.put("keyboard", getKeyboardResName());
+		properties.put("key-height-portrait", getKeyHeightPortrait());
+		properties.put("key-height-landscape", getKeyHeightLandscape());
+		properties.put("long-press-timeout", getLongPressTimeout());
+		properties.put("use-flick", getUseFlick());
+		properties.put("flick-sensitivity", getFlickSensitivity());
+		properties.put("vibrate-duration", getVibrateDuration());
 
 		object.put("properties", properties);
 
 		return object;
 	}
 
-	public String getKeyboardResName() {
-		return keyboardResName;
-	}
-
-	public void setKeyboardResName(String keyboardResName) {
-		this.keyboardResName = keyboardResName;
-	}
-
 	@Override
 	public Object clone() {
 		DefaultSoftKeyboard cloned = new DefaultSoftKeyboard();
-		cloned.setKeyboardResName(keyboardResName);
+		cloned.setKeyboardResName(getKeyboardResName());
 		cloned.setName(getName());
+		cloned.setKeyHeightPortrait(getKeyHeightPortrait());
+		cloned.setKeyHeightLandscape(getKeyHeightLandscape());
+		cloned.setLongPressTimeout(getLongPressTimeout());
+		cloned.setUseFlick(getUseFlick());
+		cloned.setFlickSensitivity(getFlickSensitivity());
+		cloned.setVibrateDuration(getVibrateDuration());
+		cloned.setSpaceSlideSensitivity(getSpaceSlideSensitivity());
 		return cloned;
 	}
 
@@ -494,4 +499,67 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 
 	}
 
+	public String getKeyboardResName() {
+		return keyboardResName;
+	}
+
+	public void setKeyboardResName(String keyboardResName) {
+		this.keyboardResName = keyboardResName;
+	}
+
+	public int getKeyHeightPortrait() {
+		return keyHeightPortrait;
+	}
+
+	public void setKeyHeightPortrait(int keyHeightPortrait) {
+		this.keyHeightPortrait = keyHeightPortrait;
+	}
+
+	public int getKeyHeightLandscape() {
+		return keyHeightLandscape;
+	}
+
+	public void setKeyHeightLandscape(int keyHeightLandscape) {
+		this.keyHeightLandscape = keyHeightLandscape;
+	}
+
+	public int getLongPressTimeout() {
+		return longPressTimeout;
+	}
+
+	public void setLongPressTimeout(int longPressTimeout) {
+		this.longPressTimeout = longPressTimeout;
+	}
+
+	public boolean getUseFlick() {
+		return useFlick;
+	}
+
+	public void setUseFlick(boolean useFlick) {
+		this.useFlick = useFlick;
+	}
+
+	public int getFlickSensitivity() {
+		return flickSensitivity;
+	}
+
+	public void setFlickSensitivity(int flickSensitivity) {
+		this.flickSensitivity = flickSensitivity;
+	}
+
+	public int getSpaceSlideSensitivity() {
+		return spaceSlideSensitivity;
+	}
+
+	public void setSpaceSlideSensitivity(int spaceSlideSensitivity) {
+		this.spaceSlideSensitivity = spaceSlideSensitivity;
+	}
+
+	public int getVibrateDuration() {
+		return vibrateDuration;
+	}
+
+	public void setVibrateDuration(int vibrateDuration) {
+		this.vibrateDuration = vibrateDuration;
+	}
 }
