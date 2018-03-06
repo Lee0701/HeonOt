@@ -4,4 +4,8 @@ public interface EventListener {
 
 	void onEvent(Event event);
 
+	default int getPriority() {
+		return 0;
+	}
+
 }

@@ -33,7 +33,7 @@ import io.github.lee0701.heonot.KOKR.event.CommitComposingCharEvent;
 import io.github.lee0701.heonot.KOKR.event.FinishComposingEvent;
 import io.github.lee0701.heonot.KOKR.event.HardKeyEvent;
 import io.github.lee0701.heonot.KOKR.event.EventListener;
-import io.github.lee0701.heonot.KOKR.event.ShortcutEvent;
+import io.github.lee0701.heonot.KOKR.event.SoftKeyEvent;
 import io.github.lee0701.heonot.KOKR.modules.hardkeyboard.HardKeyboard;
 import io.github.lee0701.heonot.KOKR.modules.hardkeyboard.KeyStroke;
 import io.github.lee0701.heonot.KOKR.scripting.StringRecursionTreeBuilder;
@@ -200,9 +200,7 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 		case KeyEvent.KEYCODE_VOLUME_DOWN:
 		case KeyEvent.KEYCODE_MUTE:
 		case KeyEvent.KEYCODE_VOLUME_UP:
-			ShortcutEvent event = new ShortcutEvent(e.getKeyCode(), e.isAltPressed(), e.isShiftPressed());
-			this.onEvent(event);
-			return event.isCancelled();
+			return false;
 		}
 		HardKeyEvent event = new HardKeyEvent(HardKeyEvent.HardKeyAction.PRESS, keyCode, e.getMetaState(), e.getRepeatCount());
 		Event.fire(this, event);
@@ -278,8 +276,8 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 			commitComposingChar();
 			if(ic != null) ic.deleteSurroundingText(event.getBeforeLength(), event.getAfterLength());
 		}
-		else if(e instanceof ShortcutEvent) {
-			ShortcutEvent event = (ShortcutEvent) e;
+		else if(e instanceof HardKeyEvent) {
+			HardKeyEvent event = (HardKeyEvent) e;
 			for(KeyStroke stroke : shortcuts.keySet()) {
 				if(stroke.getKeyCode() == event.getKeyCode()
 						&& stroke.isAlt() == event.isAltPressed()
@@ -291,6 +289,22 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 				}
 			}
 		}
+		else if(e instanceof SoftKeyEvent) {
+			SoftKeyEvent event = (SoftKeyEvent) e;
+			for(KeyStroke stroke : shortcuts.keySet()) {
+				if(stroke.getKeyCode() == event.getKeyCode() && !stroke.isAlt() && !stroke.isShift()) {
+					evaluator.setVariables(getVariables());
+					Long result = evaluator.eval(shortcuts.get(stroke));
+					setVariables(evaluator.getVariables());
+					e.setCancelled(true);
+				}
+			}
+		}
+	}
+
+	@Override
+	public int getPriority() {
+		return 1;
 	}
 
 	public Map<String, Long> getVariables() {

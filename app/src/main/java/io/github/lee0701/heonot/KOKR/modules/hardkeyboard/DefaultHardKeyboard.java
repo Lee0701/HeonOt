@@ -29,7 +29,6 @@ import io.github.lee0701.heonot.KOKR.event.Event;
 import io.github.lee0701.heonot.KOKR.event.InputCharEvent;
 import io.github.lee0701.heonot.KOKR.event.HardKeyEvent;
 import io.github.lee0701.heonot.KOKR.event.SetPropertyEvent;
-import io.github.lee0701.heonot.KOKR.event.ShortcutEvent;
 import io.github.lee0701.heonot.KOKR.event.SoftKeyEvent;
 import io.github.lee0701.heonot.R;
 
@@ -160,11 +159,6 @@ public class DefaultHardKeyboard extends HardKeyboard {
 			}
 			return;
 		}
-
-		ShortcutEvent req = new ShortcutEvent(event.getKeyCode(),
-				altPressing, shiftPressing);
-		Event.fire(this, req);
-		if(req.isCancelled()) return;
 
 		switch(event.getKeyCode()) {
 		case KeyEvent.KEYCODE_DEL:
