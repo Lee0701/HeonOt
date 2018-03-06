@@ -151,7 +151,6 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 	@Override
 	public View onCreateInputView() {
 		int hiddenState = getResources().getConfiguration().hardKeyboardHidden;
-		boolean hidden = (hiddenState == Configuration.HARDKEYBOARDHIDDEN_YES);
 		return currentInputMethod.createView(this);
 	}
 
@@ -164,8 +163,6 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 			super.onStartInputView(attribute, restarting);
 
 		}
-		
-		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
 
 	}
 
@@ -187,6 +184,7 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 			if (getCurrentInputConnection() != null) {
 				int hiddenState = newConfig.hardKeyboardHidden;
 				boolean hidden = (hiddenState == Configuration.HARDKEYBOARDHIDDEN_YES);
+				//TODO: Implement soft keyboard auto hiding.
 			}
 		} catch (Exception ex) {
 		}
@@ -194,14 +192,7 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent e) {
-		switch(e.getKeyCode()) {
-		case KeyEvent.KEYCODE_BACK:
-		case KeyEvent.KEYCODE_HOME:
-		case KeyEvent.KEYCODE_VOLUME_DOWN:
-		case KeyEvent.KEYCODE_MUTE:
-		case KeyEvent.KEYCODE_VOLUME_UP:
-			return false;
-		}
+		if(isSystemKey(e.getKeyCode())) return false;
 		HardKeyEvent event = new HardKeyEvent(HardKeyEvent.HardKeyAction.PRESS, keyCode, e.getMetaState(), e.getRepeatCount());
 		Event.fire(this, event);
 		return !event.isCancelled();
@@ -209,17 +200,22 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent e) {
-		switch(e.getKeyCode()) {
+		if(isSystemKey(e.getKeyCode())) return false;
+		HardKeyEvent event = new HardKeyEvent(HardKeyEvent.HardKeyAction.RELEASE, keyCode, e.getMetaState(), e.getRepeatCount());
+		Event.fire(this, event);
+		return !event.isCancelled();
+	}
+
+	private boolean isSystemKey(int keyCode) {
+		switch(keyCode) {
 		case KeyEvent.KEYCODE_BACK:
 		case KeyEvent.KEYCODE_HOME:
 		case KeyEvent.KEYCODE_VOLUME_DOWN:
 		case KeyEvent.KEYCODE_MUTE:
 		case KeyEvent.KEYCODE_VOLUME_UP:
-			return false;
+			return true;
 		}
-		HardKeyEvent event = new HardKeyEvent(HardKeyEvent.HardKeyAction.RELEASE, keyCode, e.getMetaState(), e.getRepeatCount());
-		Event.fire(this, event);
-		return !event.isCancelled();
+		return false;
 	}
 
 	@Override
@@ -257,49 +253,48 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 	@Override
 	public void onEvent(Event e) {
 		InputConnection ic = getCurrentInputConnection();
+		if(ic == null) return;
 		if(e instanceof ComposeCharEvent) {
 			ComposeCharEvent event = (ComposeCharEvent) e;
 			String composing = event.getComposingChar();
-			if(ic != null) ic.setComposingText(composing, 1);
+			ic.setComposingText(composing, 1);
 		}
 		else if(e instanceof FinishComposingEvent) {
-			if(ic != null) ic.finishComposingText();
+			ic.finishComposingText();
 		}
 		else if(e instanceof CommitCharEvent) {
 			CommitCharEvent event = (CommitCharEvent) e;
 			commitComposingChar();
-			if(ic != null) ic.commitText(String.valueOf(event.getCharacter()), event.getCursorPosition());
+			ic.commitText(String.valueOf(event.getCharacter()), event.getCursorPosition());
 		}
 		else if(e instanceof DeleteCharEvent) {
 			if(e.getSource() instanceof HardKeyboard) return;
 			DeleteCharEvent event = (DeleteCharEvent) e;
 			commitComposingChar();
-			if(ic != null) ic.deleteSurroundingText(event.getBeforeLength(), event.getAfterLength());
+			ic.deleteSurroundingText(event.getBeforeLength(), event.getAfterLength());
 		}
 		else if(e instanceof HardKeyEvent) {
 			HardKeyEvent event = (HardKeyEvent) e;
-			for(KeyStroke stroke : shortcuts.keySet()) {
-				if(stroke.getKeyCode() == event.getKeyCode()
-						&& stroke.isAlt() == event.isAltPressed()
-						&& stroke.isShift() == event.isShiftPressed()) {
-					evaluator.setVariables(getVariables());
-					Long result = evaluator.eval(shortcuts.get(stroke));
-					setVariables(evaluator.getVariables());
-					e.setCancelled(true);
-				}
-			}
+			if(processShortcut(event.getKeyCode(), event.isAltPressed(), event.isShiftPressed())) e.setCancelled(true);
 		}
 		else if(e instanceof SoftKeyEvent) {
 			SoftKeyEvent event = (SoftKeyEvent) e;
-			for(KeyStroke stroke : shortcuts.keySet()) {
-				if(stroke.getKeyCode() == event.getKeyCode() && !stroke.isAlt() && !stroke.isShift()) {
-					evaluator.setVariables(getVariables());
-					Long result = evaluator.eval(shortcuts.get(stroke));
-					setVariables(evaluator.getVariables());
-					e.setCancelled(true);
-				}
+			if(processShortcut(event.getKeyCode(), false, false)) e.setCancelled(true);
+		}
+	}
+
+	public boolean processShortcut(int keyCode, boolean altPressed, boolean shiftPressed) {
+		for(KeyStroke stroke : shortcuts.keySet()) {
+			if(stroke.getKeyCode() == keyCode
+					&& stroke.isAlt() == altPressed
+					&& stroke.isShift() == shiftPressed) {
+				evaluator.setVariables(getVariables());
+				Long result = evaluator.eval(shortcuts.get(stroke));
+				setVariables(evaluator.getVariables());
+				return true;
 			}
 		}
+		return false;
 	}
 
 	@Override

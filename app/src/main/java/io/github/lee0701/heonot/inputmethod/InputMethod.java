@@ -23,8 +23,7 @@ public class InputMethod implements Cloneable {
 	private List<InputMethodModule> modules;
 
 	public InputMethod(InputMethodModule... modules) {
-		this.modules = new ArrayList<>();
-		this.modules.addAll(Arrays.asList(modules));
+		this.modules = new ArrayList<>(Arrays.asList(modules));
 	}
 
 	public void registerListeners(HeonOt parent) {
@@ -130,7 +129,7 @@ public class InputMethod implements Cloneable {
 
 	@Override
 	public Object clone() {
-		InputMethodModule[] modules = new InputMethodModule[this.modules.size()];
+		InputMethodModule[] modules = new InputMethodModule[0];
 		for(int i = 0 ; i < modules.length ; i++) {
 			modules[i] = (InputMethodModule) this.modules.get(i).clone();
 		}
