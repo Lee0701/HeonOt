@@ -129,7 +129,7 @@ public class InputMethod implements Cloneable {
 
 	@Override
 	public Object clone() {
-		InputMethodModule[] modules = new InputMethodModule[0];
+		InputMethodModule[] modules = new InputMethodModule[this.modules.size()];
 		for(int i = 0 ; i < modules.length ; i++) {
 			modules[i] = (InputMethodModule) this.modules.get(i).clone();
 		}
