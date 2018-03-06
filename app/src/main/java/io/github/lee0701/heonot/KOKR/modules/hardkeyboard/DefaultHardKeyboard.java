@@ -1,13 +1,13 @@
 package io.github.lee0701.heonot.KOKR.modules.hardkeyboard;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
 import android.os.Build;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.text.method.MetaKeyKeyListener;
-import android.util.Pair;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.View;
@@ -271,7 +271,13 @@ public class DefaultHardKeyboard extends HardKeyboard {
 		LinearLayout content = new LinearLayout(context);
 		content.setOrientation(LinearLayout.VERTICAL);
 		final EditText normal = new EditText(context);
+		normal.setHint(R.string.key_normal);
+		normal.setEllipsize(TextUtils.TruncateAt.END);
+		normal.setSingleLine(true);
 		final EditText shift = new EditText(context);
+		shift.setHint(R.string.key_shift);
+		shift.setEllipsize(TextUtils.TruncateAt.END);
+		shift.setSingleLine(true);
 		if(layout == null) {
 			layout = new HashMap<>();
 		}
@@ -279,31 +285,24 @@ public class DefaultHardKeyboard extends HardKeyboard {
 		if(map == null) layout.put(keyCode, map = new DefaultHardKeyboardMap(keyCode, 0, 0, 0));
 		normal.setText(Integer.toString(map.getNormal()));
 		shift.setText(Integer.toString(map.getShift()));
-		content.addView(normal);
-		content.addView(shift);
+		TextInputLayout til;
+		til = new TextInputLayout(context);
+		til.addView(normal);
+		content.addView(til);
+		til = new TextInputLayout(context);
+		til.addView(shift);
+		content.addView(til);
 		return new AlertDialog.Builder(context)
 				.setTitle("Key " + keyCode)
 				.setView(content)
-				.setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
+				.setPositiveButton(R.string.button_ok, (dialog, which) ->
 						layout.put(keyCode, new DefaultHardKeyboardMap(keyCode,
 								Integer.parseInt(normal.getText().toString()),
 								Integer.parseInt(shift.getText().toString()),
-								Integer.parseInt(shift.getText().toString())));
-					}
-				})
-				.setNeutralButton(R.string.button_delete, new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						layout.remove(keyCode);
-					}
-				})
-				.setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-					}
-				})
+								Integer.parseInt(shift.getText().toString())))
+				)
+				.setNeutralButton(R.string.button_delete, (dialog, which) -> layout.remove(keyCode))
+				.setNegativeButton(R.string.button_cancel, (dialog, which) -> {})
 				.create();
 	}
 

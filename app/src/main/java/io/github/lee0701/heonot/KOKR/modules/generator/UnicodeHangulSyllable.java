@@ -60,7 +60,7 @@ public class UnicodeHangulSyllable implements Cloneable {
 	}
 
 	public String toString(boolean allowFirstMidEnd) {
-		if(this.requiresFirstMidEndComposition()) {
+		if(allowFirstMidEnd && isIncomplete() || containsTraditionalJamo()) {
 			char cho = containsCho() ? this.cho : 0x115f;
 			char jung = containsJung() ? this.jung : 0x1160;
 			return new String(new char[] {cho, jung, jong});

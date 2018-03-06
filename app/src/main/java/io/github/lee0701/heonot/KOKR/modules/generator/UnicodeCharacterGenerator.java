@@ -1,5 +1,10 @@
 package io.github.lee0701.heonot.KOKR.modules.generator;
 
+import android.content.Context;
+import android.view.View;
+import android.widget.CheckBox;
+import android.widget.LinearLayout;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,6 +23,7 @@ import io.github.lee0701.heonot.KOKR.event.FinishComposingEvent;
 import io.github.lee0701.heonot.KOKR.event.InputCharEvent;
 import io.github.lee0701.heonot.KOKR.event.SetPropertyEvent;
 import io.github.lee0701.heonot.KOKR.modules.hardkeyboard.HardKeyboard;
+import io.github.lee0701.heonot.R;
 
 import static io.github.lee0701.heonot.KOKR.modules.generator.UnicodeJamoHandler.JamoPair;
 
@@ -155,7 +161,7 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 			state.lastInput = State.INPUT_NON_HANGUL;
 		}
 
-		state.composing = state.syllable.toString(firstMidEnd);
+		state.composing = state.syllable.toString(getFirstMidEnd());
 
 		return state;
 	}
@@ -407,5 +413,26 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 		cloned.setFirstMidEnd(getFirstMidEnd());
 		cloned.setName(getName());
 		return cloned;
+	}
+
+	@Override
+	public View createSettingsView(Context context) {
+		LinearLayout layout = new LinearLayout(context);
+		CheckBox moajugi = new CheckBox(context);
+		moajugi.setText(R.string.moajugi);
+		CheckBox fullMoachigi = new CheckBox(context);
+		fullMoachigi.setText(R.string.full_moachigi);
+		CheckBox firstMidEnd = new CheckBox(context);
+		firstMidEnd.setText(R.string.first_mid_end);
+		layout.addView(moajugi);
+		layout.addView(fullMoachigi);
+		layout.addView(firstMidEnd);
+		moajugi.setChecked(getMoajugi());
+		fullMoachigi.setChecked(getFullMoachigi());
+		firstMidEnd.setChecked(getFirstMidEnd());
+		moajugi.setOnCheckedChangeListener((v, checked) -> setMoajugi(checked));
+		fullMoachigi.setOnCheckedChangeListener((v, checked) -> setFullMoachigi(checked));
+		firstMidEnd.setOnCheckedChangeListener((v, checked) -> setFirstMidEnd(checked));
+		return layout;
 	}
 }

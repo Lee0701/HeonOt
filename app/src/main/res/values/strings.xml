@@ -13,4 +13,11 @@
 
 	<string name="settings_saved">Settings Saved.</string>
 
+	<string name="key_normal">Normal</string>
+	<string name="key_shift">Shifted</string>
+
+	<string name="moajugi">Moajugi</string>
+	<string name="full_moachigi">Full Moachigi</string>
+	<string name="first_mid_end">First-Mid-End Composition</string>
+
 </resources>
