@@ -337,10 +337,10 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 		return inputMethods;
 	}
 
-	List<InputMethod> getInputMethodsCloned() throws CloneNotSupportedException {
+	List<InputMethod> getInputMethodsCloned() {
 		List<InputMethod> cloned = new ArrayList<>();
 		for(InputMethod method : inputMethods) {
-			cloned.add((InputMethod) method.clone());
+			cloned.add(new InputMethod(method));
 		}
 		return cloned;
 	}

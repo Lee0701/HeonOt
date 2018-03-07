@@ -11,12 +11,13 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import io.github.lee0701.heonot.inputmethod.modules.InputMethodModule;
 import io.github.lee0701.heonot.inputmethod.modules.softkeyboard.SoftKeyboard;
 import io.github.lee0701.heonot.HeonOt;
 
-public class InputMethod implements Cloneable {
+public class InputMethod {
 
 	private String name = "";
 
@@ -24,6 +25,15 @@ public class InputMethod implements Cloneable {
 
 	private InputMethod(InputMethodModule... modules) {
 		this.modules = new ArrayList<>(Arrays.asList(modules));
+	}
+
+	public InputMethod(InputMethod original) {
+		setName(original.getName());
+		List<InputMethodModule> list = new ArrayList<>();
+		for (InputMethodModule inputMethodModule : original.getModules()) {
+			list.add((InputMethodModule) inputMethodModule.clone());
+		}
+		this.modules = list;
 	}
 
 	public void registerListeners(HeonOt parent) {
@@ -128,13 +138,11 @@ public class InputMethod implements Cloneable {
 	}
 
 	@Override
+	@Deprecated
+	/**
+	 * It is deprecated. Use copy constructor instead.
+	 */
 	public Object clone() {
-		InputMethodModule[] modules = new InputMethodModule[this.modules.size()];
-		for(int i = 0 ; i < modules.length ; i++) {
-			modules[i] = (InputMethodModule) this.modules.get(i).clone();
-		}
-		InputMethod cloned = new InputMethod(modules);
-		cloned.setName(getName());
-		return cloned;
+		return new InputMethod(this);
 	}
 }
