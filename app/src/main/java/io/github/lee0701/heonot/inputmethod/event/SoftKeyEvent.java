@@ -1,6 +1,6 @@
 package io.github.lee0701.heonot.inputmethod.event;
 
-public class SoftKeyEvent extends Event {
+public final class SoftKeyEvent extends Event {
 
 	private final SoftKeyAction action;
 

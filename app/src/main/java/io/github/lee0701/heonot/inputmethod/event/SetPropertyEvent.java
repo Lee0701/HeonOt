@@ -1,8 +1,8 @@
 package io.github.lee0701.heonot.inputmethod.event;
 
-public class SetPropertyEvent extends Event {
-	private String key;
-	private Object value;
+public final class SetPropertyEvent extends Event {
+	private final String key;
+	private final Object value;
 
 	public SetPropertyEvent(String key, Object value) {
 		this.key = key;

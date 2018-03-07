@@ -3,7 +3,7 @@ package io.github.lee0701.heonot.inputmethod.event;
 import android.os.Build;
 import android.view.KeyEvent;
 
-public class HardKeyEvent extends Event {
+public final class HardKeyEvent extends Event {
 
 	private final HardKeyAction action;
 
