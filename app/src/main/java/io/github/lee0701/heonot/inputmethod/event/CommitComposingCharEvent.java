@@ -1,5 +1,5 @@
 package io.github.lee0701.heonot.inputmethod.event;
 
-public class CommitComposingCharEvent extends Event {
+public final class CommitComposingCharEvent extends Event {
 
 }

@@ -1,8 +1,8 @@
 package io.github.lee0701.heonot.inputmethod.event;
 
-public class ComposeCharEvent extends Event {
-	private String composingChar;
-	private int lastInput;
+public final class ComposeCharEvent extends Event {
+	private final String composingChar;
+	private final int lastInput;
 
 	public ComposeCharEvent(String composingChar, int lastInput) {
 		this.composingChar = composingChar;

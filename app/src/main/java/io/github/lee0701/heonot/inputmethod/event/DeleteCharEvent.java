@@ -1,7 +1,8 @@
 package io.github.lee0701.heonot.inputmethod.event;
 
-public class DeleteCharEvent extends Event {
-	private int beforeLength, afterLength;
+public final class DeleteCharEvent extends Event {
+	private final int beforeLength;
+	private final int afterLength;
 
 	public DeleteCharEvent(int beforeLength, int afterLength) {
 		this.beforeLength = beforeLength;

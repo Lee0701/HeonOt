@@ -1,9 +1,8 @@
 package io.github.lee0701.heonot.inputmethod.event;
 
-public class CommitCharEvent extends Event {
-
-	private char character;
-	private int cursorPosition;
+public final class CommitCharEvent extends Event {
+	private final char character;
+	private final int cursorPosition;
 
 	public CommitCharEvent(char character, int cursorPosition) {
 		this.character = character;
