@@ -5,7 +5,7 @@ import android.inputmethodservice.Keyboard;
 
 public class KeyboardKOKR extends Keyboard {
 	
-	int mTotalHeight;
+	private int mTotalHeight;
 	
 	public KeyboardKOKR(Context context, int layoutTemplateResId, CharSequence characters, int columns,
 			int horizontalPadding) {

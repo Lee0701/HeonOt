@@ -2,7 +2,7 @@ package io.github.lee0701.heonot.inputmethod.scripting.nodes;
 
 public class ConstantTreeNode extends TreeNode {
 
-	long value;
+	private long value;
 
 	public ConstantTreeNode(long value) {
 		super(Operator.NONE);

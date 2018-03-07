@@ -1,15 +1,15 @@
 package io.github.lee0701.heonot.inputmethod.scripting;
 
+import io.github.lee0701.heonot.inputmethod.scripting.nodes.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.github.lee0701.heonot.inputmethod.scripting.nodes.*;
-
 public class StringRecursionTreeBuilder implements TreeBuilder {
 
-	Map<String, Long> constants = new HashMap<>();
+	private Map<String, Long> constants = new HashMap<>();
 
 	@Override
 	public void setConstants(Map<String, Long> constants) {
@@ -19,6 +19,7 @@ public class StringRecursionTreeBuilder implements TreeBuilder {
 	@Override
 	public TreeNode build(Object o) {
 		final String str = (String) o;
+		// todo: remove anti pattern
 		return new Object() {
 
 			int pos = -1, ch;
@@ -33,7 +34,7 @@ public class StringRecursionTreeBuilder implements TreeBuilder {
 				return true;
 			}
 
-			public void nextChar() {
+			void nextChar() {
 				ch = (++pos < str.length()) ? str.charAt(pos) : -1;
 			}
 

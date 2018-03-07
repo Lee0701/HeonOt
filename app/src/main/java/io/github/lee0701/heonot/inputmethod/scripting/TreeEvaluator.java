@@ -1,14 +1,14 @@
 package io.github.lee0701.heonot.inputmethod.scripting;
 
+import io.github.lee0701.heonot.inputmethod.scripting.nodes.*;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import io.github.lee0701.heonot.inputmethod.scripting.nodes.*;
-
 public class TreeEvaluator {
 
-	Map<String, Long> variables = new HashMap<>();
-	Map<String, Long> constants = new HashMap<>();
+	private Map<String, Long> variables = new HashMap<>();
+	private Map<String, Long> constants = new HashMap<>();
 
 	public long eval(TreeNode node) {
 		if (node instanceof ConstantTreeNode) {
@@ -33,7 +33,7 @@ public class TreeEvaluator {
 		}
 	}
 
-	public long unaryOperation(UnaryTreeNode node) {
+	private long unaryOperation(UnaryTreeNode node) {
 		switch(node.getOperator()) {
 		case Operator.PLUS:
 			return eval(node.getCenter());
@@ -78,7 +78,7 @@ public class TreeEvaluator {
 		}
 	}
 
-	public long binaryOperation(BinaryTreeNode node) {
+	private long binaryOperation(BinaryTreeNode node) {
 		switch(node.getOperator()) {
 		case Operator.ASSIGNMENT:
 		case Operator.ASSIGNMENT_ADDITION:
@@ -201,7 +201,7 @@ public class TreeEvaluator {
 		}
 	}
 
-	public long ternaryOperation(TernaryTreeNode node) {
+	private long ternaryOperation(TernaryTreeNode node) {
 		long left = eval(node.getLeft()), right = eval(node.getRight()), center = eval(node.getCenter());
 		switch(node.getOperator()) {
 		case Operator.CONDITION:
@@ -212,7 +212,7 @@ public class TreeEvaluator {
 		}
 	}
 
-	public long listOperation(ListTreeNode node) {
+	private long listOperation(ListTreeNode node) {
 		switch(node.getOperator()) {
 		case Operator.COMMA:
 			long last = 0;

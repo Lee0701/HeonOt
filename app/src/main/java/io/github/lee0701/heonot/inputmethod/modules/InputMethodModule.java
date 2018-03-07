@@ -3,21 +3,19 @@ package io.github.lee0701.heonot.inputmethod.modules;
 import android.content.Context;
 import android.view.View;
 import android.widget.LinearLayout;
-
+import io.github.lee0701.heonot.inputmethod.event.EventListener;
+import io.github.lee0701.heonot.inputmethod.event.EventSource;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.lee0701.heonot.inputmethod.event.EventListener;
-import io.github.lee0701.heonot.inputmethod.event.EventSource;
-
 public abstract class InputMethodModule implements EventListener, EventSource, Cloneable {
 
 	protected String name = "Module";
 
-	List<EventListener> listeners = new ArrayList<>();
+	private List<EventListener> listeners = new ArrayList<>();
 
 	public abstract void init();
 

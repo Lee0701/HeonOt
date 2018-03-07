@@ -2,7 +2,7 @@ package io.github.lee0701.heonot.inputmethod.scripting.nodes;
 
 public class VariableTreeNode extends TreeNode {
 
-	String name;
+	private String name;
 
 	public VariableTreeNode(String name) {
 		super(Operator.NONE);

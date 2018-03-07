@@ -5,7 +5,7 @@ import java.util.List;
 
 public class ListTreeNode extends TreeNode {
 
-	List<TreeNode> nodes;
+	private List<TreeNode> nodes;
 
 	public ListTreeNode(int operator, List<TreeNode> nodes) {
 		super(operator);

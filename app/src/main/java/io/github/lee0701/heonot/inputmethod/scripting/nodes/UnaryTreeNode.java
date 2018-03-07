@@ -2,7 +2,7 @@ package io.github.lee0701.heonot.inputmethod.scripting.nodes;
 
 public class UnaryTreeNode extends TreeNode {
 
-	TreeNode center;
+	private TreeNode center;
 
 	public UnaryTreeNode(int operator, TreeNode center) {
 		super(operator);

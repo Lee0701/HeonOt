@@ -2,8 +2,8 @@ package io.github.lee0701.heonot.inputmethod.modules.hardkeyboard;
 
 public class KeyStroke {
 
-	boolean control, alt, win, shift;
-	int keyCode;
+	private boolean control, alt, win, shift;
+	private int keyCode;
 
 	public KeyStroke(boolean control, boolean alt, boolean win, boolean shift, int keyCode) {
 		this.control = control;
