@@ -25,11 +25,7 @@ public abstract class SettingsActivity extends AppCompatActivity {
 
 		heonOt = new HeonOt(this);
 		heonOt.init();
-		try {
-			inputMethods.addAll(heonOt.getInputMethodsCloned());
-		} catch(CloneNotSupportedException e) {
-			e.printStackTrace();
-		}
+		inputMethods.addAll(heonOt.getInputMethodsCloned());
 
 	}
 

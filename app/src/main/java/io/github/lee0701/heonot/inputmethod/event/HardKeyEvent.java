@@ -11,11 +11,18 @@ public final class HardKeyEvent extends Event {
 	private final int repeated;
 	private final int metaState;
 
-	public HardKeyEvent(HardKeyAction action, int keyCode, int metaState, int repeated) {
+	private final KeyEvent originalEvent;
+
+	public HardKeyEvent(KeyEvent originalEvent, HardKeyAction action, int keyCode, int metaState, int repeated) {
+		this.originalEvent = originalEvent;
 		this.action = action;
 		this.keyCode = keyCode;
 		this.metaState = metaState;
 		this.repeated = repeated;
+	}
+
+	public HardKeyEvent(HardKeyAction action, int keyCode, int metaState, int repeated) {
+		this(null, action, keyCode, metaState, repeated);
 	}
 
 	public HardKeyAction getAction() {

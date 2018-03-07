@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,7 +12,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import io.github.lee0701.heonot.inputmethod.modules.InputMethodModule;
 import io.github.lee0701.heonot.inputmethod.modules.softkeyboard.SoftKeyboard;
@@ -38,17 +38,13 @@ public class InputMethod {
 
 	public void registerListeners(HeonOt parent) {
 		for(InputMethodModule module : modules) {
-			parent.addListener(module);
-			module.addListener(parent);
-			for(InputMethodModule listener : modules) {
-				if(module != listener) module.addListener(listener);
-			}
+			EventBus.getDefault().register(module);
 		}
 	}
 
 	public void clearListeners() {
 		for(InputMethodModule module : modules) {
-			module.clearListeners();
+			EventBus.getDefault().unregister(module);
 		}
 	}
 

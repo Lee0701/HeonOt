@@ -3,24 +3,26 @@ package io.github.lee0701.heonot.inputmethod.modules;
 import android.content.Context;
 import android.view.View;
 import android.widget.LinearLayout;
-import io.github.lee0701.heonot.inputmethod.event.EventListener;
-import io.github.lee0701.heonot.inputmethod.event.EventSource;
+
+import org.greenrobot.eventbus.Subscribe;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.List;
+import io.github.lee0701.heonot.inputmethod.event.SetPropertyEvent;
 
-public abstract class InputMethodModule implements EventListener, EventSource, Cloneable {
+public abstract class InputMethodModule implements Cloneable {
 
 	protected String name = "Module";
-
-	private List<EventListener> listeners = new ArrayList<>();
 
 	public abstract void init();
 
 	public View createSettingsView(Context context) {
 		return new LinearLayout(context);
+	}
+
+	@Subscribe
+	public void onSetProperty(SetPropertyEvent event) {
+		this.setProperty(event.getKey(), event.getValue());
 	}
 
 	public void setProperty(String key, Object value) {
@@ -42,26 +44,6 @@ public abstract class InputMethodModule implements EventListener, EventSource, C
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	@Override
-	public void addListener(EventListener listener) {
-		listeners.add(listener);
-	}
-
-	@Override
-	public void removeListener(EventListener listener) {
-		listeners.remove(listener);
-	}
-
-	@Override
-	public void clearListeners() {
-		listeners.clear();
-	}
-
-	@Override
-	public List<EventListener> getListeners() {
-		return listeners;
 	}
 
 }

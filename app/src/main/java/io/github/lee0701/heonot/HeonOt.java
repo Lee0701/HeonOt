@@ -15,6 +15,9 @@ import io.github.lee0701.heonot.inputmethod.modules.hardkeyboard.KeyStroke;
 import io.github.lee0701.heonot.inputmethod.scripting.StringRecursionTreeBuilder;
 import io.github.lee0701.heonot.inputmethod.scripting.TreeEvaluator;
 import io.github.lee0701.heonot.inputmethod.scripting.nodes.TreeNode;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 import org.json.JSONException;
 
 import java.io.*;
@@ -23,9 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class HeonOt extends InputMethodService implements EventListener, EventSource {
-
-	private List<EventListener> listeners = new ArrayList<>();
+public class HeonOt extends InputMethodService {
 
 	private List<InputMethod> inputMethods;
 	private int currentInputMethodId;
@@ -96,6 +97,7 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 
 		currentInputMethod = inputMethods.get(currentInputMethodId);
 		currentInputMethod.registerListeners(this);
+		EventBus.getDefault().register(this);
 		currentInputMethod.init();
 	}
 
@@ -174,17 +176,17 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent e) {
 		if(isSystemKey(e.getKeyCode())) return false;
-		HardKeyEvent event = new HardKeyEvent(HardKeyEvent.HardKeyAction.PRESS, keyCode, e.getMetaState(), e.getRepeatCount());
-		Event.fire(this, event);
-		return !event.isCancelled();
+		HardKeyEvent event = new HardKeyEvent(e, HardKeyEvent.HardKeyAction.PRESS, keyCode, e.getMetaState(), e.getRepeatCount());
+		EventBus.getDefault().post(event);
+		return true;
 	}
 
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent e) {
 		if(isSystemKey(e.getKeyCode())) return false;
-		HardKeyEvent event = new HardKeyEvent(HardKeyEvent.HardKeyAction.RELEASE, keyCode, e.getMetaState(), e.getRepeatCount());
-		Event.fire(this, event);
-		return !event.isCancelled();
+		HardKeyEvent event = new HardKeyEvent(e, HardKeyEvent.HardKeyAction.RELEASE, keyCode, e.getMetaState(), e.getRepeatCount());
+		EventBus.getDefault().post(event);
+		return true;
 	}
 
 	private boolean isSystemKey(int keyCode) {
@@ -211,7 +213,7 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 	}
 
 	private void commitComposingChar() {
-		Event.fire(this, new CommitComposingCharEvent());
+		EventBus.getDefault().post(new CommitComposingCharEvent());
 	}
 
 	@Override
@@ -231,37 +233,41 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 		return true;
 	}
 
-	@Override
-	public void onEvent(Event e) {
+	@Subscribe
+	public void onComposeChar(ComposeCharEvent event) {
+		String composing = event.getComposingChar();
+		getCurrentInputConnection().setComposingText(composing, 1);
+	}
+
+	@Subscribe
+	public void onFinishComposing(FinishComposingEvent event) {
+		getCurrentInputConnection().finishComposingText();
+	}
+
+	@Subscribe
+	public void onCommitChar(CommitCharEvent event) {
 		InputConnection ic = getCurrentInputConnection();
-		if(ic == null) return;
-		if(e instanceof ComposeCharEvent) {
-			ComposeCharEvent event = (ComposeCharEvent) e;
-			String composing = event.getComposingChar();
-			ic.setComposingText(composing, 1);
+		ic.finishComposingText();
+		EventBus.getDefault().post(new CommitComposingCharEvent());
+		ic.commitText(String.valueOf(event.getCharacter()), event.getCursorPosition());
+	}
+
+	@Subscribe(priority = 1)
+	public void onHardKey(HardKeyEvent event) {
+		if(event.getAction() == HardKeyEvent.HardKeyAction.PRESS
+				&& processShortcut(event.getKeyCode(), event.isAltPressed(), event.isShiftPressed())) {
+			EventBus.getDefault().cancelEventDelivery(event);
 		}
-		else if(e instanceof FinishComposingEvent) {
-			ic.finishComposingText();
-		}
-		else if(e instanceof CommitCharEvent) {
-			CommitCharEvent event = (CommitCharEvent) e;
-			commitComposingChar();
-			ic.commitText(String.valueOf(event.getCharacter()), event.getCursorPosition());
-		}
-		else if(e instanceof DeleteCharEvent) {
-			if(e.getSource() instanceof HardKeyboard) return;
-			DeleteCharEvent event = (DeleteCharEvent) e;
-			commitComposingChar();
-			ic.deleteSurroundingText(event.getBeforeLength(), event.getAfterLength());
-		}
-		else if(e instanceof HardKeyEvent) {
-			HardKeyEvent event = (HardKeyEvent) e;
-			if(processShortcut(event.getKeyCode(), event.isAltPressed(), event.isShiftPressed())) e.setCancelled(true);
-		}
-		else if(e instanceof SoftKeyEvent) {
-			SoftKeyEvent event = (SoftKeyEvent) e;
-			if(processShortcut(event.getKeyCode(), false, false)) e.setCancelled(true);
-		}
+	}
+
+	@Subscribe
+	public void onBackspace(BackspaceEvent event) {
+		getCurrentInputConnection().deleteSurroundingText(1, 0);
+	}
+
+	@Subscribe
+	public void onDeleteChar(DeleteCharEvent event) {
+		getCurrentInputConnection().deleteSurroundingText(event.getBeforeLength(), event.getAfterLength());
 	}
 
 	public boolean processShortcut(int keyCode, boolean altPressed, boolean shiftPressed) {
@@ -278,11 +284,6 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 		return false;
 	}
 
-	@Override
-	public int getPriority() {
-		return 1;
-	}
-
 	private Map<String, Long> getVariables() {
 		return new HashMap<String, Long>() {{
 			put("A", (long) currentInputMethodId);
@@ -295,7 +296,6 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 			if(inputMethodId != currentInputMethodId) {
 				new Handler().post(() -> {
 					currentInputMethod.clearListeners();
-					HeonOt.this.clearListeners();
 					currentInputMethodId = inputMethodId;
 					currentInputMethod = inputMethods.get(currentInputMethodId);
 					currentInputMethod.registerListeners(HeonOt.this);
@@ -311,26 +311,6 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 		byte[] bytes = new byte[is.available()];
 		is.read(bytes);
 		return new String(bytes);
-	}
-
-	@Override
-	public void addListener(EventListener listener) {
-		listeners.add(listener);
-	}
-
-	@Override
-	public void removeListener(EventListener listener) {
-		listeners.remove(listener);
-	}
-
-	@Override
-	public void clearListeners() {
-		listeners.clear();
-	}
-
-	@Override
-	public List<EventListener> getListeners() {
-		return listeners;
 	}
 
 	public List<InputMethod> getInputMethods() {

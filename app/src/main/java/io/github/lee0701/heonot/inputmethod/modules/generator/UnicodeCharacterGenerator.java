@@ -7,6 +7,9 @@ import android.widget.LinearLayout;
 import io.github.lee0701.heonot.R;
 import io.github.lee0701.heonot.inputmethod.event.*;
 import io.github.lee0701.heonot.inputmethod.modules.hardkeyboard.HardKeyboard;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,7 +40,7 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 	@Override
 	public void input(long code) {
 		State state = this.processInput(code);
-		Event.fire(this, new ComposeCharEvent(state.composing, state.lastInput));
+		EventBus.getDefault().post(new ComposeCharEvent(state.composing, state.lastInput));
 		states.push(state);
 	}
 
@@ -149,7 +152,7 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 
 		default:
 			commitComposingChar();
-			Event.fire(this, new CommitCharEvent(charCode, 1));
+			EventBus.getDefault().post(new CommitCharEvent(charCode, 1));
 			state = states.pop();
 			state.lastInput = State.INPUT_NON_HANGUL;
 		}
@@ -164,15 +167,15 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 		try {
 			states.pop();
 			State state = states.peek();
-			Event.fire(this, new ComposeCharEvent(state.composing, state.lastInput));
+			EventBus.getDefault().post(new ComposeCharEvent(state.composing, state.lastInput));
 		} catch(EmptyStackException e) {
-			Event.fire(this, new FinishComposingEvent());
-			Event.fire(this, new DeleteCharEvent(1, 0));
+			EventBus.getDefault().post(new FinishComposingEvent());
+			EventBus.getDefault().post(new DeleteCharEvent(1, 0));
 		}
 	}
 
 	public void commitComposingChar() {
-		Event.fire(this, new FinishComposingEvent());
+		EventBus.getDefault().post(new FinishComposingEvent());
 		states.clear();
 		states.push(new State());
 	}
@@ -232,24 +235,22 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 
 	}
 
-	@Override
-	public void onEvent(Event e) {
-		if(e instanceof InputCharEvent) {
-			InputCharEvent event = (InputCharEvent) e;
-			Object o = event.getCharacter();
-			if(o instanceof Long) this.input((long) o);
-			else if(o instanceof Integer) this.input((int) o);
-		}
-		else if(e instanceof SetPropertyEvent) {
-			SetPropertyEvent event = (SetPropertyEvent) e;
-			this.setProperty(event.getKey(), event.getValue());
-		}
-		else if(e instanceof DeleteCharEvent) {
-			if(e.getSource() instanceof HardKeyboard) this.backspace();
-		}
-		else if(e instanceof CommitComposingCharEvent) {
-			commitComposingChar();
-		}
+	@Subscribe
+	public void onInputChar(InputCharEvent event) {
+		Object o = event.getCharacter();
+		if(o instanceof Long) this.input((long) o);
+		else if(o instanceof Integer) this.input((int) o);
+	}
+
+	@Subscribe
+	public void onCommitComposingChar(CommitComposingCharEvent event) {
+		commitComposingChar();
+	}
+
+	@Subscribe(priority = 1)
+	public void onBackspace(BackspaceEvent event) {
+		this.backspace();
+		EventBus.getDefault().cancelEventDelivery(event);
 	}
 
 	@Override

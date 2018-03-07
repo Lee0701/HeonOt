@@ -17,6 +17,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -82,7 +84,7 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 	class BackspaceLongClickHandler implements Runnable {
 		@Override
 		public void run() {
-			Event.fire(DefaultSoftKeyboard.this, new DeleteCharEvent(1, 0));
+			EventBus.getDefault().post(new DeleteCharEvent(1, 0));
 			backspaceLongClickHandler.postDelayed(new BackspaceLongClickHandler(), 50);
 		}
 	}
@@ -332,7 +334,7 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 	}
 
 	public void onKey(SoftKeyAction action, int primaryCode, SoftKeyPressType type) {
-		if(!disableKeyInput) Event.fire(this, new SoftKeyEvent(action, primaryCode, type));
+		if(!disableKeyInput) EventBus.getDefault().post(new SoftKeyEvent(action, primaryCode, type));
 	}
 
 	@SuppressWarnings("deprecation")
@@ -359,18 +361,12 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 		}
 	}
 
-	@Override
-	public void onEvent(Event e) {
-		if(e instanceof SetPropertyEvent) {
-			SetPropertyEvent event = (SetPropertyEvent) e;
-			this.setProperty(event.getKey(), event.getValue());
-		}
-		if(e instanceof UpdateStateEvent) {
-			if(labels != null) {
-				this.updateLabels(keyboard, labels);
-				keyboardView.invalidateAllKeys();
-				keyboardView.requestLayout();
-			}
+	@Subscribe
+	public void onUpdateState(UpdateStateEvent event) {
+		if(labels != null) {
+			this.updateLabels(keyboard, labels);
+			keyboardView.invalidateAllKeys();
+			keyboardView.requestLayout();
 		}
 	}
 

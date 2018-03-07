@@ -1,5 +1,4 @@
 package io.github.lee0701.heonot.inputmethod.event;
 
-public abstract class Event {
-
+public class BackspaceEvent extends Event {
 }

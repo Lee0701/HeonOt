@@ -14,6 +14,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,11 +23,10 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.github.lee0701.heonot.inputmethod.event.BackspaceEvent;
 import io.github.lee0701.heonot.inputmethod.event.UpdateStateEvent;
 import io.github.lee0701.heonot.inputmethod.modules.hardkeyboard.def.DefaultHardKeyboardMap;
 import io.github.lee0701.heonot.inputmethod.event.CommitCharEvent;
-import io.github.lee0701.heonot.inputmethod.event.DeleteCharEvent;
-import io.github.lee0701.heonot.inputmethod.event.Event;
 import io.github.lee0701.heonot.inputmethod.event.InputCharEvent;
 import io.github.lee0701.heonot.inputmethod.event.HardKeyEvent;
 import io.github.lee0701.heonot.inputmethod.event.SetPropertyEvent;
@@ -52,23 +53,7 @@ public class DefaultHardKeyboard extends HardKeyboard {
 	@Override
 	public void init() {
 		shiftPressing = altPressing = false;
-		Event.fire(this, new SetPropertyEvent("soft-key-labels", getLabels(this.layout)));
-	}
-
-	@Override
-	public void onEvent(Event e) {
-		if(e instanceof HardKeyEvent) {
-			HardKeyEvent event = (HardKeyEvent) e;
-			this.input(event);
-		}
-		else if(e instanceof SoftKeyEvent) {
-			SoftKeyEvent event = (SoftKeyEvent) e;
-			onSoftKey(event);
-		}
-		else if(e instanceof SetPropertyEvent) {
-			SetPropertyEvent event = (SetPropertyEvent) e;
-			this.setProperty(event.getKey(), event.getValue());
-		}
+		EventBus.getDefault().post(new SetPropertyEvent("soft-key-labels", getLabels(this.layout)));
 	}
 
 	@Override
@@ -88,7 +73,8 @@ public class DefaultHardKeyboard extends HardKeyboard {
 		}
 	}
 
-	private void onSoftKey(SoftKeyEvent event) {
+	@Subscribe
+	public void onSoftKey(SoftKeyEvent event) {
 		if(event.getAction() == SoftKeyEvent.SoftKeyAction.PRESS) {
 			switch(event.getKeyCode()) {
 			case KeyEvent.KEYCODE_SHIFT_LEFT:
@@ -130,8 +116,8 @@ public class DefaultHardKeyboard extends HardKeyboard {
 				break;
 
 			default:
-				input(new HardKeyEvent(HardKeyEvent.HardKeyAction.RELEASE, event.getKeyCode(), 0, 0));
-				input(new HardKeyEvent(HardKeyEvent.HardKeyAction.PRESS, event.getKeyCode(), 0, 0));
+				EventBus.getDefault().post(new HardKeyEvent(HardKeyEvent.HardKeyAction.RELEASE, event.getKeyCode(), 0, 0));
+				EventBus.getDefault().post(new HardKeyEvent(HardKeyEvent.HardKeyAction.PRESS, event.getKeyCode(), 0, 0));
 				if(shiftPressing) shiftInput = true;
 				if(!capsLock && shiftInput) shiftPressing = false;
 				updateSoftKeyLabels();
@@ -141,6 +127,7 @@ public class DefaultHardKeyboard extends HardKeyboard {
 		}
 	}
 
+	@Subscribe
 	@Override
 	public void input(HardKeyEvent event) {
 		if(event.getAction() == HardKeyEvent.HardKeyAction.RELEASE) {
@@ -162,11 +149,11 @@ public class DefaultHardKeyboard extends HardKeyboard {
 
 		switch(event.getKeyCode()) {
 		case KeyEvent.KEYCODE_DEL:
-			Event.fire(this, new DeleteCharEvent(1, 0));
+			EventBus.getDefault().post(new BackspaceEvent());
 			return;
 
 		case KeyEvent.KEYCODE_SPACE:
-			Event.fire(this, new CommitCharEvent(' ', 1));
+			EventBus.getDefault().post(new CommitCharEvent(' ', 1));
 			return;
 
 		case KeyEvent.KEYCODE_ALT_LEFT:
@@ -200,7 +187,7 @@ public class DefaultHardKeyboard extends HardKeyboard {
 		DefaultHardKeyboardMap map = layout.get(event.getKeyCode());
 		if(map != null) {
 			int charCode = shiftPressing ? map.getShift() : map.getNormal();
-			Event.fire(this, new InputCharEvent(charCode));
+			EventBus.getDefault().post(new InputCharEvent(charCode));
 		} else {
 			directInput(event.getKeyCode());
 		}
@@ -210,12 +197,12 @@ public class DefaultHardKeyboard extends HardKeyboard {
 		int hardShift = capsLock ? 2 : shiftPressing ? 1 : 0;
 		int hardAlt = altPressing ? 1 : 0;
 		int unicodeChar = KeyCharacterMap.load(KeyCharacterMap.VIRTUAL_KEYBOARD).get(keyCode, shiftKeyToggle[hardShift] | altKeyToggle[hardAlt]);
-		Event.fire(this, new CommitCharEvent((char) unicodeChar, 1));
+		EventBus.getDefault().post(new CommitCharEvent((char) unicodeChar, 1));
 	}
 
 	private void updateSoftKeyLabels() {
-		Event.fire(this, new SetPropertyEvent("soft-key-labels", getLabels(this.layout)));
-		Event.fire(this, new UpdateStateEvent());
+		EventBus.getDefault().post(new SetPropertyEvent("soft-key-labels", getLabels(this.layout)));
+		EventBus.getDefault().post(new UpdateStateEvent());
 	}
 
 	public Map<Integer, String> getLabels(Map<Integer, DefaultHardKeyboardMap> table) {
