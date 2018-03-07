@@ -35,17 +35,17 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 
 	private TreeEvaluator evaluator;
 
-	private static HeonOt mSelf;
-	static HeonOt getInstance() {
-		return mSelf;
+	private static HeonOt instance;
+	public static HeonOt getInstance() {
+		return instance;
 	}
 	
-	private HeonOt() {
+	public HeonOt() {
 		super();
 		inputMethods = new ArrayList<>();
 	}
 	
-	HeonOt(Context context) {
+	public HeonOt(Context context) {
 		this();
 		attachBaseContext(context);
 	}
@@ -53,7 +53,7 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		mSelf = this;
+		instance = this;
 
 		init();
 
