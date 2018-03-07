@@ -1,7 +1,10 @@
 package io.github.lee0701.heonot.inputmethod.modules.hardkeyboard.def;
 
 public class DefaultHardKeyboardMap implements Cloneable {
-	private final int keyCode, normal, shift, caps;
+	private final int keyCode;
+	private final int normal;
+	private final int shift;
+	private final int caps;
 
 	public DefaultHardKeyboardMap(int keyCode, int normal, int shift, int caps) {
 		this.keyCode = keyCode;

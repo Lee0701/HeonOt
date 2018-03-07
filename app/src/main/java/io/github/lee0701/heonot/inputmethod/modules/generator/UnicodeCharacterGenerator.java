@@ -24,7 +24,9 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 
 	private Map<UnicodeJamoHandler.JamoPair, Character> combinationTable = new HashMap<>();
 
-	private boolean moajugi, fullMoachigi, firstMidEnd;
+	private boolean moajugi;
+	private boolean fullMoachigi;
+	private boolean firstMidEnd;
 
 	@Override
 	public void init() {

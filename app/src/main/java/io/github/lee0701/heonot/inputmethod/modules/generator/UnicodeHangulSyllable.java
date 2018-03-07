@@ -24,7 +24,9 @@ public class UnicodeHangulSyllable implements Cloneable {
 			'ㅌ', 'ㅍ', 'ㅎ'
 	};
 
-	public char cho, jung, jong;
+	public char cho;
+	public char jung;
+	public char jong;
 
 	public UnicodeHangulSyllable(char cho, char jung, char jong) {
 		this.cho = cho;

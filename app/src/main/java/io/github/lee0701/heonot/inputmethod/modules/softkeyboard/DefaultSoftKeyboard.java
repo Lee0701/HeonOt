@@ -53,10 +53,12 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 
 	protected boolean displayMode;
 
-	private int keyHeightPortrait = 50, keyHeightLandscape = 42;
+	private int keyHeightPortrait = 50;
+	private int keyHeightLandscape = 42;
 	private int longPressTimeout = 300;
 	private boolean useFlick = true;
-	private int flickSensitivity = 100, spaceSlideSensitivity = 100;
+	private int flickSensitivity = 100;
+	private int spaceSlideSensitivity = 100;
 	private int vibrateDuration = 30;
 	private boolean showPreview = false;
 
@@ -90,9 +92,12 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 		Keyboard.Key key;
 		int keyCode;
 
-		float downX, downY;
-		float dx, dy;
-		float beforeX, beforeY;
+		float downX;
+		float downY;
+		float dx;
+		float dy;
+		float beforeX;
+		float beforeY;
 		int space = -1;
 		int spaceDistance;
 		int backspace = -1;
