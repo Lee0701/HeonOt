@@ -1,6 +1,9 @@
 package io.github.lee0701.heonot.inputmethod.modules.generator;
 
-public class UnicodeJamoHandler {
+public final class UnicodeJamoHandler {
+	private UnicodeJamoHandler() {
+		throw new UnsupportedOperationException("You cannot instantiate UnicodeJamoHandler");
+	}
 
 	public static boolean isSebeolCho(char code) {
 		return code >= 0x1100 && code <= 0x115f || code >= 0xa960 && code <= 0xa97c;
@@ -36,7 +39,8 @@ public class UnicodeJamoHandler {
 	}
 
 	public static class JamoPair implements Cloneable {
-		public char a, b;
+		public char a;
+		public char b;
 		public JamoPair(char a, char b) {
 			this.a = a;
 			this.b = b;
@@ -51,7 +55,7 @@ public class UnicodeJamoHandler {
 
 		@Override
 		public boolean equals(Object obj) {
-			return obj.getClass().equals(this.getClass()) && obj.hashCode() == this.hashCode();
+			return obj != null && obj.getClass().equals(this.getClass()) && obj.hashCode() == this.hashCode();
 		}
 
 		@Override
