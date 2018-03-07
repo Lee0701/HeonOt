@@ -40,7 +40,7 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 		return mSelf;
 	}
 	
-	private HeonOt() {
+	public HeonOt() {
 		super();
 		inputMethods = new ArrayList<>();
 	}
