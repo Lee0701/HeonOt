@@ -105,8 +105,7 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 			if(file.getName().endsWith(".json")) {
 				String fileName = file.getName().replace(".json", "");
 				int index = Integer.parseInt(fileName);
-				try {
-					FileInputStream fis = new FileInputStream(file);
+				try(FileInputStream fis = new FileInputStream(file)) {
 					byte[] bytes = new byte[fis.available()];
 					fis.read(bytes);
 					InputMethod method = InputMethod.loadJSON(new String(bytes));
@@ -122,8 +121,7 @@ public class HeonOt extends InputMethodService implements EventListener, EventSo
 		for(int i = 0 ; i < inputMethods.size() ; i++) {
 			InputMethod method = inputMethods.get(i);
 			File file = new File(methodsDir, i + ".json");
-			try {
-				FileOutputStream fos = new FileOutputStream(file);
+			try(FileOutputStream fos = new FileOutputStream(file)) {
 				fos.write(method.toJSON(-1).getBytes());
 			} catch(IOException | JSONException e) {
 				e.printStackTrace();
