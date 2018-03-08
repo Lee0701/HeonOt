@@ -36,7 +36,7 @@ public class InputMethod {
 		this.modules = list;
 	}
 
-	public void registerListeners(HeonOt parent) {
+	public void registerListeners() {
 		for(InputMethodModule module : modules) {
 			EventBus.getDefault().register(module);
 		}

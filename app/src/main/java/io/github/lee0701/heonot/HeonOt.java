@@ -10,7 +10,8 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import io.github.lee0701.heonot.inputmethod.InputMethod;
 import io.github.lee0701.heonot.inputmethod.event.*;
-import io.github.lee0701.heonot.inputmethod.modules.hardkeyboard.HardKeyboard;
+import io.github.lee0701.heonot.inputmethod.modules.InputMethodModule;
+import io.github.lee0701.heonot.inputmethod.modules.global.ShortcutProcessor;
 import io.github.lee0701.heonot.inputmethod.modules.hardkeyboard.KeyStroke;
 import io.github.lee0701.heonot.inputmethod.scripting.StringRecursionTreeBuilder;
 import io.github.lee0701.heonot.inputmethod.scripting.TreeEvaluator;
@@ -32,9 +33,9 @@ public class HeonOt extends InputMethodService {
 	private int currentInputMethodId;
 	private InputMethod currentInputMethod;
 
-	private Map<KeyStroke, TreeNode> shortcuts;
+	private List<InputMethodModule> globalModules;
 
-	private TreeEvaluator evaluator;
+	private TreeEvaluator treeEvaluator;
 
 	private static HeonOt instance;
 	public static HeonOt getInstance() {
@@ -44,6 +45,7 @@ public class HeonOt extends InputMethodService {
 	public HeonOt() {
 		super();
 		inputMethods = new ArrayList<>();
+		globalModules = new ArrayList<>();
 	}
 
 	public HeonOt(Context context) {
@@ -67,7 +69,7 @@ public class HeonOt extends InputMethodService {
 	}
 
 	void init() {
-		evaluator = new TreeEvaluator();
+		treeEvaluator = new TreeEvaluator();
 
 		File methodsDir = new File(getFilesDir(), "methods");
 
@@ -89,20 +91,28 @@ public class HeonOt extends InputMethodService {
 		} else {
 			loadMethods(methodsDir);
 		}
-		shortcuts = new HashMap<>();
+
+		ShortcutProcessor shortcutProcessor = new ShortcutProcessor();
+		List<ShortcutProcessor.Shortcut> shortcuts = new ArrayList<>();
 		{
 			KeyStroke stroke = new KeyStroke(false, false, false, true, KeyEvent.KEYCODE_SPACE);
 			TreeNode node = new StringRecursionTreeBuilder().build("A = !A");
-			shortcuts.put(stroke, node);
+			shortcuts.add(new ShortcutProcessor.Shortcut(stroke, ShortcutProcessor.Shortcut.MODE_CHANGE, node));
 		}
 		{
 			KeyStroke stroke = new KeyStroke(false, false, false, false, KeyEvent.KEYCODE_LANGUAGE_SWITCH);
 			TreeNode node = new StringRecursionTreeBuilder().build("A = !A");
-			shortcuts.put(stroke, node);
+			shortcuts.add(new ShortcutProcessor.Shortcut(stroke, ShortcutProcessor.Shortcut.MODE_CHANGE, node));
+		}
+		shortcutProcessor.setShortcuts(shortcuts);
+		globalModules.add(shortcutProcessor);
+
+		for(InputMethodModule module : globalModules) {
+			EventBus.getDefault().register(module);
 		}
 
 		currentInputMethod = inputMethods.get(currentInputMethodId);
-		currentInputMethod.registerListeners(this);
+		currentInputMethod.registerListeners();
 		EventBus.getDefault().register(this);
 		currentInputMethod.init();
 	}
@@ -111,6 +121,9 @@ public class HeonOt extends InputMethodService {
 		EventBus.getDefault().unregister(this);
 		for(InputMethod method : inputMethods) {
 			method.pause();
+		}
+		for(InputMethodModule module : globalModules) {
+			EventBus.getDefault().unregister(module);
 		}
 	}
 
@@ -265,14 +278,6 @@ public class HeonOt extends InputMethodService {
 		ic.commitText(String.valueOf(event.getCharacter()), event.getCursorPosition());
 	}
 
-	@Subscribe(priority = 1)
-	public void onHardKey(HardKeyEvent event) {
-		if(event.getAction() == HardKeyEvent.HardKeyAction.PRESS
-				&& processShortcut(event.getKeyCode(), event.isAltPressed(), event.isShiftPressed())) {
-			EventBus.getDefault().cancelEventDelivery(event);
-		}
-	}
-
 	@Subscribe
 	public void onBackspace(BackspaceEvent event) {
 		getCurrentInputConnection().deleteSurroundingText(1, 0);
@@ -283,40 +288,21 @@ public class HeonOt extends InputMethodService {
 		getCurrentInputConnection().deleteSurroundingText(event.getBeforeLength(), event.getAfterLength());
 	}
 
-	public boolean processShortcut(int keyCode, boolean altPressed, boolean shiftPressed) {
-		for(KeyStroke stroke : shortcuts.keySet()) {
-			if(stroke.getKeyCode() == keyCode
-					&& stroke.isAlt() == altPressed
-					&& stroke.isShift() == shiftPressed) {
-				evaluator.setVariables(getVariables());
-				Long result = evaluator.eval(shortcuts.get(stroke));
-				setVariables(evaluator.getVariables());
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private Map<String, Long> getVariables() {
+	public Map<String, Long> getVariables() {
 		return new HashMap<String, Long>() {{
 			put("A", (long) currentInputMethodId);
 		}};
 	}
 
-	private void setVariables(Map<String, Long> variables) {
-		try {
-			final int inputMethodId = (int) (long) variables.get("A");
-			if(inputMethodId != currentInputMethodId) {
-				new Handler().post(() -> {
-					currentInputMethod.pause();
-					currentInputMethodId = inputMethodId;
-					currentInputMethod = inputMethods.get(currentInputMethodId);
-					currentInputMethod.registerListeners(HeonOt.this);
-					currentInputMethod.init();
-					setInputView(onCreateInputView());
-				});
-			}
-		} catch(NullPointerException e) {}
+	public void changeInputMethod(int inputMethodId) {
+		new Handler().post(() -> {
+			currentInputMethod.pause();
+			currentInputMethodId = inputMethodId;
+			currentInputMethod = inputMethods.get(currentInputMethodId);
+			currentInputMethod.registerListeners();
+			currentInputMethod.init();
+			setInputView(onCreateInputView());
+		});
 	}
 
 	private String getRawString(String resName) throws IOException {
@@ -340,5 +326,13 @@ public class HeonOt extends InputMethodService {
 
 	void setInputMethods(List<InputMethod> inputMethods) {
 		this.inputMethods = inputMethods;
+	}
+
+	public TreeEvaluator getTreeEvaluator() {
+		return treeEvaluator;
+	}
+
+	public void setTreeEvaluator(TreeEvaluator treeEvaluator) {
+		this.treeEvaluator = treeEvaluator;
 	}
 }
