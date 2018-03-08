@@ -272,6 +272,7 @@ public class DefaultHardKeyboard extends HardKeyboard {
 	@Override
 	public View createSettingsView(final Context context) {
 		LinearLayout settings = new LinearLayout(context);
+		settings.setOrientation(LinearLayout.VERTICAL);
 		KeyboardView keyboardView = new KeyboardView(context, null);
 		Keyboard keyboard = new Keyboard(context, R.xml.keyboard_full_10cols);
 		keyboardView.setKeyboard(keyboard);
@@ -300,6 +301,7 @@ public class DefaultHardKeyboard extends HardKeyboard {
 		CheckBox repeat = new CheckBox(context);
 		repeat.setText(R.string.dsk_pref_soft_key_repeat);
 		repeat.setOnCheckedChangeListener((v, checked) -> setSoftLongPressMode(checked ? LONG_PRESS_REPEAT : LONG_PRESS_SHIFT));
+		settings.addView(repeat);
 
 		return settings;
 	}

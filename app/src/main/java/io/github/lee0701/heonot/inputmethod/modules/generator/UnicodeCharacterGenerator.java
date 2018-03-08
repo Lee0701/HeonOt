@@ -402,22 +402,23 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 
 	@Override
 	public View createSettingsView(Context context) {
-		LinearLayout layout = new LinearLayout(context);
+		LinearLayout settings = new LinearLayout(context);
+		settings.setOrientation(LinearLayout.VERTICAL);
 		CheckBox moajugi = new CheckBox(context);
 		moajugi.setText(R.string.moajugi);
 		CheckBox fullMoachigi = new CheckBox(context);
 		fullMoachigi.setText(R.string.full_moachigi);
 		CheckBox firstMidEnd = new CheckBox(context);
 		firstMidEnd.setText(R.string.first_mid_end);
-		layout.addView(moajugi);
-		layout.addView(fullMoachigi);
-		layout.addView(firstMidEnd);
+		settings.addView(moajugi);
+		settings.addView(fullMoachigi);
+		settings.addView(firstMidEnd);
 		moajugi.setChecked(getMoajugi());
 		fullMoachigi.setChecked(getFullMoachigi());
 		firstMidEnd.setChecked(getFirstMidEnd());
 		moajugi.setOnCheckedChangeListener((v, checked) -> setMoajugi(checked));
 		fullMoachigi.setOnCheckedChangeListener((v, checked) -> setFullMoachigi(checked));
 		firstMidEnd.setOnCheckedChangeListener((v, checked) -> setFirstMidEnd(checked));
-		return layout;
+		return settings;
 	}
 }
