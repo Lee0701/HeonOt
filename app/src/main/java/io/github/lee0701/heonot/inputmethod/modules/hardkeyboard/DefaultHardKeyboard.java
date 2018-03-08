@@ -117,6 +117,11 @@ public class DefaultHardKeyboard extends HardKeyboard {
 				}
 				break;
 
+			case KeyEvent.KEYCODE_DEL:
+				EventBus.getDefault().post(new HardKeyEvent(HardKeyEvent.HardKeyAction.PRESS, event.getKeyCode(), 0, 0));
+				EventBus.getDefault().post(new HardKeyEvent(HardKeyEvent.HardKeyAction.RELEASE, event.getKeyCode(), 0, 0));
+				break;
+
 			default:
 				switch(softLongPressMode) {
 				case LONG_PRESS_SHIFT:
@@ -146,6 +151,10 @@ public class DefaultHardKeyboard extends HardKeyboard {
 				}
 				shiftInput = false;
 				updateSoftKeyLabels();
+				break;
+
+			case KeyEvent.KEYCODE_DEL:
+
 				break;
 
 			default:
