@@ -12,6 +12,7 @@ import android.text.method.MetaKeyKeyListener;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
@@ -287,6 +288,9 @@ public class DefaultHardKeyboard extends HardKeyboard {
 			public void swipeUp() {}
 		});
 		settings.addView(keyboardView);
+		CheckBox repeat = new CheckBox(context);
+		repeat.setText(R.string.dsk_pref_soft_key_repeat);
+		repeat.setOnCheckedChangeListener((v, checked) -> setSoftLongPressMode(checked ? LONG_PRESS_REPEAT : LONG_PRESS_SHIFT));
 
 		return settings;
 	}
@@ -411,5 +415,13 @@ public class DefaultHardKeyboard extends HardKeyboard {
 		}
 		clone.setName(getName());
 		return clone;
+	}
+
+	public int getSoftLongPressMode() {
+		return softLongPressMode;
+	}
+
+	public void setSoftLongPressMode(int softLongPressMode) {
+		this.softLongPressMode = softLongPressMode;
 	}
 }

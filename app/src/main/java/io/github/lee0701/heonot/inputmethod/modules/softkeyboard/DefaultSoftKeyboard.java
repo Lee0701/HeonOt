@@ -8,6 +8,8 @@ import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
+import android.support.design.widget.TextInputLayout;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.SparseArray;
 import android.util.TypedValue;
@@ -16,6 +18,10 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -61,7 +67,6 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 	private int spaceSlideSensitivity = 100;
 	private int vibrateDuration = 30;
 	private boolean showPreview = false;
-
 
 	protected Map<Integer, String> labels;
 
@@ -341,6 +346,7 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 		}
 
 		keyboard = new KeyboardKOKR(context, keyboardResId);
+
 		updateLabels(keyboard, labels);
 
 		keyboardView.setKeyboard(keyboard);
@@ -384,6 +390,36 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 			keyboardView.invalidateAllKeys();
 			keyboardView.requestLayout();
 		}
+	}
+
+	public Object getProperty(String key) {
+		switch(key) {
+		case "keyboard":
+			return keyboardResName;
+
+		case "soft-key-labels":
+			return labels;
+
+		case "key-height-portrait":
+			return keyHeightPortrait;
+
+		case "key-height-landscape":
+			return keyHeightLandscape;
+
+		case "long-press-timeout":
+			return longPressTimeout;
+
+		case "use-flick":
+			return useFlick;
+
+		case "flick-sensitivity":
+			return flickSensitivity;
+
+		case "vibrate-duration":
+			return vibrateDuration;
+
+		}
+		return null;
 	}
 
 	@Override
@@ -458,6 +494,50 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 		object.put("properties", properties);
 
 		return object;
+	}
+
+	@Override
+	public View createSettingsView(Context context) {
+		LinearLayout settings = new LinearLayout(context);
+		settings.setOrientation(LinearLayout.VERTICAL);
+
+		settings.addView(createTextEditView(context, "keyboard", R.string.dsk_pref_keyboard, false));
+		settings.addView(createTextEditView(context, "key-height-portrait", R.string.dsk_pref_key_height_portrait, true));
+		settings.addView(createTextEditView(context, "key-height-landscape", R.string.dsk_pref_key_height_landscape, true));
+		settings.addView(createTextEditView(context, "long-press-timeout", R.string.dsk_pref_long_press_timeout, true));
+		CheckBox useFlick = new CheckBox(context);
+		useFlick.setText(R.string.dsk_pref_use_flick);
+		useFlick.setOnCheckedChangeListener((v, checked) -> setUseFlick(checked));
+		settings.addView(useFlick);
+		settings.addView(createTextEditView(context, "flick-sensitivity", R.string.dsk_pref_flick_sensitivity, true));
+		settings.addView(createTextEditView(context, "vibrate-duration", R.string.dsk_pref_vibrate_duration, true));
+
+		return settings;
+	}
+
+	private View createTextEditView(Context context, String key, int nameRes, boolean forceIntValue) {
+		TextInputLayout til = new TextInputLayout(context);
+		EditText editText = new EditText(context);
+		final String previous = getProperty(key).toString();
+		editText.setText(previous);
+		editText.setHint(nameRes);
+		editText.setEllipsize(TextUtils.TruncateAt.END);
+		editText.setSingleLine(true);
+		editText.setOnFocusChangeListener((v, hasFocus) -> {
+			if(forceIntValue) {
+				try {
+					Integer value = Integer.parseInt(editText.getText().toString());
+					setProperty(key, value);
+				} catch(NumberFormatException e) {
+					editText.setText(previous);
+					Toast.makeText(context, R.string.integer_value_forced, Toast.LENGTH_SHORT).show();
+				}
+			} else {
+				setProperty(key, editText.getText().toString());
+			}
+		});
+		til.addView(editText);
+		return til;
 	}
 
 	@Override

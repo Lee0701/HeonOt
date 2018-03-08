@@ -45,7 +45,7 @@ public class HeonOt extends InputMethodService {
 		super();
 		inputMethods = new ArrayList<>();
 	}
-	
+
 	public HeonOt(Context context) {
 		this();
 		attachBaseContext(context);
@@ -58,6 +58,12 @@ public class HeonOt extends InputMethodService {
 
 		init();
 
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		destroy();
 	}
 
 	void init() {
@@ -99,6 +105,13 @@ public class HeonOt extends InputMethodService {
 		currentInputMethod.registerListeners(this);
 		EventBus.getDefault().register(this);
 		currentInputMethod.init();
+	}
+
+	public void destroy() {
+		EventBus.getDefault().unregister(this);
+		for(InputMethod method : inputMethods) {
+			method.pause();
+		}
 	}
 
 	private void loadMethods(File methodsDir) {
