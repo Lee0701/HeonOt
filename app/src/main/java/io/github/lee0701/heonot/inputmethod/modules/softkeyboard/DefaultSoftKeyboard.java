@@ -350,6 +350,8 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 		updateLabels(keyboard, labels);
 
 		keyboardView.setKeyboard(keyboard);
+		float height = (displayMode == PORTRAIT) ? keyHeightPortrait : keyHeightLandscape;
+		keyboard.resize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, height, context.getResources().getDisplayMetrics()));
 		keyboardView.setOnTouchListener(new OnKeyboardViewTouchListener());
 
 		return mainView;
