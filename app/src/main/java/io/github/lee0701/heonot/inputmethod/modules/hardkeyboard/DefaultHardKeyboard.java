@@ -57,6 +57,11 @@ public class DefaultHardKeyboard extends HardKeyboard {
 	}
 
 	@Override
+	public void pause() {
+
+	}
+
+	@Override
 	public void setProperty(String key, Object value) {
 		switch(key) {
 		case "layout":
@@ -95,11 +100,14 @@ public class DefaultHardKeyboard extends HardKeyboard {
 				break;
 
 			default:
+				/*
 				if(event.getType() == SoftKeyEvent.SoftKeyPressType.LONG) {
 					shiftPressing = true;
 					shiftInput = false;
 					updateSoftKeyLabels();
 				}
+				*/
+				EventBus.getDefault().post(new HardKeyEvent(HardKeyEvent.HardKeyAction.PRESS, event.getKeyCode(), 0, 0));
 				break;
 
 			}
@@ -117,7 +125,6 @@ public class DefaultHardKeyboard extends HardKeyboard {
 
 			default:
 				EventBus.getDefault().post(new HardKeyEvent(HardKeyEvent.HardKeyAction.RELEASE, event.getKeyCode(), 0, 0));
-				EventBus.getDefault().post(new HardKeyEvent(HardKeyEvent.HardKeyAction.PRESS, event.getKeyCode(), 0, 0));
 				if(shiftPressing) shiftInput = true;
 				if(!capsLock && shiftInput) shiftPressing = false;
 				updateSoftKeyLabels();

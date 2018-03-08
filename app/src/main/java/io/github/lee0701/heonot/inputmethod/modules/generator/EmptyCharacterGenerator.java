@@ -16,6 +16,11 @@ public class EmptyCharacterGenerator extends CharacterGenerator {
 	}
 
 	@Override
+	public void pause() {
+
+	}
+
+	@Override
 	public void input(long code) {
 		EventBus.getDefault().post(new CommitCharEvent((char) code, 1));
 	}

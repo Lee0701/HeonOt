@@ -16,6 +16,8 @@ public abstract class InputMethodModule implements Cloneable {
 
 	public abstract void init();
 
+	public abstract void pause();
+
 	public View createSettingsView(Context context) {
 		return new LinearLayout(context);
 	}

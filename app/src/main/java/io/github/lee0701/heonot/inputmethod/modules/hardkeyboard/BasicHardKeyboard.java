@@ -13,6 +13,11 @@ public class BasicHardKeyboard extends HardKeyboard {
 	}
 
 	@Override
+	public void pause() {
+
+	}
+
+	@Override
 	public void input(HardKeyEvent event) {
 
 	}

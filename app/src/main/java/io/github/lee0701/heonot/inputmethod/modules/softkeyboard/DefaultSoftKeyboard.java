@@ -24,10 +24,7 @@ import org.json.JSONObject;
 
 import java.util.Map;
 
-import io.github.lee0701.heonot.inputmethod.event.Event;
 import io.github.lee0701.heonot.inputmethod.KeyboardKOKR;
-import io.github.lee0701.heonot.inputmethod.event.DeleteCharEvent;
-import io.github.lee0701.heonot.inputmethod.event.SetPropertyEvent;
 import io.github.lee0701.heonot.inputmethod.event.SoftKeyEvent;
 import io.github.lee0701.heonot.inputmethod.event.SoftKeyEvent.*;
 import io.github.lee0701.heonot.inputmethod.event.UpdateStateEvent;
@@ -58,6 +55,7 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 	private int keyHeightPortrait = 50;
 	private int keyHeightLandscape = 42;
 	private int longPressTimeout = 300;
+	private int repeatInterval = 50;
 	private boolean useFlick = true;
 	private int flickSensitivity = 100;
 	private int spaceSlideSensitivity = 100;
@@ -70,9 +68,12 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 	class LongClickHandler implements Runnable {
 		int keyCode;
 		boolean performed = false;
-		public LongClickHandler(int keyCode) {
+
+		LongClickHandler(int keyCode) {
 			this.keyCode = keyCode;
 		}
+
+		@Override
 		public void run() {
 			onKey(SoftKeyAction.PRESS, keyCode, SoftKeyPressType.LONG);
 			try { vibrator.vibrate(vibrateDuration * 2); } catch (Exception ex) { }
@@ -80,16 +81,23 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 		}
 	}
 
-	Handler backspaceLongClickHandler = new Handler();
-	class BackspaceLongClickHandler implements Runnable {
+	class RepeatHandler implements Runnable {
+		Handler handler;
+		int keyCode;
+
+		RepeatHandler(Handler handler, int keyCode) {
+			this.handler = handler;
+			this.keyCode = keyCode;
+		}
+
 		@Override
 		public void run() {
-			EventBus.getDefault().post(new DeleteCharEvent(1, 0));
-			backspaceLongClickHandler.postDelayed(new BackspaceLongClickHandler(), 50);
+			onKey(SoftKeyAction.PRESS, keyCode, SoftKeyPressType.REPEAT);
+			handler.postDelayed(new RepeatHandler(handler, keyCode), repeatInterval);
 		}
 	}
 
-	private SparseArray<TouchPoint> mTouchPoints = new SparseArray<>();
+	private SparseArray<TouchPoint> touchPoints = new SparseArray<>();
 	class TouchPoint {
 		Keyboard.Key key;
 		int keyCode;
@@ -117,6 +125,7 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 			this.downY = downY;
 			handler = new Handler();
 			handler.postDelayed(longClickHandler = new LongClickHandler(keyCode), longPressTimeout);
+			handler.postDelayed(new RepeatHandler(handler, keyCode), longPressTimeout);
 
 			key.onPressed();
 			keyboardView.invalidateAllKeys();
@@ -145,7 +154,6 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 			case KeyEvent.KEYCODE_DEL:	//TODO: Backspace
 				if(Math.abs(dx) >= BACKSPACE_SLIDE_UNIT) {
 					backspace = keyCode;
-					backspaceLongClickHandler.removeCallbacksAndMessages(null);
 				}
 				break;
 
@@ -244,7 +252,6 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 			keyboardView.requestLayout();
 
 			handler.removeCallbacksAndMessages(null);
-			backspaceLongClickHandler.removeCallbacksAndMessages(null);
 			if(space != -1) {
 				space = -1;
 				return false;
@@ -272,16 +279,16 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 			case MotionEvent.ACTION_DOWN:
 			case MotionEvent.ACTION_POINTER_DOWN:
 				TouchPoint point = new TouchPoint(findKey(keyboard, (int) x, (int) y), x, y);
-				mTouchPoints.put(pointerId, point);
+				touchPoints.put(pointerId, point);
 				return true;
 
 			case MotionEvent.ACTION_MOVE:
-				return mTouchPoints.get(pointerId).onMove(x, y);
+				return touchPoints.get(pointerId).onMove(x, y);
 
 			case MotionEvent.ACTION_UP:
 			case MotionEvent.ACTION_POINTER_UP:
-				mTouchPoints.get(pointerId).onUp();
-				mTouchPoints.remove(pointerId);
+				touchPoints.get(pointerId).onUp();
+				touchPoints.remove(pointerId);
 				return true;
 
 			}
@@ -299,6 +306,15 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 
 	@Override
 	public void init() {
+	}
+
+	@Override
+	public void pause() {
+		for(int i = 0 ; i < touchPoints.size() ; i++) {
+			TouchPoint touchPoint = touchPoints.get(touchPoints.keyAt(i));
+			touchPoint.handler.removeCallbacksAndMessages(null);
+		}
+		touchPoints.clear();
 	}
 
 	@Override

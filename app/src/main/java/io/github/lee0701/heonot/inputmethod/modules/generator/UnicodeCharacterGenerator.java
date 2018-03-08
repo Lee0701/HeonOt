@@ -38,6 +38,11 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 	}
 
 	@Override
+	public void pause() {
+
+	}
+
+	@Override
 	public void input(long code) {
 		State state = this.processInput(code);
 		EventBus.getDefault().post(new ComposeCharEvent(state.composing, state.lastInput));

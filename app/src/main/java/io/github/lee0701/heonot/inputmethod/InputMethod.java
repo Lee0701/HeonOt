@@ -54,6 +54,13 @@ public class InputMethod {
 		}
 	}
 
+	public void pause() {
+		for(InputMethodModule module : modules) {
+			module.pause();
+			EventBus.getDefault().unregister(module);
+		}
+	}
+
 	public View createView(Context context) {
 		LinearLayout view = new LinearLayout(context);
 		for(InputMethodModule module : modules) {

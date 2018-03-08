@@ -295,7 +295,7 @@ public class HeonOt extends InputMethodService {
 			final int inputMethodId = (int) (long) variables.get("A");
 			if(inputMethodId != currentInputMethodId) {
 				new Handler().post(() -> {
-					currentInputMethod.clearListeners();
+					currentInputMethod.pause();
 					currentInputMethodId = inputMethodId;
 					currentInputMethod = inputMethods.get(currentInputMethodId);
 					currentInputMethod.registerListeners(HeonOt.this);
