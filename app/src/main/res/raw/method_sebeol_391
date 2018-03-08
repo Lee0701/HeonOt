@@ -225,6 +225,11 @@
               "shift": "33"
             },
             {
+              "keycode": 68,
+              "normal": "42",
+              "shift": "8251"
+            },
+            {
               "keycode": 69,
               "normal": "41",
               "shift": "59"
