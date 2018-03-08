@@ -39,7 +39,9 @@ public class DefaultHardKeyboard extends HardKeyboard {
 
 	boolean shiftInput;
 
+	boolean shiftState;
 	boolean shiftPressing;
+	boolean altState;
 	boolean altPressing;
 	boolean capsLock;
 
@@ -52,7 +54,7 @@ public class DefaultHardKeyboard extends HardKeyboard {
 
 	@Override
 	public void init() {
-		shiftPressing = altPressing = false;
+		shiftState = altState = false;
 		EventBus.getDefault().post(new SetPropertyEvent("soft-key-labels", getLabels(this.layout)));
 	}
 
@@ -84,25 +86,28 @@ public class DefaultHardKeyboard extends HardKeyboard {
 			switch(event.getKeyCode()) {
 			case KeyEvent.KEYCODE_SHIFT_LEFT:
 			case KeyEvent.KEYCODE_SHIFT_RIGHT:
-				if(!shiftPressing) {
-					shiftPressing = true;
-				} else {
-					if(!capsLock) {
-						if(shiftInput) shiftPressing = false;
-						else capsLock = true;
+				shiftPressing = true;
+				if(event.getType() == SoftKeyEvent.SoftKeyPressType.SIGNLE) {
+					if (!shiftState) {
+						shiftState = true;
 					} else {
-						capsLock = false;
-						shiftPressing = false;
+						if (!capsLock) {
+							if (shiftInput) shiftState = false;
+							else capsLock = true;
+						} else {
+							capsLock = false;
+							shiftState = false;
+						}
 					}
+					shiftInput = false;
+					updateSoftKeyLabels();
 				}
-				shiftInput = false;
-				updateSoftKeyLabels();
 				break;
 
 			default:
 				/*
 				if(event.getType() == SoftKeyEvent.SoftKeyPressType.LONG) {
-					shiftPressing = true;
+					shiftState = true;
 					shiftInput = false;
 					updateSoftKeyLabels();
 				}
@@ -115,9 +120,10 @@ public class DefaultHardKeyboard extends HardKeyboard {
 			switch(event.getKeyCode()) {
 			case KeyEvent.KEYCODE_SHIFT_LEFT:
 			case KeyEvent.KEYCODE_SHIFT_RIGHT:
+				shiftPressing = false;
 				if(shiftInput) {
 					capsLock = false;
-					shiftPressing = false;
+					shiftState = false;
 				}
 				shiftInput = false;
 				updateSoftKeyLabels();
@@ -125,8 +131,8 @@ public class DefaultHardKeyboard extends HardKeyboard {
 
 			default:
 				EventBus.getDefault().post(new HardKeyEvent(HardKeyEvent.HardKeyAction.RELEASE, event.getKeyCode(), 0, 0));
-				if(shiftPressing) shiftInput = true;
-				if(!capsLock && shiftInput) shiftPressing = false;
+				if(shiftState) shiftInput = true;
+				if(!capsLock && shiftInput && !shiftPressing) shiftState = false;
 				updateSoftKeyLabels();
 				break;
 
@@ -141,13 +147,13 @@ public class DefaultHardKeyboard extends HardKeyboard {
 			switch(event.getKeyCode()) {
 			case KeyEvent.KEYCODE_SHIFT_LEFT:
 			case KeyEvent.KEYCODE_SHIFT_RIGHT:
-				shiftPressing = false;
+				shiftState = false;
 				updateSoftKeyLabels();
 				break;
 
 			case KeyEvent.KEYCODE_ALT_LEFT:
 			case KeyEvent.KEYCODE_ALT_RIGHT:
-				altPressing = false;
+				altState = false;
 				break;
 
 			}
@@ -165,12 +171,12 @@ public class DefaultHardKeyboard extends HardKeyboard {
 
 		case KeyEvent.KEYCODE_ALT_LEFT:
 		case KeyEvent.KEYCODE_ALT_RIGHT:
-			altPressing = true;
+			altState = true;
 			return;
 
 		case KeyEvent.KEYCODE_SHIFT_LEFT:
 		case KeyEvent.KEYCODE_SHIFT_RIGHT:
-			shiftPressing = true;
+			shiftState = true;
 			updateSoftKeyLabels();
 			return;
 
@@ -193,7 +199,7 @@ public class DefaultHardKeyboard extends HardKeyboard {
 		}
 		DefaultHardKeyboardMap map = layout.get(event.getKeyCode());
 		if(map != null) {
-			int charCode = shiftPressing ? map.getShift() : map.getNormal();
+			int charCode = shiftState ? map.getShift() : map.getNormal();
 			EventBus.getDefault().post(new InputCharEvent(charCode));
 		} else {
 			directInput(event.getKeyCode());
@@ -201,8 +207,8 @@ public class DefaultHardKeyboard extends HardKeyboard {
 	}
 
 	private void directInput(int keyCode) {
-		int hardShift = capsLock ? 2 : shiftPressing ? 1 : 0;
-		int hardAlt = altPressing ? 1 : 0;
+		int hardShift = capsLock ? 2 : shiftState ? 1 : 0;
+		int hardAlt = altState ? 1 : 0;
 		int unicodeChar = KeyCharacterMap.load(KeyCharacterMap.VIRTUAL_KEYBOARD).get(keyCode, shiftKeyToggle[hardShift] | altKeyToggle[hardAlt]);
 		EventBus.getDefault().post(new CommitCharEvent((char) unicodeChar, 1));
 	}
@@ -217,7 +223,7 @@ public class DefaultHardKeyboard extends HardKeyboard {
 		if(table == null) return result;
 		for(Integer keyCode : table.keySet()) {
 			DefaultHardKeyboardMap map = table.get(keyCode);
-			char charCode = (char) (shiftPressing ? map.getShift() : map.getNormal());
+			char charCode = (char) (shiftState ? map.getShift() : map.getNormal());
 			result.put(keyCode, String.valueOf(charCode));
 		}
 		return result;
