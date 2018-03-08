@@ -4,6 +4,7 @@ import android.content.Context;
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
 import android.os.Build;
+import android.os.Handler;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
@@ -45,6 +46,11 @@ public class DefaultHardKeyboard extends HardKeyboard {
 	boolean altPressing;
 	boolean capsLock;
 
+	int softLongPressMode;
+
+	public static final int LONG_PRESS_SHIFT = 0;
+	public static final int LONG_PRESS_REPEAT = 1;
+
 	private static final int[] shiftKeyToggle = {0, MetaKeyKeyListener.META_SHIFT_ON, MetaKeyKeyListener.META_CAP_LOCKED};
 	private static final int[] altKeyToggle = {0, MetaKeyKeyListener.META_ALT_ON, MetaKeyKeyListener.META_ALT_LOCKED};
 
@@ -77,6 +83,12 @@ public class DefaultHardKeyboard extends HardKeyboard {
 				ex.printStackTrace();
 			}
 			break;
+
+		case "soft-long-press-mode":
+			if(value instanceof Integer) {
+				softLongPressMode = (Integer) value;
+			}
+			break;
 		}
 	}
 
@@ -105,14 +117,20 @@ public class DefaultHardKeyboard extends HardKeyboard {
 				break;
 
 			default:
-				/*
-				if(event.getType() == SoftKeyEvent.SoftKeyPressType.LONG) {
-					shiftState = true;
-					shiftInput = false;
-					updateSoftKeyLabels();
+				switch(softLongPressMode) {
+				case LONG_PRESS_SHIFT:
+					if(event.getType() == SoftKeyEvent.SoftKeyPressType.LONG) {
+						shiftState = true;
+						shiftInput = false;
+						updateSoftKeyLabels();
+					}
+					break;
+
+				case LONG_PRESS_REPEAT:
+					EventBus.getDefault().post(new HardKeyEvent(HardKeyEvent.HardKeyAction.PRESS, event.getKeyCode(), 0, 0));
+					break;
+
 				}
-				*/
-				EventBus.getDefault().post(new HardKeyEvent(HardKeyEvent.HardKeyAction.PRESS, event.getKeyCode(), 0, 0));
 				break;
 
 			}
@@ -130,10 +148,22 @@ public class DefaultHardKeyboard extends HardKeyboard {
 				break;
 
 			default:
-				EventBus.getDefault().post(new HardKeyEvent(HardKeyEvent.HardKeyAction.RELEASE, event.getKeyCode(), 0, 0));
-				if(shiftState) shiftInput = true;
-				if(!capsLock && shiftInput && !shiftPressing) shiftState = false;
-				updateSoftKeyLabels();
+				switch(softLongPressMode) {
+				case LONG_PRESS_SHIFT:
+					EventBus.getDefault().post(new HardKeyEvent(HardKeyEvent.HardKeyAction.PRESS, event.getKeyCode(), 0, 0));
+					EventBus.getDefault().post(new HardKeyEvent(HardKeyEvent.HardKeyAction.RELEASE, event.getKeyCode(), 0, 0));
+					break;
+
+				case LONG_PRESS_REPEAT:
+					EventBus.getDefault().post(new HardKeyEvent(HardKeyEvent.HardKeyAction.RELEASE, event.getKeyCode(), 0, 0));
+					break;
+
+				}
+				new Handler().post(() -> {
+					if(shiftState) shiftInput = true;
+					if(!capsLock && shiftInput && !shiftPressing) shiftState = false;
+					updateSoftKeyLabels();
+				});
 				break;
 
 			}
@@ -188,7 +218,7 @@ public class DefaultHardKeyboard extends HardKeyboard {
 		//TODO: Add text selection code.
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			if (event.isCtrlPressed()) {
-//				event.setCancelled(true);
+				EventBus.getDefault().cancelEventDelivery(event);
 				return;
 			}
 		}
@@ -308,6 +338,8 @@ public class DefaultHardKeyboard extends HardKeyboard {
 		if(layout != null) {
 			properties.put("layout", storeLayout());
 		}
+
+		properties.put("soft-long-press-mode", softLongPressMode);
 
 		object.put("properties", properties);
 
