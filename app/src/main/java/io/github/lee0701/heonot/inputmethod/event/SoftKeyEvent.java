@@ -9,7 +9,7 @@ public final class SoftKeyEvent extends Event {
 	private final SoftKeyPressType type;
 
 	public SoftKeyEvent(SoftKeyAction action, int keyCode) {
-		this(action, keyCode, SoftKeyPressType.SIGNLE);
+		this(action, keyCode, SoftKeyPressType.SINGLE);
 	}
 
 	public SoftKeyEvent(SoftKeyAction action, int keyCode, SoftKeyPressType type) {
@@ -35,7 +35,7 @@ public final class SoftKeyEvent extends Event {
 	}
 
 	public enum SoftKeyPressType {
-		SIGNLE, LONG, FLICK_UP, FLICK_DOWN, FLICK_LEFT, FLICK_RIGHT, REPEAT
+		SINGLE, LONG, FLICK_UP, FLICK_DOWN, FLICK_LEFT, FLICK_RIGHT, REPEAT
 	}
 
 }
