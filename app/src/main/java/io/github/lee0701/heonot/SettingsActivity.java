@@ -32,7 +32,7 @@ public abstract class SettingsActivity extends AppCompatActivity {
 
 		methodsDir = new File(getFilesDir(), "methods");
 
-		loadMethods(methodsDir);
+		inputMethods = InputMethodLoader.loadMethods(methodsDir);
 	}
 
 	@Override
@@ -46,7 +46,7 @@ public abstract class SettingsActivity extends AppCompatActivity {
 		switch(item.getItemId()) {
 		case R.id.action_apply:
 
-			storeMethods(methodsDir);
+			InputMethodLoader.storeMethods(methodsDir, inputMethods);
 			HeonOt instance = HeonOt.getInstance();
 			if(instance != null) {
 				instance.destroy();
@@ -58,36 +58,6 @@ public abstract class SettingsActivity extends AppCompatActivity {
 
 		default:
 			return super.onOptionsItemSelected(item);
-		}
-	}
-
-	private void loadMethods(File methodsDir) {
-		inputMethods.clear();
-		for(File file : methodsDir.listFiles()) {
-			if(file.getName().endsWith(".json")) {
-				String fileName = file.getName().replace(".json", "");
-				int index = Integer.parseInt(fileName);
-				try(FileInputStream fis = new FileInputStream(file)) {
-					byte[] bytes = new byte[fis.available()];
-					fis.read(bytes);
-					InputMethod method = InputMethod.loadJSON(new String(bytes));
-					inputMethods.add(index, method);
-				} catch(IOException | JSONException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-
-	void storeMethods(File methodsDir) {
-		for(int i = 0 ; i < inputMethods.size() ; i++) {
-			InputMethod method = inputMethods.get(i);
-			File file = new File(methodsDir, i + ".json");
-			try(FileOutputStream fos = new FileOutputStream(file)) {
-				fos.write(method.toJSON(-1).getBytes());
-			} catch(IOException | JSONException e) {
-				e.printStackTrace();
-			}
 		}
 	}
 

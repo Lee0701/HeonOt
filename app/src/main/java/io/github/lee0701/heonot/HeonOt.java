@@ -87,9 +87,9 @@ public class HeonOt extends InputMethodService {
 			} catch (JSONException | IOException e) {
 				e.printStackTrace();
 			}
-			storeMethods(methodsDir);
+			InputMethodLoader.storeMethods(methodsDir, inputMethods);
 		} else {
-			loadMethods(methodsDir);
+			inputMethods = InputMethodLoader.loadMethods(methodsDir);
 		}
 
 		ShortcutProcessor shortcutProcessor = new ShortcutProcessor();
@@ -124,36 +124,6 @@ public class HeonOt extends InputMethodService {
 		}
 		for(InputMethodModule module : globalModules) {
 			EventBus.getDefault().unregister(module);
-		}
-	}
-
-	private void loadMethods(File methodsDir) {
-		inputMethods.clear();
-		for(File file : methodsDir.listFiles()) {
-			if(file.getName().endsWith(".json")) {
-				String fileName = file.getName().replace(".json", "");
-				int index = Integer.parseInt(fileName);
-				try(FileInputStream fis = new FileInputStream(file)) {
-					byte[] bytes = new byte[fis.available()];
-					fis.read(bytes);
-					InputMethod method = InputMethod.loadJSON(new String(bytes));
-					inputMethods.add(index, method);
-				} catch(IOException | JSONException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-
-	void storeMethods(File methodsDir) {
-		for(int i = 0 ; i < inputMethods.size() ; i++) {
-			InputMethod method = inputMethods.get(i);
-			File file = new File(methodsDir, i + ".json");
-			try(FileOutputStream fos = new FileOutputStream(file)) {
-				fos.write(method.toJSON(-1).getBytes());
-			} catch(IOException | JSONException e) {
-				e.printStackTrace();
-			}
 		}
 	}
 
