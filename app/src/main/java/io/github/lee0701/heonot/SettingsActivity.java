@@ -1,20 +1,14 @@
 package io.github.lee0701.heonot;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import org.json.JSONException;
-
 import io.github.lee0701.heonot.inputmethod.InputMethod;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,7 +47,7 @@ public abstract class SettingsActivity extends AppCompatActivity {
 				instance.init();
 				instance.setInputView(instance.onCreateInputView());
 			}
-			Snackbar.make(findViewById(R.id.toolbar), R.string.settings_saved, Snackbar.LENGTH_SHORT).show();
+			Snackbar.make(findViewById(R.id.toolbar), R.string.msg_settings_saved, Snackbar.LENGTH_SHORT).show();
 			return true;
 
 		default:

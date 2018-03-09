@@ -310,11 +310,11 @@ public class DefaultHardKeyboard extends HardKeyboard {
 		LinearLayout content = new LinearLayout(context);
 		content.setOrientation(LinearLayout.VERTICAL);
 		final EditText normal = new EditText(context);
-		normal.setHint(R.string.key_normal);
+		normal.setHint(R.string.dhk_key_normal);
 		normal.setEllipsize(TextUtils.TruncateAt.END);
 		normal.setSingleLine(true);
 		final EditText shift = new EditText(context);
-		shift.setHint(R.string.key_shifted);
+		shift.setHint(R.string.dhk_key_shifted);
 		shift.setEllipsize(TextUtils.TruncateAt.END);
 		shift.setSingleLine(true);
 		if(layout == null) {
