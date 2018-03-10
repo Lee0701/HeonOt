@@ -77,49 +77,52 @@ class InputMethod {
         }
     }
 
-    fun loadJSON(methodJson: String): InputMethod {
-        val methodObject = JSONObject(methodJson)
-
-        val modulesArray = methodObject.optJSONArray("modules")
-
-        val modules = arrayListOf<InputMethodModule>()
-        if (modulesArray != null) {
-            for (i in 0 until modulesArray.length()) {
-                val module = modulesArray.getJSONObject(i)
-                val name = module.optString("name")
-                val className = module.getString("class")
-                try {
-                    val moduleClass = Class.forName(className)
-                    val m = moduleClass.getDeclaredConstructor().newInstance() as InputMethodModule
-                    m.name = name
-                    val props = module.optJSONObject("properties")
-                    if (props?.names() != null) {
-                        val names = props.names()
-                        for (j in 0 until names.length()) {
-                            val key = names.getString(j)
-                            m.setProperty(key, props.opt(key))
-                        }
-                    }
-                    modules.add(m)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-
-            }
-        }
-
-        val arr = arrayOfNulls<InputMethodModule>(modules.size)
-        val method = InputMethod(modules)
-        method.name = methodObject.optString("name")
-
-        return method
-    }
-
     @Deprecated("Use copy constructor instead", replaceWith = ReplaceWith("InputMethod"))
             /**
              * It is deprecated. Use copy constructor instead.
              */
     fun clone(): Any {
         return InputMethod(this)
+    }
+
+    companion object {
+        @JvmStatic
+        fun loadJSON(methodJson: String): InputMethod {
+            val methodObject = JSONObject(methodJson)
+
+            val modulesArray = methodObject.optJSONArray("modules")
+
+            val modules = arrayListOf<InputMethodModule>()
+            if (modulesArray != null) {
+                for (i in 0 until modulesArray.length()) {
+                    val module = modulesArray.getJSONObject(i)
+                    val name = module.optString("name")
+                    val className = module.getString("class")
+                    try {
+                        val moduleClass = Class.forName(className)
+                        val m = moduleClass.getDeclaredConstructor().newInstance() as InputMethodModule
+                        m.name = name
+                        val props = module.optJSONObject("properties")
+                        if (props?.names() != null) {
+                            val names = props.names()
+                            for (j in 0 until names.length()) {
+                                val key = names.getString(j)
+                                m.setProperty(key, props.opt(key))
+                            }
+                        }
+                        modules.add(m)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+
+                }
+            }
+
+            val arr = arrayOfNulls<InputMethodModule>(modules.size)
+            val method = InputMethod(modules)
+            method.name = methodObject.optString("name")
+
+            return method
+        }
     }
 }
