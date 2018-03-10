@@ -404,21 +404,28 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 	public View createSettingsView(Context context) {
 		LinearLayout settings = new LinearLayout(context);
 		settings.setOrientation(LinearLayout.VERTICAL);
+
+		settings.addView(super.createSettingsView(context));
+
 		CheckBox moajugi = new CheckBox(context);
 		moajugi.setText(R.string.moajugi);
 		CheckBox fullMoachigi = new CheckBox(context);
 		fullMoachigi.setText(R.string.full_moachigi);
 		CheckBox firstMidEnd = new CheckBox(context);
 		firstMidEnd.setText(R.string.first_mid_end);
+
 		settings.addView(moajugi);
 		settings.addView(fullMoachigi);
 		settings.addView(firstMidEnd);
+
 		moajugi.setChecked(getMoajugi());
 		fullMoachigi.setChecked(getFullMoachigi());
 		firstMidEnd.setChecked(getFirstMidEnd());
+
 		moajugi.setOnCheckedChangeListener((v, checked) -> setMoajugi(checked));
 		fullMoachigi.setOnCheckedChangeListener((v, checked) -> setFullMoachigi(checked));
 		firstMidEnd.setOnCheckedChangeListener((v, checked) -> setFirstMidEnd(checked));
+
 		return settings;
 	}
 }

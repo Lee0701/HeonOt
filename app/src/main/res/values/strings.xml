@@ -19,6 +19,8 @@
 
 	<string name="msg_illegal_number_format">Only numbers are allowed in this field.</string>
 
+	<string name="msg_module_name">Module Name</string>
+
 	<string name="dhk_key_normal">Normal</string>
 	<string name="dhk_key_shifted">Shifted</string>
 

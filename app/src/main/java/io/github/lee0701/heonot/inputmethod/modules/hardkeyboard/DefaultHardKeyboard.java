@@ -274,6 +274,9 @@ public class DefaultHardKeyboard extends HardKeyboard {
 	public View createSettingsView(final Context context) {
 		LinearLayout settings = new LinearLayout(context);
 		settings.setOrientation(LinearLayout.VERTICAL);
+
+		settings.addView(super.createSettingsView(context));
+
 		KeyboardView keyboardView = new KeyboardView(context, null);
 		Keyboard keyboard = new Keyboard(context, R.xml.keyboard_full_10cols);
 		keyboardView.setKeyboard(keyboard);

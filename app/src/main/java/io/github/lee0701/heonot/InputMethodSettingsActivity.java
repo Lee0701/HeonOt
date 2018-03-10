@@ -32,10 +32,6 @@ public class InputMethodSettingsActivity extends SettingsActivity {
 		linearLayout.setOrientation(LinearLayout.VERTICAL);
 
 		for(InputMethodModule module : method.getModules()) {
-			TextView textView = new TextView(this);
-			textView.setTextSize(TypedValue.COMPLEX_UNIT_PT, 12);
-			textView.setText(module.getName());
-			linearLayout.addView(textView);
 			linearLayout.addView(module.createSettingsView(this));
 		}
 
