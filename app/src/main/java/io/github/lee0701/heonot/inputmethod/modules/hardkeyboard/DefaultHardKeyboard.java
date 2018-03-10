@@ -16,7 +16,9 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-
+import io.github.lee0701.heonot.R;
+import io.github.lee0701.heonot.inputmethod.event.*;
+import io.github.lee0701.heonot.inputmethod.modules.hardkeyboard.def.DefaultHardKeyboardMap;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.json.JSONArray;
