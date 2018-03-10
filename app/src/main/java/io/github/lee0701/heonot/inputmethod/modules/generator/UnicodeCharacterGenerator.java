@@ -384,7 +384,7 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 	}
 
 	@Override
-	public Object clone() {
+	public UnicodeCharacterGenerator clone() {
 		UnicodeCharacterGenerator cloned = new UnicodeCharacterGenerator();
 		Map<JamoPair, Character> combinations = new HashMap<>();
 		if(combinationTable != null) {

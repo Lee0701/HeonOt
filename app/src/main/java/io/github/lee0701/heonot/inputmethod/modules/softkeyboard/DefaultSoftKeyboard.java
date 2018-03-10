@@ -538,7 +538,7 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 	}
 
 	@Override
-	public Object clone() {
+	public DefaultSoftKeyboard clone() {
 		DefaultSoftKeyboard cloned = new DefaultSoftKeyboard();
 		cloned.setKeyboardResName(getKeyboardResName());
 		cloned.setName(getName());

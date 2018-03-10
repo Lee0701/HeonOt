@@ -407,7 +407,7 @@ public class DefaultHardKeyboard extends HardKeyboard {
 	}
 
 	@Override
-	public Object clone() {
+	public DefaultHardKeyboard clone() {
 		DefaultHardKeyboard clone = new DefaultHardKeyboard();
 		if(layout != null) {
 			Map<Integer, DefaultHardKeyboardMap> layout = new HashMap<>();
