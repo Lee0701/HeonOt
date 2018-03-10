@@ -60,8 +60,11 @@ class ShortcutProcessor : InputMethodModule() {
 
     class Shortcut(var keyStroke: KeyStroke, var mode: Int, var treeNode: TreeNode?) {
         companion object {
+            @JvmField
             val MODE_NONE = 0
+            @JvmField
             val MODE_CHANGE = 1
+            @JvmField
             val MODE_INPUT = 2
         }
     }
