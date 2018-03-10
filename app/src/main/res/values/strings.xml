@@ -17,6 +17,8 @@
 	<string name="msg_settings_saved">Settings Saved.</string>
 	<string name="msg_copy_method_json">Copy Input Method Data to Clipboard?</string>
 
+	<string name="msg_illegal_number_format">Only numbers are allowed in this field.</string>
+
 	<string name="dhk_key_normal">Normal</string>
 	<string name="dhk_key_shifted">Shifted</string>
 

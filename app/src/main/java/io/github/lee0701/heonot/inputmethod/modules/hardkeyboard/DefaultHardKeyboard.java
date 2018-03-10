@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -334,15 +335,34 @@ public class DefaultHardKeyboard extends HardKeyboard {
 		return new AlertDialog.Builder(context)
 				.setTitle("Key " + keyCode)
 				.setView(content)
-				.setPositiveButton(R.string.button_ok, (dialog, which) ->
+				.setPositiveButton(R.string.button_ok, (dialog, which) -> {
+					try {
 						layout.put(keyCode, new DefaultHardKeyboardMap(keyCode,
-								Integer.parseInt(normal.getText().toString()),
-								Integer.parseInt(shift.getText().toString()),
-								Integer.parseInt(shift.getText().toString())))
-				)
+								parseKeycode(normal.getText().toString()),
+								parseKeycode(shift.getText().toString()),
+								parseKeycode(shift.getText().toString())));
+					} catch(NumberFormatException e) {
+						Toast.makeText(context, R.string.msg_illegal_number_format, Toast.LENGTH_SHORT).show();
+					}
+				})
 				.setNeutralButton(R.string.button_delete, (dialog, which) -> layout.remove(keyCode))
 				.setNegativeButton(R.string.button_cancel, (dialog, which) -> {})
 				.create();
+	}
+
+	private int parseKeycode(String str) {
+		if(str.startsWith("0x")) {
+			return Integer.parseInt(str.replaceFirst("0x", ""), 16);
+		} else {
+			try {
+				return Integer.parseInt(str);
+			} catch(NumberFormatException e) {
+				if(str.length() == 1) {
+					return str.charAt(0);
+				}
+				throw e;
+			}
+		}
 	}
 
 	@Override
