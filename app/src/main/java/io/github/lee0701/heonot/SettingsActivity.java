@@ -26,7 +26,7 @@ public abstract class SettingsActivity extends AppCompatActivity {
 
 		methodsDir = new File(getFilesDir(), "methods");
 
-		inputMethods = InputMethodLoader.loadMethods(methodsDir);
+		loadMethods();
 	}
 
 	@Override
@@ -39,19 +39,26 @@ public abstract class SettingsActivity extends AppCompatActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
 		case R.id.action_apply:
-
-			InputMethodLoader.storeMethods(methodsDir, inputMethods);
-			HeonOt instance = HeonOt.getInstance();
-			if(instance != null) {
-				instance.destroy();
-				instance.init();
-				instance.setInputView(instance.onCreateInputView());
-			}
+			saveMethods();
 			Snackbar.make(findViewById(R.id.toolbar), R.string.msg_settings_saved, Snackbar.LENGTH_SHORT).show();
 			return true;
 
 		default:
 			return super.onOptionsItemSelected(item);
+		}
+	}
+
+	protected void loadMethods() {
+		inputMethods = InputMethodLoader.loadMethods(methodsDir);
+	}
+
+	protected void saveMethods() {
+		InputMethodLoader.storeMethods(methodsDir, inputMethods);
+		HeonOt instance = HeonOt.getInstance();
+		if(instance != null) {
+			instance.destroy();
+			instance.init();
+			instance.setInputView(instance.onCreateInputView());
 		}
 	}
 

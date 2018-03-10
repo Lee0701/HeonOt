@@ -26,7 +26,8 @@ public class InputMethodSettingsActivity extends SettingsActivity {
 		setContentView(R.layout.activity_input_method_settings);
 
 		Intent intent = getIntent();
-		InputMethod method = inputMethods.get(intent.getIntExtra(EXTRA_METHOD_ID, -1));
+		int id = intent.getIntExtra(EXTRA_METHOD_ID, -1);
+		InputMethod method = inputMethods.get(id);
 
 		LinearLayout linearLayout = (LinearLayout) findViewById(R.id.modules);
 		linearLayout.setOrientation(LinearLayout.VERTICAL);
@@ -35,7 +36,7 @@ public class InputMethodSettingsActivity extends SettingsActivity {
 			linearLayout.addView(module.createSettingsView(this));
 		}
 
-		RelativeLayout relativeLayout = new RelativeLayout(this);
+		LinearLayout buttonsLayout = new LinearLayout(this);
 
 		Button exportButton = new Button(this);
 		exportButton.setText(R.string.button_export);
@@ -61,9 +62,27 @@ public class InputMethodSettingsActivity extends SettingsActivity {
 					.create()
 			.show();
 		});
-		relativeLayout.addView(exportButton);
+		buttonsLayout.addView(exportButton);
 
-		linearLayout.addView(relativeLayout);
+		Button duplicateButton = new Button(this);
+		duplicateButton.setText(R.string.button_duplicate);
+		duplicateButton.setOnClickListener((v) -> {
+			inputMethods.add(new InputMethod(method));
+			saveMethods();
+			finish();
+		});
+		buttonsLayout.addView(duplicateButton);
+
+		Button deleteButton = new Button(this);
+		deleteButton.setText(R.string.button_delete);
+		deleteButton.setOnClickListener((v) -> {
+			inputMethods.remove(method);
+			saveMethods();
+			finish();
+		});
+		buttonsLayout.addView(deleteButton);
+
+		linearLayout.addView(buttonsLayout);
 
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);

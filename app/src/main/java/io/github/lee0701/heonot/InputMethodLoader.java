@@ -33,6 +33,9 @@ public class InputMethodLoader {
 	}
 
 	public static void storeMethods(File methodsDir, List<InputMethod> inputMethods) {
+		for(File file : methodsDir.listFiles()) {
+			file.delete();
+		}
 		for(int i = 0 ; i < inputMethods.size() ; i++) {
 			InputMethod method = inputMethods.get(i);
 			File file = new File(methodsDir, i + ".json");

@@ -2,6 +2,7 @@ package io.github.lee0701.heonot;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
@@ -15,9 +16,25 @@ import org.json.JSONException;
 import java.util.List;
 
 public class HeonOtSettingsActivity extends SettingsActivity {
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(toolbar);
+
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		loadMethods();
+	}
+
+	@Override
+	protected void loadMethods() {
+		super.loadMethods();
 		setContentView(R.layout.activity_heonot_settings);
 
 		ListView listView = (ListView) findViewById(R.id.method_list);
@@ -39,9 +56,6 @@ public class HeonOtSettingsActivity extends SettingsActivity {
 			intent.putExtra(EXTRA_METHOD_ID, position);
 			startActivity(intent);
 		});
-
-		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-		setSupportActionBar(toolbar);
 
 	}
 
