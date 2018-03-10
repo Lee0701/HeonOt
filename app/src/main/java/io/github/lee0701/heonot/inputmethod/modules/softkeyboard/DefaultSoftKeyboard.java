@@ -498,6 +498,8 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 		LinearLayout settings = new LinearLayout(context);
 		settings.setOrientation(LinearLayout.VERTICAL);
 
+		settings.addView(super.createSettingsView(context));
+
 		settings.addView(createTextEditView(context, "keyboard", R.string.dsk_pref_keyboard, false));
 		settings.addView(createTextEditView(context, "key-height-portrait", R.string.dsk_pref_key_height_portrait, true));
 		settings.addView(createTextEditView(context, "key-height-landscape", R.string.dsk_pref_key_height_landscape, true));
