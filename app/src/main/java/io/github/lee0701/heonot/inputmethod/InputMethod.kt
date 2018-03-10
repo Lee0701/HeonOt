@@ -7,6 +7,7 @@ import io.github.lee0701.heonot.inputmethod.modules.InputMethodModule
 import io.github.lee0701.heonot.inputmethod.modules.softkeyboard.SoftKeyboard
 import org.greenrobot.eventbus.EventBus
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 
 class InputMethod {
@@ -58,6 +59,7 @@ class InputMethod {
         return view
     }
 
+    @Throws(JSONException::class)
     fun toJSON(indentSpaces: Int): String {
         val methodObject = JSONObject()
 
@@ -87,6 +89,7 @@ class InputMethod {
 
     companion object {
         @JvmStatic
+        @Throws(JSONException::class)
         fun loadJSON(methodJson: String): InputMethod {
             val methodObject = JSONObject(methodJson)
 
