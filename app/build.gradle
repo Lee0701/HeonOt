@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdkVersion 25
@@ -29,7 +31,6 @@ android {
 
     testOptions {
     }
-
 }
 
 dependencies {
@@ -40,6 +41,8 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     testImplementation 'junit:junit:4.12'
     testCompile 'org.json:json:20160810'
+
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
     compile 'org.greenrobot:eventbus:3.1.1'
 }

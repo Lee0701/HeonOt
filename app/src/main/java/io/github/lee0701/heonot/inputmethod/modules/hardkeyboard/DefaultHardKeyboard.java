@@ -16,7 +16,9 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-
+import io.github.lee0701.heonot.R;
+import io.github.lee0701.heonot.inputmethod.event.*;
+import io.github.lee0701.heonot.inputmethod.modules.hardkeyboard.def.DefaultHardKeyboardMap;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.json.JSONArray;
@@ -25,16 +27,6 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import io.github.lee0701.heonot.inputmethod.event.BackspaceEvent;
-import io.github.lee0701.heonot.inputmethod.event.UpdateStateEvent;
-import io.github.lee0701.heonot.inputmethod.modules.hardkeyboard.def.DefaultHardKeyboardMap;
-import io.github.lee0701.heonot.inputmethod.event.CommitCharEvent;
-import io.github.lee0701.heonot.inputmethod.event.InputCharEvent;
-import io.github.lee0701.heonot.inputmethod.event.HardKeyEvent;
-import io.github.lee0701.heonot.inputmethod.event.SetPropertyEvent;
-import io.github.lee0701.heonot.inputmethod.event.SoftKeyEvent;
-import io.github.lee0701.heonot.R;
 
 public class DefaultHardKeyboard extends HardKeyboard {
 
@@ -101,7 +93,7 @@ public class DefaultHardKeyboard extends HardKeyboard {
 			case KeyEvent.KEYCODE_SHIFT_LEFT:
 			case KeyEvent.KEYCODE_SHIFT_RIGHT:
 				shiftPressing = true;
-				if(event.getType() == SoftKeyEvent.SoftKeyPressType.SIGNLE) {
+				if(event.getType() == SoftKeyEvent.SoftKeyPressType.SINGLE) {
 					if (!shiftState) {
 						shiftState = true;
 					} else {
@@ -438,7 +430,7 @@ public class DefaultHardKeyboard extends HardKeyboard {
 	}
 
 	@Override
-	public Object clone() {
+	public DefaultHardKeyboard clone() {
 		DefaultHardKeyboard clone = new DefaultHardKeyboard();
 		if(layout != null) {
 			Map<Integer, DefaultHardKeyboardMap> layout = new HashMap<>();

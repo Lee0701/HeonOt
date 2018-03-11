@@ -58,7 +58,7 @@ public abstract class InputMethodModule implements Cloneable {
 	}
 
 	@Override
-	public abstract Object clone();
+	public abstract InputMethodModule clone();
 
 	public JSONObject toJSONObject() throws JSONException {
 		JSONObject object = new JSONObject();

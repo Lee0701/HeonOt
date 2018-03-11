@@ -13,28 +13,23 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.SparseArray;
 import android.util.TypedValue;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-
+import io.github.lee0701.heonot.R;
+import io.github.lee0701.heonot.inputmethod.KeyboardKOKR;
+import io.github.lee0701.heonot.inputmethod.event.SoftKeyEvent;
+import io.github.lee0701.heonot.inputmethod.event.SoftKeyEvent.SoftKeyAction;
+import io.github.lee0701.heonot.inputmethod.event.SoftKeyEvent.SoftKeyPressType;
+import io.github.lee0701.heonot.inputmethod.event.UpdateStateEvent;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Map;
-
-import io.github.lee0701.heonot.inputmethod.KeyboardKOKR;
-import io.github.lee0701.heonot.inputmethod.event.SoftKeyEvent;
-import io.github.lee0701.heonot.inputmethod.event.SoftKeyEvent.*;
-import io.github.lee0701.heonot.inputmethod.event.UpdateStateEvent;
-import io.github.lee0701.heonot.R;
 
 public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.OnKeyboardActionListener {
 
@@ -143,7 +138,7 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 			if (sound != null) {
 				try { sound.seekTo(0); sound.start(); } catch (Exception ex) { }
 			}
-			this.type = SoftKeyPressType.SIGNLE;
+			this.type = SoftKeyPressType.SINGLE;
 			onKey(SoftKeyAction.PRESS, keyCode, type);
 		}
 
@@ -266,7 +261,7 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 				backspace = -1;
 				return false;
 			}
-			if(longClickHandler.performed && type == SoftKeyPressType.SIGNLE) type = SoftKeyPressType.LONG;
+			if(longClickHandler.performed && type == SoftKeyPressType.SINGLE) type = SoftKeyPressType.LONG;
 			onKey(SoftKeyAction.RELEASE, keyCode, type);
 			return false;
 		}
@@ -545,7 +540,7 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 	}
 
 	@Override
-	public Object clone() {
+	public DefaultSoftKeyboard clone() {
 		DefaultSoftKeyboard cloned = new DefaultSoftKeyboard();
 		cloned.setKeyboardResName(getKeyboardResName());
 		cloned.setName(getName());
