@@ -248,7 +248,7 @@ public class DefaultHardKeyboard extends HardKeyboard {
 
 	private void updateSoftKeyLabels() {
 		EventBus.getDefault().post(new SetPropertyEvent("soft-key-labels", getLabels(this.layout)));
-		EventBus.getDefault().post(new UpdateStateEvent());
+		EventBus.getDefault().post(new UpdateStateEvent(UpdateStateEvent.Target.SOFT_KEYBOARD));
 	}
 
 	public Map<Integer, String> getLabels(Map<Integer, DefaultHardKeyboardMap> table) {
