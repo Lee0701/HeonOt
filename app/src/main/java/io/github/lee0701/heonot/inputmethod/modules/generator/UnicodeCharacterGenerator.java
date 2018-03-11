@@ -6,7 +6,6 @@ import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import io.github.lee0701.heonot.R;
 import io.github.lee0701.heonot.inputmethod.event.*;
-import io.github.lee0701.heonot.inputmethod.modules.hardkeyboard.HardKeyboard;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -20,6 +19,8 @@ import java.util.Map;
 import java.util.Stack;
 
 import static io.github.lee0701.heonot.inputmethod.modules.generator.UnicodeJamoHandler.JamoPair;
+import static io.github.lee0701.heonot.inputmethod.modules.generator.UnicodeJamoHandler.convertCompatibleJamo;
+import static io.github.lee0701.heonot.inputmethod.modules.generator.UnicodeJamoHandler.convertToCho;
 
 public class UnicodeCharacterGenerator extends CharacterGenerator {
 
@@ -140,6 +141,7 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 				JamoPair pair = new JamoPair(state.syllable.jong, charCode);
 				Character combination = combinationTable.get(pair);
 				if(combination != null) {
+					state.beforeJong = state.syllable.jong;
 					state.syllable.jong = combination;
 					state.lastInput |= State.INPUT_COMBINED;
 				} else {
@@ -155,12 +157,120 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 			break;
 		}
 
+		case CHO2: {
+			// 초성과 중성이 존재할 경우
+			if(state.syllable.containsCho() && state.syllable.containsJung()) {
+				// 한글 자모 종성으로 변환.
+				char compatCode = charCode;
+				charCode = convertCompatibleJamo(compatCode, UnicodeJamoHandler.JamoType.JONG3);
+				state.lastInput = 0;
+				// 해당하는 종성이 없을 경우
+				if(charCode == 0) {
+					charCode = convertCompatibleJamo(compatCode, UnicodeJamoHandler.JamoType.CHO3);
+					commitComposingChar();
+					startNewSyllable(new UnicodeHangulSyllable(charCode, (char) 0, (char) 0));
+					state = states.pop();
+					state.lastInput |= State.INPUT_NO_MATCHING_JONG | State.INPUT_NEW_SYLLABLE_STARTED;
+					state.lastInput |= State.INPUT_CHO2;
+					break;
+				} else if(state.syllable.containsJong()) {
+					JamoPair pair = new JamoPair(state.syllable.jong, charCode);
+					Character combination = combinationTable.get(pair);
+					if(combination != null) {
+						state.beforeJong = state.syllable.jong;
+						state.syllable.jong = combination;
+						state.lastInput |= State.INPUT_COMBINED;
+					} else {
+						commitComposingChar();
+						charCode = convertCompatibleJamo(compatCode, UnicodeJamoHandler.JamoType.CHO3);
+						startNewSyllable(new UnicodeHangulSyllable(charCode, (char) 0, (char) 0));
+						state = states.pop();
+						state.lastInput |= State.INPUT_COMBINATION_FAILED | State.INPUT_NEW_SYLLABLE_STARTED;
+					}
+				} else {
+					state.syllable.jong = charCode;
+				}
+				state.lastInput |= State.INPUT_JONG2;
+			} else {
+				// 한글 자모 초성으로 변환
+				charCode = convertCompatibleJamo(charCode, UnicodeJamoHandler.JamoType.CHO3);
+				if(!moajugi && state.syllable.containsJung()) {
+					commitComposingChar();
+					state = new State(states.peek());
+				}
+				state.lastInput = 0;
+				// 초성이 존재할 경우
+				if(state.syllable.containsCho()) {
+					// 낱자 조합 시도
+					JamoPair pair = new JamoPair(state.syllable.cho, charCode);
+					Character combination = combinationTable.get(pair);
+					if(combination != null) {
+						state.syllable.cho = combination;
+						state.lastInput |= State.INPUT_COMBINED;
+					} else {
+						commitComposingChar();
+						startNewSyllable(new UnicodeHangulSyllable(charCode, (char) 0, (char) 0));
+						state = states.pop();
+						state.lastInput |= State.INPUT_COMBINATION_FAILED | State.INPUT_NEW_SYLLABLE_STARTED;
+					}
+				} else {
+					state.syllable.cho = charCode;
+				}
+				state.lastInput |= State.INPUT_CHO2;
+			}
+			break;
+		}
+
+		case JUNG2: {
+			charCode = convertCompatibleJamo(charCode, UnicodeJamoHandler.JamoType.JUNG3);
+			// 종성이 존재할 경우 (도깨비불 발생)
+			if(state.syllable.containsJong()) {
+				state.lastInput = 0;
+				if(state.beforeJong != 0) {
+					state.syllable.jong = state.beforeJong;
+				} else {
+					state.syllable.jong = 0;
+				}
+				char cho = convertToCho(state.last);
+				state.composing = state.syllable.toString(getFirstMidEnd());
+				EventBus.getDefault().post(new ComposeCharEvent(state.composing, state.lastInput));
+				commitComposingChar();
+				startNewSyllable(new UnicodeHangulSyllable(cho, (char) 0, (char) 0));
+				state = states.pop();
+				state.composing = state.syllable.toString(getFirstMidEnd());
+				states.push(new State(state));
+				state.syllable.jung = charCode;
+			} else {
+				state.lastInput = 0;
+				// 낱자 결합 시도
+				if(state.syllable.containsJung()) {
+					JamoPair pair = new JamoPair(state.syllable.jung, charCode);
+					Character combination = combinationTable.get(pair);
+					if(combination != null) {
+						state.syllable.jung = combination;
+						state.lastInput |= State.INPUT_COMBINED;
+					} else {
+						commitComposingChar();
+						startNewSyllable(new UnicodeHangulSyllable((char) 0, charCode, (char) 0));
+						state = states.pop();
+						state.lastInput |= State.INPUT_COMBINATION_FAILED | State.INPUT_NEW_SYLLABLE_STARTED;
+					}
+				} else {
+					state.syllable.jung = charCode;
+				}
+				state.lastInput |= State.INPUT_JUNG2;
+			}
+			break;
+		}
+
 		default:
 			commitComposingChar();
 			EventBus.getDefault().post(new CommitCharEvent(charCode, 1));
 			state = states.pop();
 			state.lastInput = State.INPUT_NON_HANGUL;
 		}
+
+		state.last = charCode;
 
 		state.composing = state.syllable.toString(getFirstMidEnd());
 
@@ -214,6 +324,7 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 		public static final int INPUT_COMBINED = 0x0001;
 		public static final int INPUT_COMBINATION_FAILED = 0x0002;
 		public static final int INPUT_NEW_SYLLABLE_STARTED = 0x0004;
+		public static final int INPUT_NO_MATCHING_JONG = 0x0008;
 
 		UnicodeHangulSyllable syllable;
 		char last, beforeJong;
@@ -232,7 +343,8 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 		}
 
 		State(State previousState) {
-			syllable = (UnicodeHangulSyllable) previousState.syllable.clone();
+			syllable = previousState.syllable.clone();
+			last = previousState.last;
 			beforeJong = previousState.beforeJong;
 			composing = previousState.composing;
 			lastInput = previousState.lastInput;
@@ -384,7 +496,7 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 	}
 
 	@Override
-	public Object clone() {
+	public UnicodeCharacterGenerator clone() {
 		UnicodeCharacterGenerator cloned = new UnicodeCharacterGenerator();
 		Map<JamoPair, Character> combinations = new HashMap<>();
 		if(combinationTable != null) {

@@ -87,7 +87,7 @@ public class UnicodeHangulSyllable implements Cloneable {
 		return this.toString(true);
 	}
 
-	public Object clone() {
+	public UnicodeHangulSyllable clone() {
 		return new UnicodeHangulSyllable(cho, jung, jong);
 	}
 
