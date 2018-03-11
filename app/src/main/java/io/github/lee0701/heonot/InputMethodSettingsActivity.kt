@@ -52,7 +52,7 @@ class InputMethodSettingsActivity : SettingsActivity() {
                     .setMessage(R.string.msg_copy_method_json)
                     .setPositiveButton(R.string.button_ok) { _, _ ->
                         val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                        if (Build.VERSION.SDK_INT > 11) {
+                        if (Build.VERSION.SDK_INT >= 11) {
                             val clipData = ClipData.newPlainText("JSON Data", json)
                             clipboard.primaryClip = clipData
                         } else {

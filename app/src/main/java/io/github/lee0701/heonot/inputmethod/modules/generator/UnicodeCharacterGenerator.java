@@ -1,11 +1,16 @@
 package io.github.lee0701.heonot.inputmethod.modules.generator;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
-import io.github.lee0701.heonot.R;
-import io.github.lee0701.heonot.inputmethod.event.*;
+import android.widget.TextView;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -13,10 +18,21 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.EmptyStackException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Stack;
+
+import io.github.lee0701.heonot.R;
+import io.github.lee0701.heonot.inputmethod.event.BackspaceEvent;
+import io.github.lee0701.heonot.inputmethod.event.CommitCharEvent;
+import io.github.lee0701.heonot.inputmethod.event.CommitComposingCharEvent;
+import io.github.lee0701.heonot.inputmethod.event.ComposeCharEvent;
+import io.github.lee0701.heonot.inputmethod.event.DeleteCharEvent;
+import io.github.lee0701.heonot.inputmethod.event.FinishComposingEvent;
+import io.github.lee0701.heonot.inputmethod.event.InputCharEvent;
 
 import static io.github.lee0701.heonot.inputmethod.modules.generator.UnicodeJamoHandler.JamoPair;
 import static io.github.lee0701.heonot.inputmethod.modules.generator.UnicodeJamoHandler.convertCompatibleJamo;
@@ -26,7 +42,7 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 
 	private Stack<State> states = new Stack<>();
 
-	private Map<UnicodeJamoHandler.JamoPair, Character> combinationTable = new HashMap<>();
+	private Map<UnicodeJamoHandler.JamoPair, Character> combinationTable = new LinkedHashMap<>();
 
 	private boolean moajugi;
 	private boolean fullMoachigi;
@@ -533,23 +549,92 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 
 		CheckBox moajugi = new CheckBox(context);
 		moajugi.setText(R.string.moajugi);
+		moajugi.setChecked(getMoajugi());
+		moajugi.setOnCheckedChangeListener((v, checked) -> setMoajugi(checked));
+		settings.addView(moajugi);
+
 		CheckBox fullMoachigi = new CheckBox(context);
 		fullMoachigi.setText(R.string.full_moachigi);
+		fullMoachigi.setChecked(getFullMoachigi());
+		fullMoachigi.setOnCheckedChangeListener((v, checked) -> setFullMoachigi(checked));
+		settings.addView(fullMoachigi);
+
 		CheckBox firstMidEnd = new CheckBox(context);
 		firstMidEnd.setText(R.string.first_mid_end);
-
-		settings.addView(moajugi);
-		settings.addView(fullMoachigi);
+		firstMidEnd.setChecked(getFirstMidEnd());
+		firstMidEnd.setOnCheckedChangeListener((v, checked) -> setFirstMidEnd(checked));
 		settings.addView(firstMidEnd);
 
-		moajugi.setChecked(getMoajugi());
-		fullMoachigi.setChecked(getFullMoachigi());
-		firstMidEnd.setChecked(getFirstMidEnd());
+		RecyclerView recyclerView = new RecyclerView(context);
+		recyclerView.setHasFixedSize(true);
+		recyclerView.setAdapter(new CombinationTableAdapter(context));
+		recyclerView.setLayoutManager(new LinearLayoutManager(context));
+		recyclerView.setNestedScrollingEnabled(false);
 
-		moajugi.setOnCheckedChangeListener((v, checked) -> setMoajugi(checked));
-		fullMoachigi.setOnCheckedChangeListener((v, checked) -> setFullMoachigi(checked));
-		firstMidEnd.setOnCheckedChangeListener((v, checked) -> setFirstMidEnd(checked));
+		ItemTouchHelper.Callback callback = new ItemTouchHelper.SimpleCallback(0,
+				ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+			@Override
+			public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+				return false;
+			}
+
+			@Override
+			public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+				Character a = ((CombinationTableViewHolder)viewHolder).combinationLeft.getText().charAt(1);
+				Character b = ((CombinationTableViewHolder)viewHolder).combinationRight.getText().charAt(1);
+				combinationTable.remove(new UnicodeJamoHandler.JamoPair(a, b));
+			}
+		};
+
+		ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
+		itemTouchHelper.attachToRecyclerView(recyclerView);
+		settings.addView(recyclerView);
 
 		return settings;
+	}
+
+	class CombinationTableViewHolder extends RecyclerView.ViewHolder{
+		TextView combinationLeft, combinationRight, combinationResult;
+
+		CombinationTableViewHolder(View itemView) {
+			super(itemView);
+			combinationLeft = (TextView)itemView.findViewById(R.id.combination_left_text);
+			combinationRight = (TextView)itemView.findViewById(R.id.combination_right_text);
+			combinationResult = (TextView)itemView.findViewById(R.id.combination_result_text);
+		}
+
+		@SuppressLint("SetTextI18n")
+		void onBind(UnicodeJamoHandler.JamoPair jamoPair, char character){
+			combinationLeft.setText(jamoPair.a + " (" + UnicodeJamoHandler.getType(jamoPair.a).name() +")");
+			combinationRight.setText(jamoPair.b + " (" + UnicodeJamoHandler.getType(jamoPair.b).name() +")");
+			combinationResult.setText(character + " (" + UnicodeJamoHandler.getType(character).name() +")");
+		}
+	}
+	class CombinationTableAdapter extends RecyclerView.Adapter<CombinationTableViewHolder>{
+
+		private Context context;
+		CombinationTableAdapter(Context context){
+			this.context = context;
+		}
+		@Override
+		public CombinationTableViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+			View combinationTableView = LayoutInflater
+					.from(context)
+					.inflate(R.layout.combination_table_view_holder, parent, false);
+			return new CombinationTableViewHolder(combinationTableView);
+		}
+
+		@Override
+		public void onBindViewHolder(CombinationTableViewHolder holder, int position) {
+			Map.Entry<UnicodeJamoHandler.JamoPair, Character> entry =
+					new ArrayList<>(combinationTable.entrySet()).get(position);
+
+			holder.onBind(entry.getKey(), entry.getValue());
+		}
+
+		@Override
+		public int getItemCount() {
+			return combinationTable.size();
+		}
 	}
 }
