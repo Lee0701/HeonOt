@@ -70,6 +70,17 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 		if(states.empty()) states.push(new State());
 		State state = new State(states.peek());
 
+		int codeType = (int) ((code & 0xff000000) >> 0x18);
+		int codePoint = (int) (code & 0x00ffffff);
+		if((codePoint & 0x00ff0000) != 0) {
+			commitComposingChar();
+			EventBus.getDefault().post(new CommitStringEvent(new String(Character.toChars(codePoint)), 1));
+			state = states.pop();
+			state.lastInput = State.INPUT_NON_HANGUL;
+			state.last = codePoint;
+			return state;
+		}
+
 		char charCode = (char) (code & 0xffff);
 		switch(UnicodeJamoHandler.getType(charCode)) {
 		case CHO3: {
@@ -247,7 +258,7 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 				} else {
 					state.syllable.jong = 0;
 				}
-				char cho = convertToCho(state.last);
+				char cho = convertToCho((char) state.last);
 				state.composing = state.syllable.toString(getFirstMidEnd());
 				EventBus.getDefault().post(new ComposeCharEvent(state.composing, state.lastInput));
 				commitComposingChar();
@@ -343,7 +354,8 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 		public static final int INPUT_NO_MATCHING_JONG = 0x0008;
 
 		UnicodeHangulSyllable syllable;
-		char last, beforeJong;
+		int last;
+		char beforeJong;
 		String composing;
 		int lastInput;
 

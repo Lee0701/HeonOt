@@ -248,7 +248,7 @@ public class DefaultHardKeyboard extends HardKeyboard {
 
 	private void updateSoftKeyLabels() {
 		EventBus.getDefault().post(new SetPropertyEvent("soft-key-labels", getLabels(this.layout)));
-		EventBus.getDefault().post(new UpdateStateEvent());
+		EventBus.getDefault().post(new UpdateStateEvent(UpdateStateEvent.Target.SOFT_KEYBOARD));
 	}
 
 	public Map<Integer, String> getLabels(Map<Integer, DefaultHardKeyboardMap> table) {
@@ -256,8 +256,8 @@ public class DefaultHardKeyboard extends HardKeyboard {
 		if(table == null) return result;
 		for(Integer keyCode : table.keySet()) {
 			DefaultHardKeyboardMap map = table.get(keyCode);
-			char charCode = (char) (shiftState ? map.getShift() : map.getNormal());
-			result.put(keyCode, String.valueOf(charCode));
+			int codePoint = shiftState ? map.getShift() : map.getNormal();
+			result.put(keyCode, new String(Character.toChars(codePoint)));
 		}
 		return result;
 	}
@@ -318,8 +318,8 @@ public class DefaultHardKeyboard extends HardKeyboard {
 		}
 		DefaultHardKeyboardMap map = layout.get(keyCode);
 		if(map == null) layout.put(keyCode, map = new DefaultHardKeyboardMap(keyCode, 0, 0, 0));
-		normal.setText(Integer.toString(map.getNormal()));
-		shift.setText(Integer.toString(map.getShift()));
+		normal.setText("0x" + Integer.toHexString(map.getNormal()));
+		shift.setText("0x" + Integer.toHexString(map.getShift()));
 		TextInputLayout til;
 		til = new TextInputLayout(context);
 		til.addView(normal);

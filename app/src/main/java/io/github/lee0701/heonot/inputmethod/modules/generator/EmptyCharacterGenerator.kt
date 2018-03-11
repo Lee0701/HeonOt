@@ -1,6 +1,7 @@
 package io.github.lee0701.heonot.inputmethod.modules.generator
 
 import io.github.lee0701.heonot.inputmethod.event.CommitCharEvent
+import io.github.lee0701.heonot.inputmethod.event.CommitStringEvent
 import io.github.lee0701.heonot.inputmethod.event.InputCharEvent
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -15,7 +16,7 @@ class EmptyCharacterGenerator : CharacterGenerator() {
     }
 
     override fun input(code: Long) {
-        EventBus.getDefault().post(CommitCharEvent(code.toChar(), 1))
+        EventBus.getDefault().post(CommitStringEvent(String(Character.toChars(code.toInt())), 1))
     }
 
     override fun backspace() {
