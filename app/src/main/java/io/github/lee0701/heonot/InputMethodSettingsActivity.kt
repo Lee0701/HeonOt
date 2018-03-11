@@ -6,6 +6,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.support.design.widget.TabLayout
 import android.widget.Button
 import android.widget.LinearLayout
 import io.github.lee0701.heonot.inputmethod.InputMethod
@@ -22,17 +23,24 @@ class InputMethodSettingsActivity : SettingsActivity() {
         val id = intent.getIntExtra(SettingsActivity.EXTRA_METHOD_ID, -1)
         val method = inputMethods[id]
 
-        modules.orientation = LinearLayout.VERTICAL
-
         for (module in method.modules) {
-            modules.addView(module.createSettingsView(this))
+            modules.addTab(modules.newTab().setText(module.name))
         }
 
-        val buttonsLayout = LinearLayout(this)
+        val listener = object: TabLayout.OnTabSelectedListener {
+            override fun onTabReselected(tab: TabLayout.Tab?) {}
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                module_settings.removeAllViews()
+                module_settings.addView(method.modules.get(modules.selectedTabPosition).createSettingsView(this@InputMethodSettingsActivity))
 
-        val exportButton = Button(this)
+            }
+        }
+        modules.addOnTabSelectedListener(listener)
+
+        val exportButton = Button(this@InputMethodSettingsActivity)
         exportButton.setText(R.string.button_export)
-        exportButton.setOnClickListener { v ->
+        exportButton.setOnClickListener { _ ->
             val json: String
             try {
                 json = method.toJSON(2)
@@ -40,33 +48,33 @@ class InputMethodSettingsActivity : SettingsActivity() {
                 return@setOnClickListener
             }
 
-            AlertDialog.Builder(this)
-                .setMessage(R.string.msg_copy_method_json)
-                .setPositiveButton(R.string.button_ok) { _, _ ->
-                    val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                    if (Build.VERSION.SDK_INT > 11) {
-                        val clipData = ClipData.newPlainText("JSON Data", json)
-                        clipboard.primaryClip = clipData
-                    } else {
-                        clipboard.text = json
+            AlertDialog.Builder(this@InputMethodSettingsActivity)
+                    .setMessage(R.string.msg_copy_method_json)
+                    .setPositiveButton(R.string.button_ok) { _, _ ->
+                        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                        if (Build.VERSION.SDK_INT > 11) {
+                            val clipData = ClipData.newPlainText("JSON Data", json)
+                            clipboard.primaryClip = clipData
+                        } else {
+                            clipboard.text = json
+                        }
                     }
-                }
-                .setNegativeButton(R.string.button_cancel, { _, _ -> })
-                .create()
-                .show()
+                    .setNegativeButton(R.string.button_cancel, { _, _ -> })
+                    .create()
+                    .show()
         }
-        buttonsLayout.addView(exportButton)
+        buttons.addView(exportButton)
 
-        val duplicateButton = Button(this)
+        val duplicateButton = Button(this@InputMethodSettingsActivity)
         duplicateButton.setText(R.string.button_duplicate)
-        duplicateButton.setOnClickListener({ v ->
+        duplicateButton.setOnClickListener({ _ ->
             inputMethods.add(InputMethod(method))
             saveMethods()
             finish()
         })
-        buttonsLayout.addView(duplicateButton)
+        buttons.addView(duplicateButton)
 
-        val deleteButton = Button(this)
+        val deleteButton = Button(this@InputMethodSettingsActivity)
         deleteButton.setText(R.string.button_delete)
         deleteButton.setOnClickListener { _ ->
             inputMethods.remove(method)
@@ -74,9 +82,9 @@ class InputMethodSettingsActivity : SettingsActivity() {
             finish()
         }
 
-        buttonsLayout.addView(deleteButton)
+        buttons.addView(deleteButton)
 
-        modules.addView(buttonsLayout)
+        listener.onTabSelected(modules.getTabAt(0))
 
         setSupportActionBar(toolbar)
 
