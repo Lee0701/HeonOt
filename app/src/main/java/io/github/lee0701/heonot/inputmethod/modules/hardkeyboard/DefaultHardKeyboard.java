@@ -318,8 +318,8 @@ public class DefaultHardKeyboard extends HardKeyboard {
 		}
 		DefaultHardKeyboardMap map = layout.get(keyCode);
 		if(map == null) layout.put(keyCode, map = new DefaultHardKeyboardMap(keyCode, 0, 0, 0));
-		normal.setText(Integer.toString(map.getNormal()));
-		shift.setText(Integer.toString(map.getShift()));
+		normal.setText("0x" + Integer.toHexString(map.getNormal()));
+		shift.setText("0x" + Integer.toHexString(map.getShift()));
 		TextInputLayout til;
 		til = new TextInputLayout(context);
 		til.addView(normal);
