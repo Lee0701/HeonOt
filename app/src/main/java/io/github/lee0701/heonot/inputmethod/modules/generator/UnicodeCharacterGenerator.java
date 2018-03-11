@@ -29,6 +29,7 @@ import io.github.lee0701.heonot.R;
 import io.github.lee0701.heonot.inputmethod.event.BackspaceEvent;
 import io.github.lee0701.heonot.inputmethod.event.CommitCharEvent;
 import io.github.lee0701.heonot.inputmethod.event.CommitComposingCharEvent;
+import io.github.lee0701.heonot.inputmethod.event.CommitStringEvent;
 import io.github.lee0701.heonot.inputmethod.event.ComposeCharEvent;
 import io.github.lee0701.heonot.inputmethod.event.DeleteCharEvent;
 import io.github.lee0701.heonot.inputmethod.event.FinishComposingEvent;
@@ -566,8 +567,8 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 		settings.addView(firstMidEnd);
 
 		RecyclerView recyclerView = new RecyclerView(context);
-		recyclerView.setHasFixedSize(true);
-		recyclerView.setAdapter(new CombinationTableAdapter(context));
+		CombinationTableAdapter adapter = new CombinationTableAdapter(context);
+		recyclerView.setAdapter(adapter);
 		recyclerView.setLayoutManager(new LinearLayoutManager(context));
 		recyclerView.setNestedScrollingEnabled(false);
 
@@ -580,9 +581,8 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 
 			@Override
 			public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-				Character a = ((CombinationTableViewHolder)viewHolder).combinationLeft.getText().charAt(1);
-				Character b = ((CombinationTableViewHolder)viewHolder).combinationRight.getText().charAt(1);
-				combinationTable.remove(new UnicodeJamoHandler.JamoPair(a, b));
+				combinationTable.remove(((CombinationTableViewHolder)viewHolder).jamoPair);
+				adapter.notifyDataSetChanged();
 			}
 		};
 
@@ -595,6 +595,7 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 
 	class CombinationTableViewHolder extends RecyclerView.ViewHolder{
 		TextView combinationLeft, combinationRight, combinationResult;
+		JamoPair jamoPair;
 
 		CombinationTableViewHolder(View itemView) {
 			super(itemView);
@@ -605,6 +606,7 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 
 		@SuppressLint("SetTextI18n")
 		void onBind(UnicodeJamoHandler.JamoPair jamoPair, char character){
+			this.jamoPair = jamoPair;
 			combinationLeft.setText(jamoPair.a + " (" + UnicodeJamoHandler.getType(jamoPair.a).name() +")");
 			combinationRight.setText(jamoPair.b + " (" + UnicodeJamoHandler.getType(jamoPair.b).name() +")");
 			combinationResult.setText(character + " (" + UnicodeJamoHandler.getType(character).name() +")");
