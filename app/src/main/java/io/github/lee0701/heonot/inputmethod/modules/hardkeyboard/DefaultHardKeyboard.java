@@ -256,8 +256,8 @@ public class DefaultHardKeyboard extends HardKeyboard {
 		if(table == null) return result;
 		for(Integer keyCode : table.keySet()) {
 			DefaultHardKeyboardMap map = table.get(keyCode);
-			char charCode = (char) (shiftState ? map.getShift() : map.getNormal());
-			result.put(keyCode, String.valueOf(charCode));
+			int codePoint = shiftState ? map.getShift() : map.getNormal();
+			result.put(keyCode, new String(Character.toChars(codePoint)));
 		}
 		return result;
 	}

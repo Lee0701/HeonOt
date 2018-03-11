@@ -249,6 +249,14 @@ public class HeonOt extends InputMethodService {
 	}
 
 	@Subscribe
+	public void onCommitString(CommitStringEvent event) {
+		InputConnection ic = getCurrentInputConnection();
+		ic.finishComposingText();
+		EventBus.getDefault().post(new CommitComposingCharEvent());
+		ic.commitText(event.getString(), event.getCursorPosition());
+	}
+
+	@Subscribe
 	public void onBackspace(BackspaceEvent event) {
 		getCurrentInputConnection().deleteSurroundingText(1, 0);
 	}
