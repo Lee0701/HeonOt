@@ -3,15 +3,20 @@ package io.github.lee0701.heonot.inputmethod.modules.generator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -331,7 +336,7 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 	}
 
 	public Combination getCombination(boolean sort, JamoPair pair) {
-		Collections.sort(combinationTable, (o1, o2) -> o1.compareTo(o2.getSource()));
+		sortCombinationTable();
 		int key = Collections.binarySearch(combinationTable, pair);
 		if(key < 0) return null;
 		return combinationTable.get(key);
@@ -416,8 +421,10 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 			try {
 				if(value instanceof List) {
 					this.combinationTable = (List<Combination>) value;
+					sortCombinationTable();
 				} else if(value instanceof JSONObject) {
 					this.combinationTable = loadCombinationTable((JSONObject) value);
+					sortCombinationTable();
 				}
 			} catch(Exception ex) {
 				ex.printStackTrace();
@@ -447,6 +454,10 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 			}
 			break;
 		}
+	}
+
+	private void sortCombinationTable() {
+		Collections.sort(combinationTable, (o1, o2) -> o1.compareTo(o2.getSource()));
 	}
 
 	@Override
@@ -502,8 +513,6 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 				combinationTable.add(new Combination(pair, (char) Integer.parseInt(result)));
 			}
 		}
-
-		Collections.sort(combinationTable, (o1, o2) -> o1.compareTo(o2.getSource()));
 
 		return combinationTable;
 	}
@@ -589,10 +598,52 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 
 			@Override
 			public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-				combinationTable.remove(((CombinationTableViewHolder)viewHolder).jamoPair);
+				int index = Collections.binarySearch(combinationTable, ((CombinationTableViewHolder)viewHolder).jamoPair);
+				if(index < 0) return;
+				combinationTable.remove(index);
+				sortCombinationTable();
 				adapter.notifyDataSetChanged();
 			}
 		};
+
+		LinearLayout title = new LinearLayout(context);
+
+		TextView titleText = new TextView(context);
+		titleText.setText(R.string.combination_table);
+		titleText.setTextSize(TypedValue.COMPLEX_UNIT_PT, 11);
+		title.addView(titleText);
+
+		Button addButton = new Button(context);
+		addButton.setText(R.string.button_add);
+		addButton.setOnClickListener((v) -> {
+			ViewGroup view = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.combination_table_edit, null);
+			EditText left = (EditText) view.findViewById(R.id.combination_left);
+			EditText right = (EditText) view.findViewById(R.id.combination_right);
+			EditText result = (EditText) view.findViewById(R.id.combination_result);
+			new AlertDialog.Builder(context)
+					.setView(view)
+					.setPositiveButton(R.string.button_ok, (dialog, which) -> {
+						try {
+							JamoPair pair = new JamoPair((char) parseCharCode(left.getText().toString()), (char) parseCharCode(right.getText().toString()));
+							int index;
+							if((index = Collections.binarySearch(combinationTable, pair)) >= 0) {
+								Toast.makeText(context, R.string.msg_same_value_overwritten, Toast.LENGTH_SHORT).show();
+								combinationTable.remove(index);
+							}
+							char resultChar = (char) parseCharCode(result.getText().toString());
+							combinationTable.add(new Combination(pair, resultChar));
+							sortCombinationTable();
+							adapter.notifyDataSetChanged();
+						} catch(NumberFormatException e) {
+							Toast.makeText(context, R.string.msg_illegal_number_format, Toast.LENGTH_SHORT).show();
+						}
+					})
+					.setNegativeButton(R.string.button_cancel, (dialog, which) -> {})
+			.create().show();
+		});
+		title.addView(addButton);
+
+		settings.addView(title);
 
 		ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
 		itemTouchHelper.attachToRecyclerView(recyclerView);

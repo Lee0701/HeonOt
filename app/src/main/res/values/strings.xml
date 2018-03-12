@@ -9,6 +9,7 @@
 	<string name="button_ok">OK</string>
 	<string name="button_apply">Apply</string>
 	<string name="button_cancel">Cancel</string>
+	<string name="button_add">Add</string>
 	<string name="button_delete">Delete</string>
 
 	<string name="button_export">Export</string>
@@ -18,6 +19,7 @@
 	<string name="msg_settings_saved">Settings Saved.</string>
 	<string name="msg_copy_method_json">Copy Input Method Data to Clipboard?</string>
 
+	<string name="msg_same_value_overwritten">Overwritten the item with same value.</string>
 	<string name="msg_illegal_number_format">Only numbers are allowed in this field.</string>
 
 	<string name="msg_module_name">Module Name</string>
@@ -28,6 +30,7 @@
 	<string name="moajugi">Moajugi</string>
 	<string name="full_moachigi">Full Moachigi</string>
 	<string name="first_mid_end">First-Mid-End Composition</string>
+	<string name="combination_table">Combination Table</string>
 
 	<string name="key_control">Ctrl</string>
 	<string name="key_alt">Alt</string>

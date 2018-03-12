@@ -101,6 +101,21 @@ public final class UnicodeJamoHandler {
 		return 0;
 	}
 
+	public static int parseCharCode(String str) {
+		if(str.startsWith("0x")) {
+			return Integer.parseInt(str.replaceFirst("0x", ""), 16);
+		} else {
+			try {
+				return Integer.parseInt(str);
+			} catch(NumberFormatException e) {
+				if(str.length() == 1) {
+					return str.charAt(0);
+				}
+				throw e;
+			}
+		}
+	}
+
 	public enum JamoType {
 		NON_HANGUL, CHO3, JUNG3, JONG3, CHO2, JUNG2
 	}

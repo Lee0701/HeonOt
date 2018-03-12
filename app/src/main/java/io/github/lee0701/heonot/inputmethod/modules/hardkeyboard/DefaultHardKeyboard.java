@@ -28,6 +28,8 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.github.lee0701.heonot.inputmethod.modules.generator.UnicodeJamoHandler.parseCharCode;
+
 public class DefaultHardKeyboard extends HardKeyboard {
 
 	private Map<Integer, DefaultHardKeyboardMap> layout;
@@ -333,9 +335,9 @@ public class DefaultHardKeyboard extends HardKeyboard {
 				.setPositiveButton(R.string.button_ok, (dialog, which) -> {
 					try {
 						layout.put(keyCode, new DefaultHardKeyboardMap(keyCode,
-								parseKeycode(normal.getText().toString()),
-								parseKeycode(shift.getText().toString()),
-								parseKeycode(shift.getText().toString())));
+								parseCharCode(normal.getText().toString()),
+								parseCharCode(shift.getText().toString()),
+								parseCharCode(shift.getText().toString())));
 					} catch(NumberFormatException e) {
 						Toast.makeText(context, R.string.msg_illegal_number_format, Toast.LENGTH_SHORT).show();
 					}
@@ -343,21 +345,6 @@ public class DefaultHardKeyboard extends HardKeyboard {
 				.setNeutralButton(R.string.button_delete, (dialog, which) -> layout.remove(keyCode))
 				.setNegativeButton(R.string.button_cancel, (dialog, which) -> {})
 				.create();
-	}
-
-	private int parseKeycode(String str) {
-		if(str.startsWith("0x")) {
-			return Integer.parseInt(str.replaceFirst("0x", ""), 16);
-		} else {
-			try {
-				return Integer.parseInt(str);
-			} catch(NumberFormatException e) {
-				if(str.length() == 1) {
-					return str.charAt(0);
-				}
-				throw e;
-			}
-		}
 	}
 
 	@Override
