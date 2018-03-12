@@ -1,5 +1,7 @@
 package io.github.lee0701.heonot.inputmethod.modules.generator;
 
+import android.support.annotation.NonNull;
+
 public final class UnicodeJamoHandler {
 
 	private static char[] CHO_CONVERT = {
@@ -103,7 +105,7 @@ public final class UnicodeJamoHandler {
 		NON_HANGUL, CHO3, JUNG3, JONG3, CHO2, JUNG2
 	}
 
-	public static class JamoPair implements Cloneable {
+	public static class JamoPair implements Cloneable, Comparable<JamoPair> {
 		public char a;
 		public char b;
 		public JamoPair(char a, char b) {
@@ -124,7 +126,12 @@ public final class UnicodeJamoHandler {
 		}
 
 		@Override
-		public Object clone() {
+		public int compareTo(@NonNull JamoPair o) {
+			return (o.a == a) ? b - o.b : a - o.a;
+		}
+
+		@Override
+		public JamoPair clone() {
 			return new JamoPair(a, b);
 		}
 	}

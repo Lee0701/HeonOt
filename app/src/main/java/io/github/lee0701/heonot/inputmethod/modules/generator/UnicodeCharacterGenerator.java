@@ -2,6 +2,7 @@ package io.github.lee0701.heonot.inputmethod.modules.generator;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -19,31 +20,21 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EmptyStackException;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.Stack;
 
 import io.github.lee0701.heonot.R;
-import io.github.lee0701.heonot.inputmethod.event.BackspaceEvent;
-import io.github.lee0701.heonot.inputmethod.event.CommitCharEvent;
-import io.github.lee0701.heonot.inputmethod.event.CommitComposingCharEvent;
-import io.github.lee0701.heonot.inputmethod.event.CommitStringEvent;
-import io.github.lee0701.heonot.inputmethod.event.ComposeCharEvent;
-import io.github.lee0701.heonot.inputmethod.event.DeleteCharEvent;
-import io.github.lee0701.heonot.inputmethod.event.FinishComposingEvent;
-import io.github.lee0701.heonot.inputmethod.event.InputCharEvent;
+import io.github.lee0701.heonot.inputmethod.event.*;
 
-import static io.github.lee0701.heonot.inputmethod.modules.generator.UnicodeJamoHandler.JamoPair;
-import static io.github.lee0701.heonot.inputmethod.modules.generator.UnicodeJamoHandler.convertCompatibleJamo;
-import static io.github.lee0701.heonot.inputmethod.modules.generator.UnicodeJamoHandler.convertToCho;
+import static io.github.lee0701.heonot.inputmethod.modules.generator.UnicodeJamoHandler.*;
 
 public class UnicodeCharacterGenerator extends CharacterGenerator {
 
 	private Stack<State> states = new Stack<>();
 
-	private Map<UnicodeJamoHandler.JamoPair, Character> combinationTable = new LinkedHashMap<>();
+	private List<Combination> combinationTable = new ArrayList<>();
 
 	private boolean moajugi;
 	private boolean fullMoachigi;
@@ -101,7 +92,7 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 			state.lastInput = 0;
 			if(state.syllable.containsCho()) {
 				JamoPair pair = new JamoPair(state.syllable.cho, charCode);
-				Character combination = combinationTable.get(pair);
+				Character combination = getCombinationResult(pair);
 				if(combination != null) {
 					state.syllable.cho = combination;
 					state.lastInput |= State.INPUT_COMBINED;
@@ -134,7 +125,7 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 			state.lastInput = 0;
 			if(state.syllable.containsJung()) {
 				JamoPair pair = new JamoPair(state.syllable.jung, charCode);
-				Character combination = combinationTable.get(pair);
+				Character combination = getCombinationResult(pair);
 				if(combination != null) {
 					state.syllable.jung = combination;
 					state.lastInput |= State.INPUT_COMBINED;
@@ -167,7 +158,7 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 			state.lastInput = 0;
 			if(state.syllable.containsJong()) {
 				JamoPair pair = new JamoPair(state.syllable.jong, charCode);
-				Character combination = combinationTable.get(pair);
+				Character combination = getCombinationResult(pair);
 				if(combination != null) {
 					state.beforeJong = state.syllable.jong;
 					state.syllable.jong = combination;
@@ -203,7 +194,7 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 					break;
 				} else if(state.syllable.containsJong()) {
 					JamoPair pair = new JamoPair(state.syllable.jong, charCode);
-					Character combination = combinationTable.get(pair);
+					Character combination = getCombinationResult(pair);
 					if(combination != null) {
 						state.beforeJong = state.syllable.jong;
 						state.syllable.jong = combination;
@@ -231,7 +222,7 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 				if(state.syllable.containsCho()) {
 					// 낱자 조합 시도
 					JamoPair pair = new JamoPair(state.syllable.cho, charCode);
-					Character combination = combinationTable.get(pair);
+					Character combination = getCombinationResult(pair);
 					if(combination != null) {
 						state.syllable.cho = combination;
 						state.lastInput |= State.INPUT_COMBINED;
@@ -273,7 +264,7 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 				// 낱자 결합 시도
 				if(state.syllable.containsJung()) {
 					JamoPair pair = new JamoPair(state.syllable.jung, charCode);
-					Character combination = combinationTable.get(pair);
+					Character combination = getCombinationResult(pair);
 					if(combination != null) {
 						state.syllable.jung = combination;
 						state.lastInput |= State.INPUT_COMBINED;
@@ -325,6 +316,25 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 
 	public void startNewSyllable(UnicodeHangulSyllable syllable) {
 		states.push(new State(syllable));
+	}
+
+	public Character getCombinationResult(JamoPair pair) {
+		try {
+			return this.getCombination(pair).getResult();
+		} catch(NullPointerException e) {
+			return null;
+		}
+	}
+
+	public Combination getCombination(JamoPair pair) {
+		return this.getCombination(false, pair);
+	}
+
+	public Combination getCombination(boolean sort, JamoPair pair) {
+		Collections.sort(combinationTable, (o1, o2) -> o1.compareTo(o2.getSource()));
+		int key = Collections.binarySearch(combinationTable, pair);
+		if(key < 0) return null;
+		return combinationTable.get(key);
 	}
 
 	public static class State {
@@ -404,8 +414,8 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 		switch(key) {
 		case "combination-table":
 			try {
-				if(value instanceof Map) {
-					this.combinationTable = (Map<JamoPair, Character>) value;
+				if(value instanceof List) {
+					this.combinationTable = (List<Combination>) value;
 				} else if(value instanceof JSONObject) {
 					this.combinationTable = loadCombinationTable((JSONObject) value);
 				}
@@ -458,11 +468,11 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 	public JSONObject storeCombinationTable() throws JSONException {
 		JSONObject object = new JSONObject();
 		JSONArray combination = new JSONArray();
-		for(JamoPair pair : this.combinationTable.keySet()) {
-			Character result = this.combinationTable.get(pair);
+		for(Combination comb : this.combinationTable) {
+			Character result = comb.getResult();
 			JSONObject entry = new JSONObject();
-			entry.put("a", pair.a);
-			entry.put("b", pair.b);
+			entry.put("a", comb.getSource().a);
+			entry.put("b", comb.getSource().b);
 			entry.put("result", Integer.toString(result));
 			combination.put(entry);
 		}
@@ -470,20 +480,16 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 		return object;
 	}
 
-	public Map<JamoPair, Character> getCombinationTable() {
+	public List<Combination> getCombinationTable() {
 		return combinationTable;
 	}
 
-	public void setCombinationTable(Map<JamoPair, Character> combinationTable) {
+	public void setCombinationTable(List<Combination> combinationTable) {
 		this.combinationTable = combinationTable;
 	}
 
-	public static Map<JamoPair, Character> loadCombinationTable(String combJson) throws JSONException {
-		return loadCombinationTable(new JSONObject(combJson));
-	}
-
-	public static Map<JamoPair, Character> loadCombinationTable(JSONObject jsonObject) throws JSONException {
-		Map<JamoPair, Character> combinationTable = new HashMap<>();
+	public static List<Combination> loadCombinationTable(JSONObject jsonObject) throws JSONException {
+		List<Combination> combinationTable = new ArrayList<>();
 
 		JSONArray combination = jsonObject.getJSONArray("combination");
 		if(combination != null) {
@@ -493,9 +499,11 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 				int b = o.getInt("b");
 				String result = o.getString("result");
 				JamoPair pair = new JamoPair((char) a, (char) b);
-				combinationTable.put(pair, (char) Integer.parseInt(result));
+				combinationTable.add(new Combination(pair, (char) Integer.parseInt(result)));
 			}
 		}
+
+		Collections.sort(combinationTable, (o1, o2) -> o1.compareTo(o2.getSource()));
 
 		return combinationTable;
 	}
@@ -527,12 +535,12 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 	@Override
 	public UnicodeCharacterGenerator clone() {
 		UnicodeCharacterGenerator cloned = new UnicodeCharacterGenerator();
-		Map<JamoPair, Character> combinations = new HashMap<>();
+		List<Combination> combinationTable = new ArrayList<>();
 		if(combinationTable != null) {
-			for(JamoPair key : this.combinationTable.keySet()) {
-				combinations.put((JamoPair) key.clone(), combinationTable.get(key));
+			for(Combination combination : this.combinationTable) {
+				combinationTable.add(combination.clone());
 			}
-			cloned.setCombinationTable(combinations);
+			cloned.setCombinationTable(combinationTable);
 		}
 		cloned.setMoajugi(getMoajugi());
 		cloned.setFullMoachigi(getFullMoachigi());
@@ -628,15 +636,41 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 
 		@Override
 		public void onBindViewHolder(CombinationTableViewHolder holder, int position) {
-			Map.Entry<UnicodeJamoHandler.JamoPair, Character> entry =
-					new ArrayList<>(combinationTable.entrySet()).get(position);
-
-			holder.onBind(entry.getKey(), entry.getValue());
+			Combination combination = combinationTable.get(position);
+			holder.onBind(combination.getSource(), combination.getResult());
 		}
 
 		@Override
 		public int getItemCount() {
 			return combinationTable.size();
+		}
+	}
+
+	private static class Combination implements Cloneable, Comparable<JamoPair> {
+		JamoPair source;
+		char result;
+
+		public Combination(JamoPair source, char result) {
+			this.source = source;
+			this.result = result;
+		}
+
+		@Override
+		public int compareTo(@NonNull JamoPair o) {
+			return source.compareTo(o);
+		}
+
+		@Override
+		public Combination clone() {
+			return new Combination(source.clone(), result);
+		}
+
+		public JamoPair getSource() {
+			return source;
+		}
+
+		public char getResult() {
+			return result;
 		}
 	}
 }
