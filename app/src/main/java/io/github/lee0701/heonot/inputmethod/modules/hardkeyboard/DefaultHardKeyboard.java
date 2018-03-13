@@ -201,8 +201,13 @@ public class DefaultHardKeyboard extends HardKeyboard {
 			return;
 
 		case KeyEvent.KEYCODE_SPACE:
-			EventBus.getDefault().post(new CommitCharEvent(' ', 1));
+			EventBus.getDefault().post(new SpecialKeyEvent(KeyEvent.KEYCODE_SPACE));
 			return;
+
+		case KeyEvent.KEYCODE_ENTER:
+			EventBus.getDefault().post(new SpecialKeyEvent(KeyEvent.KEYCODE_ENTER));
+			return;
+
 
 		case KeyEvent.KEYCODE_ALT_LEFT:
 		case KeyEvent.KEYCODE_ALT_RIGHT:

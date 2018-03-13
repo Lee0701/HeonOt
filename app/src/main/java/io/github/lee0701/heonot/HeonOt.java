@@ -230,6 +230,30 @@ public class HeonOt extends InputMethodService {
 	}
 
 	@Subscribe
+	public void onSpecialKey(SpecialKeyEvent event) {
+		EditorInfo editorInfo = getCurrentInputEditorInfo();
+		switch(event.getKeyCode()) {
+		case KeyEvent.KEYCODE_ENTER:
+			switch(editorInfo.imeOptions & EditorInfo.IME_MASK_ACTION) {
+			case EditorInfo.IME_ACTION_SEARCH:
+			case EditorInfo.IME_ACTION_GO:
+				sendDefaultEditorAction(true);
+				break;
+
+			default:
+				sendKeyChar('\n');
+				break;
+
+			}
+			break;
+
+		case KeyEvent.KEYCODE_SPACE:
+			sendKeyChar(' ');
+			break;
+		}
+	}
+
+	@Subscribe
 	public void onComposeChar(ComposeCharEvent event) {
 		String composing = event.getComposingChar();
 		getCurrentInputConnection().setComposingText(composing, 1);

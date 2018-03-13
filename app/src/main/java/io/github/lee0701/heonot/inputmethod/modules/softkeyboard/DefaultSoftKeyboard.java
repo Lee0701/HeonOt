@@ -14,6 +14,7 @@ import android.util.DisplayMetrics;
 import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.*;
+import android.view.inputmethod.EditorInfo;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -525,6 +526,7 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 		editText.setHint(nameRes);
 		editText.setEllipsize(TextUtils.TruncateAt.END);
 		editText.setSingleLine(true);
+		editText.setImeOptions(EditorInfo.IME_ACTION_DONE);
 		editText.setOnFocusChangeListener((v, hasFocus) -> {
 			if(forceIntValue) {
 				try {
@@ -537,6 +539,13 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 			} else {
 				setProperty(key, editText.getText().toString());
 			}
+		});
+		editText.setOnEditorActionListener((v, id, event) -> {
+			if(id == EditorInfo.IME_ACTION_DONE) {
+				editText.clearFocus();
+				return true;
+			}
+			return false;
 		});
 		til.addView(editText);
 		return til;
