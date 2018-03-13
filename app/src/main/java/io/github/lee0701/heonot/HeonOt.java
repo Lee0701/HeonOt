@@ -171,7 +171,7 @@ public class HeonOt extends InputMethodService {
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent e) {
-		if(isSystemKey(e.getKeyCode())) return false;
+		if(isSystemKey(e.getKeyCode())) return super.onKeyDown(keyCode, e);
 		HardKeyEvent event = new HardKeyEvent(e, HardKeyEvent.HardKeyAction.PRESS, keyCode, e.getMetaState(), e.getRepeatCount());
 		EventBus.getDefault().post(event);
 		return true;
@@ -179,7 +179,7 @@ public class HeonOt extends InputMethodService {
 
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent e) {
-		if(isSystemKey(e.getKeyCode())) return false;
+		if(isSystemKey(e.getKeyCode())) return super.onKeyUp(keyCode, e);
 		HardKeyEvent event = new HardKeyEvent(e, HardKeyEvent.HardKeyAction.RELEASE, keyCode, e.getMetaState(), e.getRepeatCount());
 		EventBus.getDefault().post(event);
 		return true;
