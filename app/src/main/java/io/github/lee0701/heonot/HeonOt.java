@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.inputmethodservice.InputMethodService;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -284,12 +285,18 @@ public class HeonOt extends InputMethodService {
 
 	@Subscribe
 	public void onBackspace(BackspaceEvent event) {
-		getCurrentInputConnection().deleteSurroundingText(1, 0);
+		EventBus.getDefault().post(new DeleteCharEvent(1, 0));
 	}
 
 	@Subscribe
 	public void onDeleteChar(DeleteCharEvent event) {
-		getCurrentInputConnection().deleteSurroundingText(event.getBeforeLength(), event.getAfterLength());
+		InputConnection ic = getCurrentInputConnection();
+		CharSequence selected = ic.getSelectedText(0);
+		if(TextUtils.isEmpty(selected)) {
+			ic.deleteSurroundingText(event.getBeforeLength(), event.getAfterLength());
+		} else {
+			ic.commitText("", 1);
+		}
 	}
 
 	public Map<String, Long> getVariables() {
