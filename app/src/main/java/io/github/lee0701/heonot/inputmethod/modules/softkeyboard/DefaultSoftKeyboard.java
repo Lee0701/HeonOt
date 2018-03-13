@@ -76,7 +76,9 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 		@Override
 		public void run() {
 			onKey(SoftKeyAction.PRESS, keyCode, SoftKeyPressType.LONG);
-			try { vibrator.vibrate(vibrateDuration * 2); } catch (Exception ex) { }
+			if (vibrator != null && vibrateDuration > 0) {
+				try { vibrator.vibrate(vibrateDuration * 2); } catch(Exception ex) {}
+			}
 			performed = true;
 		}
 	}
@@ -131,8 +133,7 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 			keyboardView.invalidateAllKeys();
 			keyboardView.requestLayout();
 
-			/* key click sound & vibration */
-			if (vibrator != null) {
+			if (vibrator != null && vibrateDuration > 0) {
 				try { vibrator.vibrate(vibrateDuration); } catch (Exception ex) { }
 			}
 			if (sound != null) {
@@ -348,6 +349,8 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 		float height = (displayMode == PORTRAIT) ? keyHeightPortrait : keyHeightLandscape;
 		keyboard.resize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, height, context.getResources().getDisplayMetrics()));
 		keyboardView.setOnTouchListener(new OnKeyboardViewTouchListener());
+
+		vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
 
 		return mainView;
 	}
