@@ -5,8 +5,8 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.github.lee0701.heonot.inputmethod.scripting.StringRecursionTreeBuilder;
-import io.github.lee0701.heonot.inputmethod.scripting.TreeBuilder;
+import io.github.lee0701.heonot.inputmethod.scripting.StringRecursionTreeParser;
+import io.github.lee0701.heonot.inputmethod.scripting.TreeParser;
 import io.github.lee0701.heonot.inputmethod.scripting.TreeEvaluator;
 import io.github.lee0701.heonot.inputmethod.scripting.nodes.TreeNode;
 
@@ -14,8 +14,8 @@ public class ExpressionTest {
 
 	@Test
 	public void test() {
-		TreeBuilder builder = new StringRecursionTreeBuilder();
-		TreeNode node = builder.build("A + B");
+		TreeParser builder = new StringRecursionTreeParser();
+		TreeNode node = builder.parse("A + B");
 		Map<String, Long> variables = new HashMap<String, Long>() {{
 			put("A", 1L);
 			put("B", 2L);

@@ -1,6 +1,6 @@
 package io.github.lee0701.heonot.inputmethod.scripting.nodes;
 
-public abstract class TreeNode {
+public abstract class TreeNode implements Cloneable {
 
 	public static final int TYPE_CONSTANT = 1;
 	public static final int TYPE_VARIABLE = 3;
@@ -13,6 +13,8 @@ public abstract class TreeNode {
 	public TreeNode(int operator) {
 		this.operator = operator;
 	}
+
+	public abstract TreeNode clone();
 
 	public int getOperator() {
 		return operator;

@@ -9,6 +9,11 @@ public class VariableTreeNode extends TreeNode {
 		this.name = name;
 	}
 
+	@Override
+	public VariableTreeNode clone() {
+		return new VariableTreeNode(name);
+	}
+
 	public String getName() {
 		return name;
 	}

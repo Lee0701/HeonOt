@@ -13,19 +13,37 @@ import io.github.lee0701.heonot.inputmethod.InputMethod;
 
 public class InputMethodLoader {
 
+	public static InputMethod loadMethod(File methodFile) {
+		try(FileInputStream fis = new FileInputStream(methodFile)) {
+			byte[] bytes = new byte[fis.available()];
+			fis.read(bytes);
+			InputMethod method = InputMethod.loadJSON(new String(bytes));
+			return method;
+		} catch(IOException | JSONException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public static void storeMethod(File methodFile, InputMethod method) {
+		try(FileOutputStream fos = new FileOutputStream(methodFile)) {
+			fos.write(method.toJSON(-1).getBytes());
+		} catch(IOException | JSONException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static List<InputMethod> loadMethods(File methodsDir) {
 		List<InputMethod> inputMethods = new ArrayList<>();
 		for(File file : methodsDir.listFiles()) {
 			if(file.getName().endsWith(".json")) {
 				String fileName = file.getName().replace(".json", "");
-				int index = Integer.parseInt(fileName);
-				try(FileInputStream fis = new FileInputStream(file)) {
-					byte[] bytes = new byte[fis.available()];
-					fis.read(bytes);
-					InputMethod method = InputMethod.loadJSON(new String(bytes));
-					inputMethods.add(index, method);
-				} catch(IOException | JSONException e) {
-					e.printStackTrace();
+				try {
+					int index = Integer.parseInt(fileName);
+					InputMethod method = loadMethod(file);
+					if(method != null) inputMethods.add(index, method);
+				} catch(NumberFormatException e) {
+					continue;
 				}
 			}
 		}
@@ -39,11 +57,7 @@ public class InputMethodLoader {
 		for(int i = 0 ; i < inputMethods.size() ; i++) {
 			InputMethod method = inputMethods.get(i);
 			File file = new File(methodsDir, i + ".json");
-			try(FileOutputStream fos = new FileOutputStream(file)) {
-				fos.write(method.toJSON(-1).getBytes());
-			} catch(IOException | JSONException e) {
-				e.printStackTrace();
-			}
+			storeMethod(file, method);
 		}
 	}
 

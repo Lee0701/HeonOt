@@ -5,9 +5,13 @@ import io.github.lee0701.heonot.inputmethod.event.CommitCharEvent
 import io.github.lee0701.heonot.inputmethod.event.HardKeyEvent
 import io.github.lee0701.heonot.inputmethod.modules.InputMethodModule
 import io.github.lee0701.heonot.inputmethod.modules.hardkeyboard.KeyStroke
+import io.github.lee0701.heonot.inputmethod.scripting.StringRecursionTreeParser
+import io.github.lee0701.heonot.inputmethod.scripting.StringTreeExporter
 import io.github.lee0701.heonot.inputmethod.scripting.nodes.TreeNode
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
+import org.json.JSONArray
+import org.json.JSONObject
 
 class ShortcutProcessor : InputMethodModule() {
 
@@ -53,12 +57,61 @@ class ShortcutProcessor : InputMethodModule() {
         return false
     }
 
+    override fun toJSONObject(): JSONObject {
+        val obj = super.toJSONObject()
+        val properties = JSONObject()
+
+        properties.put("shortcuts", storeShortcuts())
+
+        obj.put("properties", properties)
+        return obj
+    }
+
+    override fun setProperty(key: String?, value: Any?) {
+        when(key) {
+            "shortcuts" -> {
+                val parser = StringRecursionTreeParser()
+                if(value is JSONObject) {
+                    val shortcuts = value.getJSONArray("shortcuts")
+                    for(i in 0 until shortcuts.length()) {
+                        val o = shortcuts.getJSONObject(i)
+                        val keyStroke = KeyStroke.fromJsonObject(o.getJSONObject("keystroke"))
+                        val mode = o.getInt("mode")
+                        val node = parser.parse(o.getString("node"))
+                        this.shortcuts += Shortcut(keyStroke, mode, node)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun storeShortcuts(): JSONObject {
+        val obj = JSONObject()
+        val shortcuts = JSONArray()
+        val exporter = StringTreeExporter()
+        for(i in this.shortcuts) {
+            val shortcut = JSONObject()
+            shortcut.put("keystroke", i.keyStroke.toJsonObject())
+            shortcut.put("mode", i.mode)
+            shortcut.put("node", exporter.export(i.treeNode))
+            shortcuts.put(shortcut)
+        }
+        obj.put("shortcuts", shortcuts)
+        return obj
+    }
+
     override fun clone(): ShortcutProcessor {
-        // todo: implement me!
+        var cloned = ShortcutProcessor()
+        for(shortcut in shortcuts) {
+            cloned.shortcuts += shortcut.clone()
+        }
         return this
     }
 
-    class Shortcut(var keyStroke: KeyStroke, var mode: Int, var treeNode: TreeNode?) {
+    class Shortcut(var keyStroke: KeyStroke, var mode: Int, var treeNode: TreeNode) : Cloneable {
+        public override fun clone(): Shortcut {
+            return Shortcut(keyStroke.clone(), mode, treeNode.clone())
+        }
         companion object {
             @JvmField
             val MODE_NONE = 0

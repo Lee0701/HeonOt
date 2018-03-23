@@ -9,6 +9,11 @@ public class ConstantTreeNode extends TreeNode {
 		this.value = value;
 	}
 
+	@Override
+	public ConstantTreeNode clone() {
+		return new ConstantTreeNode(value);
+	}
+
 	public long getValue() {
 		return value;
 	}

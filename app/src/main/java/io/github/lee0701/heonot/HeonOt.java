@@ -14,7 +14,7 @@ import io.github.lee0701.heonot.inputmethod.event.*;
 import io.github.lee0701.heonot.inputmethod.modules.InputMethodModule;
 import io.github.lee0701.heonot.inputmethod.modules.global.ShortcutProcessor;
 import io.github.lee0701.heonot.inputmethod.modules.hardkeyboard.KeyStroke;
-import io.github.lee0701.heonot.inputmethod.scripting.StringRecursionTreeBuilder;
+import io.github.lee0701.heonot.inputmethod.scripting.StringRecursionTreeParser;
 import io.github.lee0701.heonot.inputmethod.scripting.TreeEvaluator;
 import io.github.lee0701.heonot.inputmethod.scripting.nodes.TreeNode;
 
@@ -34,7 +34,7 @@ public class HeonOt extends InputMethodService {
 	private int currentInputMethodId;
 	private InputMethod currentInputMethod;
 
-	private List<InputMethodModule> globalModules;
+	private InputMethod globalModules;
 
 	private TreeEvaluator treeEvaluator;
 
@@ -46,7 +46,6 @@ public class HeonOt extends InputMethodService {
 	public HeonOt() {
 		super();
 		inputMethods = new ArrayList<>();
-		globalModules = new ArrayList<>();
 	}
 
 	public HeonOt(Context context) {
@@ -73,6 +72,7 @@ public class HeonOt extends InputMethodService {
 		treeEvaluator = new TreeEvaluator();
 
 		File methodsDir = new File(getFilesDir(), "methods");
+		File globalMethodsFile = new File(getFilesDir(), "global.json");
 
 		if(!methodsDir.exists()) {
 			methodsDir.mkdir();
@@ -93,25 +93,19 @@ public class HeonOt extends InputMethodService {
 			inputMethods = InputMethodLoader.loadMethods(methodsDir);
 		}
 
-		ShortcutProcessor shortcutProcessor = new ShortcutProcessor();
-		List<ShortcutProcessor.Shortcut> shortcuts = new ArrayList<>();
-		{
-			KeyStroke stroke = new KeyStroke(false, false, false, true, KeyEvent.KEYCODE_SPACE);
-			TreeNode node = new StringRecursionTreeBuilder().build("A = !A");
-			shortcuts.add(new ShortcutProcessor.Shortcut(stroke, ShortcutProcessor.Shortcut.MODE_CHANGE, node));
-		}
-		{
-			KeyStroke stroke = new KeyStroke(false, false, false, false, KeyEvent.KEYCODE_LANGUAGE_SWITCH);
-			TreeNode node = new StringRecursionTreeBuilder().build("A = !A");
-			shortcuts.add(new ShortcutProcessor.Shortcut(stroke, ShortcutProcessor.Shortcut.MODE_CHANGE, node));
-		}
-		shortcutProcessor.setShortcuts(shortcuts);
-		globalModules.add(shortcutProcessor);
-
-		for(InputMethodModule module : globalModules) {
-			EventBus.getDefault().register(module);
+		if(!globalMethodsFile.exists()) {
+			try {
+				String method = getRawString("global_modules");
+				globalModules = InputMethod.loadJSON(method);
+			} catch(JSONException | IOException e) {
+				e.printStackTrace();
+			}
+			InputMethodLoader.storeMethod(globalMethodsFile, globalModules);
+		} else {
+			globalModules = InputMethodLoader.loadMethod(globalMethodsFile);
 		}
 
+		globalModules.registerListeners();
 		currentInputMethod = inputMethods.get(currentInputMethodId);
 		currentInputMethod.registerListeners();
 		EventBus.getDefault().register(this);
@@ -123,9 +117,7 @@ public class HeonOt extends InputMethodService {
 		for(InputMethod method : inputMethods) {
 			method.pause();
 		}
-		for(InputMethodModule module : globalModules) {
-			EventBus.getDefault().unregister(module);
-		}
+		globalModules.pause();
 	}
 
 	@Override

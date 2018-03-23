@@ -15,7 +15,7 @@ class InputMethod {
     var modules: List<InputMethodModule>
 
 
-    private constructor(modules: List<InputMethodModule>) {
+    constructor(modules: List<InputMethodModule>) {
         this.modules = modules
     }
 

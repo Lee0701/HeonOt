@@ -9,6 +9,11 @@ public class UnaryTreeNode extends TreeNode {
 		this.center = center;
 	}
 
+	@Override
+	public UnaryTreeNode clone() {
+		return new UnaryTreeNode(getOperator(), center);
+	}
+
 	public TreeNode getCenter() {
 		return center;
 	}

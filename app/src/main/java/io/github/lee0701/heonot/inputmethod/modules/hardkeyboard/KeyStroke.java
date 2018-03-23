@@ -1,6 +1,9 @@
 package io.github.lee0701.heonot.inputmethod.modules.hardkeyboard;
 
-public class KeyStroke {
+import org.json.JSONException;
+import org.json.JSONObject;
+
+public class KeyStroke implements Cloneable {
 
 	private boolean control, alt, win, shift;
 	private int keyCode;
@@ -11,6 +14,39 @@ public class KeyStroke {
 		this.win = win;
 		this.shift = shift;
 		this.keyCode = keyCode;
+	}
+
+	public JSONObject toJsonObject() {
+		JSONObject object = new JSONObject();
+		try {
+			object.put("control", control);
+			object.put("alt", alt);
+			object.put("win", win);
+			object.put("shift", shift);
+			object.put("keycode", keyCode);
+			return object;
+		} catch(JSONException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public static KeyStroke fromJsonObject(JSONObject o) {
+		try {
+			return new KeyStroke(
+					o.getBoolean("control"),
+					o.getBoolean("alt"),
+					o.getBoolean("win"),
+					o.getBoolean("shift"),
+					o.getInt("keycode"));
+		} catch(JSONException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public KeyStroke clone() {
+		return new KeyStroke(control, alt, win, shift, keyCode);
 	}
 
 	public boolean isControl() {

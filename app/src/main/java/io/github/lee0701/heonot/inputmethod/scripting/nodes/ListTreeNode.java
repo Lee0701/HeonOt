@@ -17,6 +17,11 @@ public class ListTreeNode extends TreeNode {
 		this.nodes = Arrays.asList(nodes);
 	}
 
+	@Override
+	public ListTreeNode clone() {
+		return new ListTreeNode(getOperator(), nodes);
+	}
+
 	public List<TreeNode> getNodes() {
 		return nodes;
 	}

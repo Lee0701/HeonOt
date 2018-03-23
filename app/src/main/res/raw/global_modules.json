@@ -1,0 +1,37 @@
+{
+  "name": "Global Modules",
+  "modules": [
+    {
+      "name": "Shortcut Processor",
+      "class": "io.github.lee0701.heonot.inputmethod.modules.global.ShortcutProcessor",
+      "properties": {
+        "shortcuts": {
+          "shortcuts": [
+            {
+              "mode": 1,
+              "keystroke": {
+                "control": false,
+                "alt": false,
+                "win": false,
+                "shift": false,
+                "keycode": 204
+              },
+              "node": "A = !A"
+            },
+            {
+              "mode": 1,
+              "keystroke": {
+                "control": false,
+                "alt": false,
+                "win": false,
+                "shift": true,
+                "keycode": 62
+              },
+              "node": "A = !A"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

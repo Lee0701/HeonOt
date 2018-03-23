@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class StringRecursionTreeBuilder implements TreeBuilder {
+public class StringRecursionTreeParser implements TreeParser {
 
 	private Map<String, Long> constants = new HashMap<>();
 
@@ -17,7 +17,7 @@ public class StringRecursionTreeBuilder implements TreeBuilder {
 	}
 
 	@Override
-	public TreeNode build(Object o) {
+	public TreeNode parse(Object o) {
 		final String str = (String) o;
 		// todo: remove anti pattern
 		return new Object() {

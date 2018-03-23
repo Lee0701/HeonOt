@@ -10,6 +10,11 @@ public class BinaryTreeNode extends TreeNode {
 		this.right = right;
 	}
 
+	@Override
+	public BinaryTreeNode clone() {
+		return new BinaryTreeNode(getOperator(), left, right);
+	}
+
 	public TreeNode getLeft() {
 		return left;
 	}

@@ -11,6 +11,11 @@ public class TernaryTreeNode extends TreeNode {
 		this.right = right;
 	}
 
+	@Override
+	public TernaryTreeNode clone() {
+		return new TernaryTreeNode(getOperator(), left, center, right);
+	}
+
 	public TreeNode getLeft() {
 		return left;
 	}
