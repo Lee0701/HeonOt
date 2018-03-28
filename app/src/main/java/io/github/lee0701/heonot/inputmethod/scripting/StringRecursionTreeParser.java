@@ -47,15 +47,6 @@ public class StringRecursionTreeParser implements TreeParser {
 				return false;
 			}
 
-			boolean eatOnly(int charToEat) {
-				while(ch == ' ') nextChar();
-				if(ch == charToEat && !isSymbol(str.charAt(pos+1))) {
-					nextChar();
-					return true;
-				}
-				return false;
-			}
-
 			boolean eat(String strToEat) {
 				while(ch == ' ') nextChar();
 				int i = pos;
@@ -70,19 +61,14 @@ public class StringRecursionTreeParser implements TreeParser {
 				return true;
 			}
 
-			boolean eatOnly(String strToEat) {
+			boolean eatOnly(int charToEat, int... charsNotToEat) {
 				while(ch == ' ') nextChar();
-				int i = pos;
-				for(char c : strToEat.toCharArray()) {
-					if(i >= str.length()) return false;
-					if(c != str.charAt(i)) return false;
-					else i++;
-				}
-				if(isSymbol(str.charAt(i))) return false;
-				for(int j = pos ; j < i ; j++) {
+				if(ch == charToEat) {
+					for(int c : charsNotToEat) if(c == charToEat) return false;
 					nextChar();
+					return true;
 				}
-				return true;
+				return false;
 			}
 
 			TreeNode parse() {
@@ -179,7 +165,7 @@ public class StringRecursionTreeParser implements TreeParser {
 			TreeNode parseOr() {
 				TreeNode x = parseXor();
 				for(;;) {
-					if(eatOnly('|')) x = new BinaryTreeNode(Operator.BITWISE_OR, x, parseXor());
+					if(eatOnly('|', '|', '=')) x = new BinaryTreeNode(Operator.BITWISE_OR, x, parseXor());
 					else return x;
 				}
 			}
@@ -187,7 +173,7 @@ public class StringRecursionTreeParser implements TreeParser {
 			TreeNode parseXor() {
 				TreeNode x = parseAnd();
 				for(;;) {
-					if(eatOnly('^')) x = new BinaryTreeNode(Operator.BITWISE_XOR, x, parseAnd());
+					if(eatOnly('^', '^', '=')) x = new BinaryTreeNode(Operator.BITWISE_XOR, x, parseAnd());
 					else return x;
 				}
 			}
@@ -195,7 +181,7 @@ public class StringRecursionTreeParser implements TreeParser {
 			TreeNode parseAnd() {
 				TreeNode x = parseEquivelant();
 				for(;;) {
-					if(eatOnly('&')) x = new BinaryTreeNode(Operator.BITWISE_AND, x, parseEquivelant());
+					if(eatOnly('&', '&', '=')) x = new BinaryTreeNode(Operator.BITWISE_AND, x, parseEquivelant());
 					else return x;
 				}
 			}
@@ -212,8 +198,8 @@ public class StringRecursionTreeParser implements TreeParser {
 			TreeNode parseCompare() {
 				TreeNode x = parseShift();
 				for(;;) {
-					if(eatOnly('<')) x = new BinaryTreeNode(Operator.COMPARE_SMALLER, x, parseShift());
-					else if(eatOnly('>')) x = new BinaryTreeNode(Operator.COMPARE_GREATER, x, parseShift());
+					if(eatOnly('<', '<', '=')) x = new BinaryTreeNode(Operator.COMPARE_SMALLER, x, parseShift());
+					else if(eatOnly('>', '>', '=')) x = new BinaryTreeNode(Operator.COMPARE_GREATER, x, parseShift());
 					else if(eat("<=")) x = new BinaryTreeNode(Operator.COMPARE_SMALLER_OR_EQUAL, x, parseShift());
 					else if(eat(">=")) x = new BinaryTreeNode(Operator.COMPARE_GREATER_OR_EQUAL, x, parseShift());
 					else return x;
@@ -223,8 +209,8 @@ public class StringRecursionTreeParser implements TreeParser {
 			TreeNode parseShift() {
 				TreeNode x = parseExpression();
 				for(;;) {
-					if(eatOnly("<<")) x = new BinaryTreeNode(Operator.SHIFT_LEFT, x, parseExpression());
-					else if(eatOnly(">>")) x = new BinaryTreeNode(Operator.SHIFT_RIGHT, x, parseExpression());
+					if(eat("<<")) x = new BinaryTreeNode(Operator.SHIFT_LEFT, x, parseExpression());
+					else if(eat(">>")) x = new BinaryTreeNode(Operator.SHIFT_RIGHT, x, parseExpression());
 					else return x;
 				}
 			}

@@ -35,23 +35,23 @@ public class TreeEvaluator {
 
 	private long unaryOperation(UnaryTreeNode node) {
 		switch(node.getOperator()) {
-		case Operator.PLUS:
+		case PLUS:
 			return eval(node.getCenter());
 
-		case Operator.MINUS:
+		case MINUS:
 			return -eval(node.getCenter());
 
-		case Operator.NOT:
+		case NOT:
 			long value = eval(node.getCenter());
 			return (value == 0) ? 1 : 0;
 
-		case Operator.INVERT:
+		case INVERT:
 			return ~eval(node.getCenter());
 
-		case Operator.INCREMENT_LEFT:
-		case Operator.INCREMENT_RIGHT:
-		case Operator.DECREMENT_LEFT:
-		case Operator.DECREMENT_RIGHT:
+		case INCREMENT_LEFT:
+		case INCREMENT_RIGHT:
+		case DECREMENT_LEFT:
+		case DECREMENT_RIGHT:
 			if(node.getCenter() instanceof VariableTreeNode) {
 				VariableTreeNode variableTreeNode = (VariableTreeNode) node.getCenter();
 				String varName = variableTreeNode.getName();
@@ -80,17 +80,17 @@ public class TreeEvaluator {
 
 	private long binaryOperation(BinaryTreeNode node) {
 		switch(node.getOperator()) {
-		case Operator.ASSIGNMENT:
-		case Operator.ASSIGNMENT_ADDITION:
-		case Operator.ASSIGNMENT_SUBTRACTION:
-		case Operator.ASSIGNMENT_MULTIPLICATION:
-		case Operator.ASSIGNMENT_DIVISION:
-		case Operator.ASSIGNMENT_MOD:
-		case Operator.ASSIGNMENT_SHIFT_LEFT:
-		case Operator.ASSIGNMENT_SHIFT_RIGHT:
-		case Operator.ASSIGNMENT_AND:
-		case Operator.ASSIGNMENT_OR:
-		case Operator.ASSIGNMENT_XOR:
+		case ASSIGNMENT:
+		case ASSIGNMENT_ADDITION:
+		case ASSIGNMENT_SUBTRACTION:
+		case ASSIGNMENT_MULTIPLICATION:
+		case ASSIGNMENT_DIVISION:
+		case ASSIGNMENT_MOD:
+		case ASSIGNMENT_SHIFT_LEFT:
+		case ASSIGNMENT_SHIFT_RIGHT:
+		case ASSIGNMENT_AND:
+		case ASSIGNMENT_OR:
+		case ASSIGNMENT_XOR:
 			TreeNode leftNode = node.getLeft(), rightNode = node.getRight();
 			if(leftNode instanceof VariableTreeNode) {
 				VariableTreeNode variable = (VariableTreeNode) leftNode;
@@ -99,37 +99,37 @@ public class TreeEvaluator {
 				Long resultValue = variables.get(name);
 				if(resultValue == null) resultValue = 0L;
 				switch(node.getOperator()) {
-				case Operator.ASSIGNMENT:
+				case ASSIGNMENT:
 					resultValue = value;
 					break;
-				case Operator.ASSIGNMENT_ADDITION:
+				case ASSIGNMENT_ADDITION:
 					resultValue += value;
 					break;
-				case Operator.ASSIGNMENT_SUBTRACTION:
+				case ASSIGNMENT_SUBTRACTION:
 					resultValue -= value;
 					break;
-				case Operator.ASSIGNMENT_MULTIPLICATION:
+				case ASSIGNMENT_MULTIPLICATION:
 					resultValue *= value;
 					break;
-				case Operator.ASSIGNMENT_DIVISION:
+				case ASSIGNMENT_DIVISION:
 					resultValue /= value;
 					break;
-				case Operator.ASSIGNMENT_MOD:
+				case ASSIGNMENT_MOD:
 					resultValue %= value;
 					break;
-				case Operator.ASSIGNMENT_SHIFT_LEFT:
+				case ASSIGNMENT_SHIFT_LEFT:
 					resultValue <<= value;
 					break;
-				case Operator.ASSIGNMENT_SHIFT_RIGHT:
+				case ASSIGNMENT_SHIFT_RIGHT:
 					resultValue >>= value;
 					break;
-				case Operator.ASSIGNMENT_AND:
+				case ASSIGNMENT_AND:
 					resultValue &= value;
 					break;
-				case Operator.ASSIGNMENT_OR:
+				case ASSIGNMENT_OR:
 					resultValue |= value;
 					break;
-				case Operator.ASSIGNMENT_XOR:
+				case ASSIGNMENT_XOR:
 					resultValue ^= value;
 					break;
 				}
@@ -142,58 +142,58 @@ public class TreeEvaluator {
 
 		long left = eval(node.getLeft()), right = eval(node.getRight());
 		switch(node.getOperator()) {
-		case Operator.ADDITION:
+		case ADDITION:
 			return left + right;
 
-		case Operator.SUBTRACTION:
+		case SUBTRACTION:
 			return left - right;
 
-		case Operator.MULTIPLICATION:
+		case MULTIPLICATION:
 			return left * right;
 
-		case Operator.DIVISION:
+		case DIVISION:
 			return left / right;
 
-		case Operator.MOD:
+		case MOD:
 			return left % right;
 
-		case Operator.SHIFT_LEFT:
+		case SHIFT_LEFT:
 			return left << right;
 
-		case Operator.SHIFT_RIGHT:
+		case SHIFT_RIGHT:
 			return left >> right;
 
-		case Operator.COMPARE_GREATER:
+		case COMPARE_GREATER:
 			return (left > right) ? 1 : 0;
 
-		case Operator.COMPARE_SMALLER:
+		case COMPARE_SMALLER:
 			return (left < right) ? 1 : 0;
 
-		case Operator.COMPARE_GREATER_OR_EQUAL:
+		case COMPARE_GREATER_OR_EQUAL:
 			return (left >= right) ? 1 : 0;
 
-		case Operator.COMPARE_SMALLER_OR_EQUAL:
+		case COMPARE_SMALLER_OR_EQUAL:
 			return (left <= right) ? 1 : 0;
 
-		case Operator.EQUALS:
+		case EQUALS:
 			return (left == right) ? 1 : 0;
 
-		case Operator.NOT_EQUALS:
+		case NOT_EQUALS:
 			return (left != right) ? 1 : 0;
 
-		case Operator.BITWISE_AND:
+		case BITWISE_AND:
 			return left & right;
 
-		case Operator.BITWISE_OR:
+		case BITWISE_OR:
 			return left | right;
 
-		case Operator.BITWISE_XOR:
+		case BITWISE_XOR:
 			return left ^ right;
 
-		case Operator.LOGICAL_AND:
+		case LOGICAL_AND:
 			return (left != 0 && right != 0) ? 1 : 0;
 
-		case Operator.LOGICAL_OR:
+		case LOGICAL_OR:
 			return (left != 0 || right != 0) ? 1 : 0;
 
 		default:
@@ -204,7 +204,7 @@ public class TreeEvaluator {
 	private long ternaryOperation(TernaryTreeNode node) {
 		long left = eval(node.getLeft()), right = eval(node.getRight()), center = eval(node.getCenter());
 		switch(node.getOperator()) {
-		case Operator.CONDITION:
+		case CONDITION:
 			return (left == 0) ? right : center;
 
 		default:
@@ -214,7 +214,7 @@ public class TreeEvaluator {
 
 	private long listOperation(ListTreeNode node) {
 		switch(node.getOperator()) {
-		case Operator.COMMA:
+		case COMMA:
 			long last = 0;
 			for(TreeNode n : node.getNodes()) {
 				last = eval(n);

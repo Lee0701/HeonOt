@@ -4,7 +4,7 @@ public class BinaryTreeNode extends TreeNode {
 
 	private TreeNode left, right;
 
-	public BinaryTreeNode(int operator, TreeNode left, TreeNode right) {
+	public BinaryTreeNode(Operator operator, TreeNode left, TreeNode right) {
 		super(operator);
 		this.left = left;
 		this.right = right;

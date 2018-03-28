@@ -15,7 +15,7 @@ public class ExpressionTest {
 	@Test
 	public void test() {
 		TreeParser builder = new StringRecursionTreeParser();
-		TreeNode node = builder.parse("A + B");
+		TreeNode node = builder.parse("A << 4");
 		Map<String, Long> variables = new HashMap<String, Long>() {{
 			put("A", 1L);
 			put("B", 2L);

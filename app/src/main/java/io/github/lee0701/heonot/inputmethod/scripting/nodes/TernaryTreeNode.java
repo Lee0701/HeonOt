@@ -4,7 +4,7 @@ public class TernaryTreeNode extends TreeNode {
 
 	private TreeNode left, center, right;
 
-	public TernaryTreeNode(int operator, TreeNode left, TreeNode center, TreeNode right) {
+	public TernaryTreeNode(Operator operator, TreeNode left, TreeNode center, TreeNode right) {
 		super(operator);
 		this.left = left;
 		this.center = center;

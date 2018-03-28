@@ -9,18 +9,18 @@ public abstract class TreeNode implements Cloneable {
 	public static final int TYPE_TERNARY = 10;
 	public static final int TYPE_LIST = 11;
 
-	private int operator;
-	public TreeNode(int operator) {
+	private Operator operator;
+	public TreeNode(Operator operator) {
 		this.operator = operator;
 	}
 
 	public abstract TreeNode clone();
 
-	public int getOperator() {
+	public Operator getOperator() {
 		return operator;
 	}
 
-	public void setOperator(int operator) {
+	public void setOperator(Operator operator) {
 		this.operator = operator;
 	}
 }

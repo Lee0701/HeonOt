@@ -40,28 +40,28 @@ public class StringTreeExporter implements TreeExporter {
 					UnaryTreeNode unaryTreeNode = (UnaryTreeNode) node;
 					switch(unaryTreeNode.getOperator()) {
 					case PLUS:
-						result.append(" +");
+						result.append("+");
 						break;
 					case MINUS:
-						result.append(" -");
+						result.append("-");
 						break;
 					case NOT:
-						result.append(" !");
+						result.append("!");
 						break;
 					case INVERT:
-						result.append(" ~");
+						result.append("~");
 						break;
 					case INCREMENT_LEFT:
-						result.append(" ++");
+						result.append("++");
 						break;
 					case DECREMENT_LEFT:
-						result.append(" --");
+						result.append("--");
 						break;
 					}
 					boolean parentheses = false;
 					TreeNode child = unaryTreeNode.getCenter();
 					if(child instanceof UnaryTreeNode || child instanceof BinaryTreeNode || child instanceof TernaryTreeNode) {
-						if(child.getOperator() > unaryTreeNode.getOperator()) parentheses = true;
+						if(child.getOperator().getCode() > unaryTreeNode.getOperator().getCode()) parentheses = true;
 					}
 					if(parentheses) result.append('(');
 					export(unaryTreeNode.getCenter());
@@ -79,7 +79,7 @@ public class StringTreeExporter implements TreeExporter {
 					boolean parentheses = false;
 					TreeNode child = binaryTreeNode.getLeft();
 					if(child instanceof UnaryTreeNode || child instanceof BinaryTreeNode || child instanceof TernaryTreeNode) {
-						if(child.getOperator() > binaryTreeNode.getOperator()) parentheses = true;
+						if(child.getOperator().getCode() > binaryTreeNode.getOperator().getCode()) parentheses = true;
 					}
 					if(parentheses) result.append('(');
 					export(child);
@@ -176,7 +176,7 @@ public class StringTreeExporter implements TreeExporter {
 					parentheses = false;
 					child = binaryTreeNode.getRight();
 					if(child instanceof UnaryTreeNode || child instanceof BinaryTreeNode || child instanceof TernaryTreeNode) {
-						if(child.getOperator() > binaryTreeNode.getOperator()) parentheses = true;
+						if(child.getOperator().getCode() > binaryTreeNode.getOperator().getCode()) parentheses = true;
 					}
 					if(parentheses) result.append('(');
 					export(child);
@@ -186,7 +186,7 @@ public class StringTreeExporter implements TreeExporter {
 					boolean parentheses = false;
 					TreeNode child = ternaryTreeNode.getLeft();
 					if(child instanceof UnaryTreeNode || child instanceof BinaryTreeNode || child instanceof TernaryTreeNode) {
-						if(child.getOperator() > ternaryTreeNode.getOperator()) parentheses = true;
+						if(child.getOperator().getCode() > ternaryTreeNode.getOperator().getCode()) parentheses = true;
 					}
 					if(parentheses) result.append('(');
 					export(child);
@@ -199,7 +199,7 @@ public class StringTreeExporter implements TreeExporter {
 					parentheses = false;
 					child = ternaryTreeNode.getCenter();
 					if(child instanceof UnaryTreeNode || child instanceof BinaryTreeNode || child instanceof TernaryTreeNode) {
-						if(child.getOperator() > ternaryTreeNode.getOperator()) parentheses = true;
+						if(child.getOperator().getCode() > ternaryTreeNode.getOperator().getCode()) parentheses = true;
 					}
 					if(parentheses) result.append('(');
 					export(child);
@@ -212,7 +212,7 @@ public class StringTreeExporter implements TreeExporter {
 					parentheses = false;
 					child = ternaryTreeNode.getRight();
 					if(child instanceof UnaryTreeNode || child instanceof BinaryTreeNode || child instanceof TernaryTreeNode) {
-						if(child.getOperator() > ternaryTreeNode.getOperator()) parentheses = true;
+						if(child.getOperator().getCode() > ternaryTreeNode.getOperator().getCode()) parentheses = true;
 					}
 					if(parentheses) result.append('(');
 					export(child);
