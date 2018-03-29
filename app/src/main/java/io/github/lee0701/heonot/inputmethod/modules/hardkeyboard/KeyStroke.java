@@ -1,5 +1,8 @@
 package io.github.lee0701.heonot.inputmethod.modules.hardkeyboard;
 
+import android.os.Build;
+import android.view.KeyEvent;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -47,6 +50,18 @@ public class KeyStroke implements Cloneable {
 
 	public KeyStroke clone() {
 		return new KeyStroke(control, alt, win, shift, keyCode);
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder result = new StringBuilder();
+		if(control) result.append("Ctrl+");
+		if(alt) result.append("Alt+");
+		if(win) result.append("Win+");
+		if(shift) result.append("Shift+");
+		if(Build.VERSION.SDK_INT >= 12) result.append(KeyEvent.keyCodeToString(keyCode));
+		else result.append(keyCode);
+		return result.toString();
 	}
 
 	public boolean isControl() {
