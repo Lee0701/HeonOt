@@ -21,7 +21,8 @@ class InputMethodSettingsActivity : SettingsActivity() {
         setContentView(R.layout.activity_input_method_settings)
 
         val id = intent.getIntExtra(SettingsActivity.EXTRA_METHOD_ID, -1)
-        val method = inputMethods[id]
+        var method = globalModules
+        if(id >= 0) method = inputMethods[id]
 
         for (module in method.modules) {
             modules.addTab(modules.newTab().setText(module.name))

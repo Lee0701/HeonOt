@@ -43,17 +43,15 @@ public class HeonOtSettingsActivity extends SettingsActivity {
 		listView.setAdapter(adapter);
 
 		listView.setOnItemClickListener((parent, view, position, id) -> {
-			InputMethod method = inputMethods.get(position);
-			final EditText content = new EditText(HeonOtSettingsActivity.this);
-			try {
-				content.setText(method.toJSON(2));
-			} catch(JSONException e) {
-				e.printStackTrace();
-				Toast.makeText(HeonOtSettingsActivity.this, e.getClass().getName() + ":  " + e.getMessage(), Toast.LENGTH_LONG).show();
-				return;
-			}
 			Intent intent = new Intent(HeonOtSettingsActivity.this, InputMethodSettingsActivity.class);
 			intent.putExtra(EXTRA_METHOD_ID, position);
+			startActivity(intent);
+		});
+
+		TextView global = (TextView) findViewById(R.id.global_modules);
+		global.setOnClickListener((v) -> {
+			Intent intent = new Intent(HeonOtSettingsActivity.this, InputMethodSettingsActivity.class);
+			intent.putExtra(EXTRA_METHOD_ID, -1);
 			startActivity(intent);
 		});
 
@@ -92,7 +90,6 @@ public class HeonOtSettingsActivity extends SettingsActivity {
 			InputMethod method = data.get(position);
 			TextView text = (TextView) convertView.findViewById(R.id.text);
 			text.setText(position + ": " + method.getName());
-			text.setTextSize(TypedValue.COMPLEX_UNIT_PT, 12);
 
 			return convertView;
 		}

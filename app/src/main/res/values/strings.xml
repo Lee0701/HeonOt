@@ -16,6 +16,8 @@
 	<string name="button_import">Import</string>
 	<string name="button_duplicate">Duplicate</string>
 
+	<string name="global_modules">Global Modules</string>
+
 	<string name="msg_settings_saved">Settings Saved.</string>
 	<string name="msg_copy_method_json">Copy Input Method Data to Clipboard?</string>
 

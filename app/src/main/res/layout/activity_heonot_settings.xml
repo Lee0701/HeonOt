@@ -10,6 +10,25 @@
 
 	<include layout="@layout/settings_toolbar"/>
 
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical"
+		android:layout_marginTop="4dp"
+		android:layout_marginBottom="4dp"
+		android:layout_marginLeft="8dp"
+		android:layout_marginRight="8dp">
+
+		<TextView
+			android:id="@+id/global_modules"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/global_modules"
+			android:textSize="12pt"
+			android:background="@android:drawable/list_selector_background"
+			android:focusable="true"/>
+	</LinearLayout>
+
 	<ListView
 		android:id="@+id/method_list"
 		android:layout_width="match_parent"

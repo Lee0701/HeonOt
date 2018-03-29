@@ -16,15 +16,18 @@ public abstract class SettingsActivity extends AppCompatActivity {
 
 	static final String EXTRA_METHOD_ID = "io.github.lee0701.heonot.METHOD_ID";
 
+	InputMethod globalModules;
 	List<InputMethod> inputMethods = new ArrayList<>();
 
 	File methodsDir;
+	File globalMethodsFile;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		methodsDir = new File(getFilesDir(), "methods");
+		globalMethodsFile = new File(getFilesDir(), "global.json");
 
 		loadMethods();
 	}
@@ -50,10 +53,12 @@ public abstract class SettingsActivity extends AppCompatActivity {
 
 	protected void loadMethods() {
 		inputMethods = InputMethodLoader.loadMethods(methodsDir);
+		globalModules = InputMethodLoader.loadMethod(globalMethodsFile);
 	}
 
 	protected void saveMethods() {
 		InputMethodLoader.storeMethods(methodsDir, inputMethods);
+		InputMethodLoader.storeMethod(globalMethodsFile, globalModules);
 		HeonOt instance = HeonOt.getInstance();
 		if(instance != null) {
 			instance.destroy();
