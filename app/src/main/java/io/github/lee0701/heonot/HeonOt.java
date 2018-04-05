@@ -236,15 +236,14 @@ public class HeonOt extends InputMethodService {
 				break;
 
 			default:
-				EventBus.getDefault().post(new CommitComposingCharEvent());
-				sendKeyChar('\n');
+				EventBus.getDefault().post(new KeyCharEvent('\n'));
 				break;
 
 			}
 			break;
 
 		case KeyEvent.KEYCODE_SPACE:
-			EventBus.getDefault().post(new CommitCharEvent(' ', 1));
+			EventBus.getDefault().post(new KeyCharEvent(' '));
 			break;
 		}
 	}
@@ -258,6 +257,14 @@ public class HeonOt extends InputMethodService {
 	@Subscribe
 	public void onFinishComposing(FinishComposingEvent event) {
 		getCurrentInputConnection().finishComposingText();
+	}
+
+	@Subscribe
+	public void onKeyChar(KeyCharEvent event) {
+		InputConnection ic = getCurrentInputConnection();
+		ic.finishComposingText();
+		EventBus.getDefault().post(new CommitComposingCharEvent());
+		sendKeyChar(event.getCharacter());
 	}
 
 	@Subscribe
