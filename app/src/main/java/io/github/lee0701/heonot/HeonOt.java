@@ -230,15 +230,14 @@ public class HeonOt extends InputMethodService {
 			switch(editorInfo.imeOptions & EditorInfo.IME_MASK_ACTION) {
 			case EditorInfo.IME_ACTION_SEARCH:
 			case EditorInfo.IME_ACTION_GO:
-			case EditorInfo.IME_ACTION_DONE:
-			case EditorInfo.IME_ACTION_SEND:
 				getCurrentInputConnection().finishComposingText();
 				EventBus.getDefault().post(new CommitComposingCharEvent());
 				sendDefaultEditorAction(true);
 				break;
 
 			default:
-				EventBus.getDefault().post(new CommitCharEvent('\n', 1));
+				EventBus.getDefault().post(new CommitComposingCharEvent());
+				sendKeyChar('\n');
 				break;
 
 			}
