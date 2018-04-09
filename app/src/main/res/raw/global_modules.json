@@ -2,6 +2,13 @@
   "name": "Global Modules",
   "modules": [
     {
+      "name": "Auto Switcher",
+      "class": "io.github.lee0701.heonot.inputmethod.modules.global.AutoSwitcher",
+      "properties": {
+        "node": "((T & 15) == 1) ? (((a = (T & 4080)) == 128) || (a == 144)) ? 0 : -1 : -1"
+      }
+    },
+    {
       "name": "Shortcut Processor",
       "class": "io.github.lee0701.heonot.inputmethod.modules.global.ShortcutProcessor",
       "properties": {

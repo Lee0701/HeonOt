@@ -11,12 +11,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import io.github.lee0701.heonot.inputmethod.InputMethod;
 import io.github.lee0701.heonot.inputmethod.event.*;
-import io.github.lee0701.heonot.inputmethod.modules.InputMethodModule;
-import io.github.lee0701.heonot.inputmethod.modules.global.ShortcutProcessor;
-import io.github.lee0701.heonot.inputmethod.modules.hardkeyboard.KeyStroke;
-import io.github.lee0701.heonot.inputmethod.scripting.StringRecursionTreeParser;
 import io.github.lee0701.heonot.inputmethod.scripting.TreeEvaluator;
-import io.github.lee0701.heonot.inputmethod.scripting.nodes.TreeNode;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -42,7 +37,7 @@ public class HeonOt extends InputMethodService {
 	public static HeonOt getInstance() {
 		return instance;
 	}
-	
+
 	public HeonOt() {
 		super();
 		inputMethods = new ArrayList<>();
@@ -133,7 +128,7 @@ public class HeonOt extends InputMethodService {
 			super.onStartInputView(attribute, restarting);
 		} else {
 			super.onStartInputView(attribute, restarting);
-
+			EventBus.getDefault().post(new InputTypeEvent(attribute.inputType));
 		}
 
 	}
@@ -306,6 +301,7 @@ public class HeonOt extends InputMethodService {
 	}
 
 	public void changeInputMethod(int inputMethodId) {
+		if(inputMethodId == currentInputMethodId) return;
 		new Handler().post(() -> {
 			currentInputMethod.pause();
 			currentInputMethodId = inputMethodId;

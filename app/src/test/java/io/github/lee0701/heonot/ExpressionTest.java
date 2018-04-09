@@ -15,9 +15,9 @@ public class ExpressionTest {
 	@Test
 	public void test() {
 		TreeParser builder = new StringRecursionTreeParser();
-		TreeNode node = builder.parse("A << 4");
+		TreeNode node = builder.parse("((T & 15) == 1) ? (((a = (T & 4080)) == 128) || (a == 144)) ? 0 : -1 : -1");
 		Map<String, Long> variables = new HashMap<String, Long>() {{
-			put("A", 1L);
+			put("T", 129L);
 			put("B", 2L);
 		}};
 		TreeEvaluator evaluator = new TreeEvaluator();

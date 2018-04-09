@@ -1,0 +1,65 @@
+package io.github.lee0701.heonot.inputmethod.modules.global
+
+import io.github.lee0701.heonot.HeonOt
+import io.github.lee0701.heonot.inputmethod.event.InputTypeEvent
+import io.github.lee0701.heonot.inputmethod.modules.InputMethodModule
+import io.github.lee0701.heonot.inputmethod.scripting.StringRecursionTreeParser
+import io.github.lee0701.heonot.inputmethod.scripting.StringTreeExporter
+import io.github.lee0701.heonot.inputmethod.scripting.nodes.TreeNode
+import org.greenrobot.eventbus.Subscribe
+import org.json.JSONObject
+
+class AutoSwitcher : InputMethodModule() {
+
+	var node: TreeNode? = null
+	var inputType: Int = 0
+
+	override fun init() {
+
+	}
+
+	override fun pause() {
+
+	}
+
+	override fun setProperty(key: String?, value: Any?) {
+		when(key) {
+			"node" -> {
+				this.node = StringRecursionTreeParser().parse(value)
+			}
+			else -> super.setProperty(key, value)
+		}
+	}
+
+	@Subscribe
+	fun onInputType(event: InputTypeEvent) {
+		inputType = event.inputType
+		autoSwitch();
+	}
+
+	private fun autoSwitch() {
+		val variables = hashMapOf("T" to inputType.toLong())
+		node?.let {
+			HeonOt.getInstance().treeEvaluator.variables = variables
+			val result = HeonOt.getInstance().treeEvaluator.eval(it)
+			if(result >= 0) HeonOt.getInstance().changeInputMethod(result.toInt())
+		}
+	}
+
+	override fun toJSONObject(): JSONObject {
+		val obj = super.toJSONObject()
+		val properties = JSONObject()
+		node?.let {
+			properties.put("node", StringTreeExporter().export(it))
+		}
+		obj.put("properties", properties)
+		return obj
+	}
+
+	override fun clone(): AutoSwitcher {
+		val cloned = AutoSwitcher()
+		cloned.node = node?.clone()
+		return cloned
+	}
+
+}

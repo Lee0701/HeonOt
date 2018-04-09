@@ -64,8 +64,14 @@ public class StringRecursionTreeParser implements TreeParser {
 			boolean eatOnly(int charToEat, int... charsNotToEat) {
 				while(ch == ' ') nextChar();
 				if(ch == charToEat) {
-					for(int c : charsNotToEat) if(c == charToEat) return false;
 					nextChar();
+					for(int c : charsNotToEat) {
+						if(ch == c) {
+							pos -= 1;
+							ch = str.charAt(pos);
+							return false;
+						}
+					}
 					return true;
 				}
 				return false;
@@ -218,8 +224,8 @@ public class StringRecursionTreeParser implements TreeParser {
 			TreeNode parseExpression() {
 				TreeNode x = parseTerm();
 				for(;;) {
-					if(eatOnly('+')) x = new BinaryTreeNode(Operator.ADDITION, x, parseTerm());
-					else if(eatOnly('-')) x = new BinaryTreeNode(Operator.SUBTRACTION, x, parseTerm());
+					if(eatOnly('+', '=')) x = new BinaryTreeNode(Operator.ADDITION, x, parseTerm());
+					else if(eatOnly('-','=')) x = new BinaryTreeNode(Operator.SUBTRACTION, x, parseTerm());
 					else return x;
 				}
 			}

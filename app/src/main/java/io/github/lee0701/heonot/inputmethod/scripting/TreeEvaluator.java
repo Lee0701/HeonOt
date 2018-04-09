@@ -8,7 +8,6 @@ import java.util.Map;
 public class TreeEvaluator {
 
 	private Map<String, Long> variables = new HashMap<>();
-	private Map<String, Long> constants = new HashMap<>();
 
 	public long eval(TreeNode node) {
 		if (node instanceof ConstantTreeNode) {
@@ -234,11 +233,4 @@ public class TreeEvaluator {
 		this.variables = variables;
 	}
 
-	public Map<String, Long> getConstants() {
-		return constants;
-	}
-
-	public void setConstants(Map<String, Long> constants) {
-		this.constants = constants;
-	}
 }

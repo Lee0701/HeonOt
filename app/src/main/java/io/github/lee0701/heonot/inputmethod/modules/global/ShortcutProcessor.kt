@@ -92,6 +92,9 @@ class ShortcutProcessor : InputMethodModule() {
                     }
                 }
             }
+            else -> {
+                super.setProperty(key, value)
+            }
         }
     }
 
