@@ -335,6 +335,10 @@ public class HeonOt extends InputMethodService {
 		this.inputMethods = inputMethods;
 	}
 
+	public int getCurrentInputMethodId() {
+		return currentInputMethodId;
+	}
+
 	public TreeEvaluator getTreeEvaluator() {
 		return treeEvaluator;
 	}

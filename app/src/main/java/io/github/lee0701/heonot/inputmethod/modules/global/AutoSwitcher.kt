@@ -13,6 +13,7 @@ class AutoSwitcher : InputMethodModule() {
 
 	var node: TreeNode? = null
 	var inputType: Int = 0
+	var previousInputMethodId = -1
 
 	override fun init() {
 
@@ -42,7 +43,13 @@ class AutoSwitcher : InputMethodModule() {
 		node?.let {
 			HeonOt.getInstance().treeEvaluator.variables = variables
 			val result = HeonOt.getInstance().treeEvaluator.eval(it)
-			if(result >= 0) HeonOt.getInstance().changeInputMethod(result.toInt())
+			if(result >= 0) {
+				previousInputMethodId = HeonOt.getInstance().currentInputMethodId
+				HeonOt.getInstance().changeInputMethod(result.toInt())
+			} else if(previousInputMethodId >= 0) {
+				HeonOt.getInstance().changeInputMethod(previousInputMethodId)
+				previousInputMethodId = -1
+			}
 		}
 	}
 
