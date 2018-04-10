@@ -47,6 +47,8 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 	protected int keyboardResId;
 	protected KeyboardKOKR keyboard;
 
+	protected String keyboardSkin;
+
 	protected Vibrator vibrator;
 	protected MediaPlayer sound;
 
@@ -323,8 +325,7 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 	public View createView(Context context) {
 
 		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-		String skin = pref.getString("keyboard_skin",
-				context.getResources().getString(R.string.keyboard_skin_id_default));
+		String skin = keyboardSkin != null ? keyboardSkin : context.getString(R.string.keyboard_skin_id_default);
 		int id = context.getResources().getIdentifier(skin, "layout", "io.github.lee0701.heonot");
 
 		LayoutInflater inflater = LayoutInflater.from(context);
@@ -398,6 +399,9 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 		case "keyboard":
 			return keyboardResName;
 
+		case "skin":
+			return keyboardSkin;
+
 		case "soft-key-labels":
 			return labels;
 
@@ -429,6 +433,12 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 		case "keyboard":
 			if(value instanceof String) {
 				keyboardResName = (String) value;
+			}
+			break;
+
+		case "skin":
+			if(value instanceof  String) {
+				keyboardSkin = (String) value;
 			}
 			break;
 
@@ -485,6 +495,7 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 		JSONObject properties = new JSONObject();
 
 		properties.put("keyboard", getKeyboardResName());
+		properties.put("skin", getKeyboardSkin());
 		properties.put("key-height-portrait", getKeyHeightPortrait());
 		properties.put("key-height-landscape", getKeyHeightLandscape());
 		properties.put("long-press-timeout", getLongPressTimeout());
@@ -505,6 +516,7 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 		settings.addView(super.createSettingsView(context));
 
 		settings.addView(createTextEditView(context, "keyboard", R.string.dsk_pref_keyboard, false));
+		settings.addView(createTextEditView(context, "skin", R.string.dsk_pref_skin, false));
 		settings.addView(createTextEditView(context, "key-height-portrait", R.string.dsk_pref_key_height_portrait, true));
 		settings.addView(createTextEditView(context, "key-height-landscape", R.string.dsk_pref_key_height_landscape, true));
 		settings.addView(createTextEditView(context, "long-press-timeout", R.string.dsk_pref_long_press_timeout, true));
@@ -521,7 +533,7 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 	private View createTextEditView(Context context, String key, int nameRes, boolean forceIntValue) {
 		TextInputLayout til = new TextInputLayout(context);
 		EditText editText = new EditText(context);
-		final String previous = getProperty(key).toString();
+		final String previous = (getProperty(key) != null) ? getProperty(key).toString() : "";
 		editText.setText(previous);
 		editText.setHint(nameRes);
 		editText.setEllipsize(TextUtils.TruncateAt.END);
@@ -612,6 +624,14 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 
 	public void setKeyboardResName(String keyboardResName) {
 		this.keyboardResName = keyboardResName;
+	}
+
+	public String getKeyboardSkin() {
+		return keyboardSkin;
+	}
+
+	public void setKeyboardSkin(String keyboardSkin) {
+		this.keyboardSkin = keyboardSkin;
 	}
 
 	public int getKeyHeightPortrait() {

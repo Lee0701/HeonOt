@@ -42,6 +42,7 @@
 	<string name="integer_value_forced">Only integer value is allowed here.</string>
 
 	<string name="dsk_pref_keyboard">Keyboard Resource ID</string>
+	<string name="dsk_pref_skin">Keyboard Skin</string>
 	<string name="dsk_pref_key_height_portrait">Key Height (Portrait)</string>
 	<string name="dsk_pref_key_height_landscape">Key Height (Landscape)</string>
 	<string name="dsk_pref_long_press_timeout">Long-Press Timeout</string>
