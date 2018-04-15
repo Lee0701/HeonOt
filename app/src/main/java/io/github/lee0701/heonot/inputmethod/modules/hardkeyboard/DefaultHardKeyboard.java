@@ -47,9 +47,6 @@ public class DefaultHardKeyboard extends HardKeyboard {
 	public static final int LONG_PRESS_SHIFT = 0;
 	public static final int LONG_PRESS_REPEAT = 1;
 
-	private static final int[] shiftKeyToggle = {0, MetaKeyKeyListener.META_SHIFT_ON, MetaKeyKeyListener.META_CAP_LOCKED};
-	private static final int[] altKeyToggle = {0, MetaKeyKeyListener.META_ALT_ON, MetaKeyKeyListener.META_ALT_LOCKED};
-
 	public DefaultHardKeyboard() {
 
 	}
@@ -234,7 +231,7 @@ public class DefaultHardKeyboard extends HardKeyboard {
 		}
 
 		if(layout == null) {
-			directInput(event.getKeyCode());
+			HardKeyboard.Companion.directInput(event.getKeyCode(), shiftState, altState, capsLock);
 			return;
 		}
 		DefaultHardKeyboardMap map = layout.get(event.getKeyCode());
@@ -242,15 +239,8 @@ public class DefaultHardKeyboard extends HardKeyboard {
 			int charCode = shiftState ? map.getShift() : map.getNormal();
 			EventBus.getDefault().post(new InputCharEvent(charCode));
 		} else {
-			directInput(event.getKeyCode());
+			HardKeyboard.Companion.directInput(event.getKeyCode(), shiftState, altState, capsLock);
 		}
-	}
-
-	private void directInput(int keyCode) {
-		int hardShift = capsLock ? 2 : shiftState ? 1 : 0;
-		int hardAlt = altState ? 1 : 0;
-		int unicodeChar = KeyCharacterMap.load(KeyCharacterMap.VIRTUAL_KEYBOARD).get(keyCode, shiftKeyToggle[hardShift] | altKeyToggle[hardAlt]);
-		EventBus.getDefault().post(new CommitCharEvent((char) unicodeChar, 1));
 	}
 
 	private void updateSoftKeyLabels() {

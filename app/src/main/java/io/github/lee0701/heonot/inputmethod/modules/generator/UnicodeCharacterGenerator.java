@@ -56,10 +56,14 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 
 	}
 
+	private void fireComposeCharEvent(State state) {
+		EventBus.getDefault().post(new ComposeCharEvent(state.composing, state.lastInput, state.syllable.cho, state.syllable.jung, state.syllable.jong));
+	}
+
 	@Override
 	public void input(long code) {
 		State state = this.processInput(code);
-		EventBus.getDefault().post(new ComposeCharEvent(state.composing, state.lastInput));
+		fireComposeCharEvent(state);
 		states.push(state);
 	}
 
@@ -257,7 +261,7 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 				}
 				char cho = convertToCho((char) state.last);
 				state.composing = state.syllable.toString(getFirstMidEnd());
-				EventBus.getDefault().post(new ComposeCharEvent(state.composing, state.lastInput));
+				fireComposeCharEvent(state);
 				commitComposingChar();
 				startNewSyllable(new UnicodeHangulSyllable(cho, (char) 0, (char) 0));
 				state = states.pop();
@@ -306,7 +310,7 @@ public class UnicodeCharacterGenerator extends CharacterGenerator {
 		try {
 			states.pop();
 			State state = states.peek();
-			EventBus.getDefault().post(new ComposeCharEvent(state.composing, state.lastInput));
+			fireComposeCharEvent(state);
 		} catch(EmptyStackException e) {
 			EventBus.getDefault().post(new FinishComposingEvent());
 			EventBus.getDefault().post(new DeleteCharEvent(1, 0));
