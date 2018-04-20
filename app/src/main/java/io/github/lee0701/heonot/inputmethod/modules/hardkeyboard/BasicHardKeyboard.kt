@@ -15,6 +15,7 @@ import org.json.JSONObject
 class BasicHardKeyboard : HardKeyboard() {
 
 	var layout = hashMapOf<Int, BasicHardKeyboardMap>()
+	var labels = hashMapOf<Int, Pair<String, String>>()
 
 	var shiftState = false
 	var shiftPressing = false
@@ -24,6 +25,7 @@ class BasicHardKeyboard : HardKeyboard() {
 	var shiftInput = false
 
 	var softLongPressMode = 0
+	var labelMode = 0
 
 	var automataState = 0
 	var cho = 0
@@ -36,10 +38,15 @@ class BasicHardKeyboard : HardKeyboard() {
 			when(event.keyCode) {
 				KeyEvent.KEYCODE_SHIFT_LEFT, KeyEvent.KEYCODE_SHIFT_RIGHT -> {
 					shiftState = false
+					updateLabels()
 				}
 				KeyEvent.KEYCODE_ALT_LEFT, KeyEvent.KEYCODE_ALT_RIGHT -> {
 					altState = false
 				}
+			}
+
+			when(event.keyCode) {
+				KeyEvent.KEYCODE_SPACE, KeyEvent.KEYCODE_ENTER -> updateLabels()
 			}
 			return
 		}
@@ -59,6 +66,7 @@ class BasicHardKeyboard : HardKeyboard() {
 			}
 			KeyEvent.KEYCODE_SHIFT_LEFT, KeyEvent.KEYCODE_SHIFT_RIGHT -> {
 				shiftState = true
+				updateLabels()
 			}
 			KeyEvent.KEYCODE_ALT_LEFT, KeyEvent.KEYCODE_ALT_RIGHT -> {
 				altState = true
@@ -68,16 +76,14 @@ class BasicHardKeyboard : HardKeyboard() {
 		val map = layout.get(event.keyCode)
 		map?.let {
 			val evaluator = HeonOt.getInstance().treeEvaluator
-			evaluator.variables = hashMapOf(
-				"T" to automataState.toLong(),
-				"P" to if(capsLock) 1L else 0L,
-				"D" to cho.toLong(), "E" to jung.toLong(), "F" to jong.toLong()
-			)
+			evaluator.variables = getVariables()
 			val result = evaluator.eval(if(shiftState) it.shift else it.normal)
 			EventBus.getDefault().post(InputCharEvent(result))
+			updateLabels()
 			return@input
 		}
 		HardKeyboard.directInput(event.keyCode, shiftState, altState)
+		updateLabels()
 	}
 
 	@Subscribe
@@ -85,18 +91,22 @@ class BasicHardKeyboard : HardKeyboard() {
 		if(event.action == SoftKeyEvent.SoftKeyAction.PRESS) {
 			when (event.keyCode) {
 				KeyEvent.KEYCODE_SHIFT_LEFT, KeyEvent.KEYCODE_SHIFT_RIGHT -> {
-					if (!shiftState) {
-						shiftState = true
-					} else {
-						if (!capsLock) {
-							if (shiftInput) shiftState = false
-							else capsLock = false
+					shiftPressing = true
+					if(event.type == SoftKeyEvent.SoftKeyPressType.SINGLE) {
+						if (!shiftState) {
+							shiftState = true
 						} else {
-							capsLock = false
-							shiftState = false
+							if (!capsLock) {
+								if (shiftInput) shiftState = false
+								else capsLock = true
+							} else {
+								capsLock = false
+								shiftState = false
+							}
 						}
+						shiftInput = false
+						updateLabels()
 					}
-					shiftInput = false
 				}
 				KeyEvent.KEYCODE_DEL -> {
 					EventBus.getDefault().post(HardKeyEvent(null, HardKeyEvent.HardKeyAction.PRESS, event.keyCode, 0, 0))
@@ -107,6 +117,7 @@ class BasicHardKeyboard : HardKeyboard() {
 						if (event.type == SoftKeyEvent.SoftKeyPressType.LONG) {
 							shiftState = true
 							shiftInput = false
+							updateLabels()
 						}
 					} else if (softLongPressMode == LONG_PRESS_REPEAT) {
 						EventBus.getDefault().post(HardKeyEvent(null, HardKeyEvent.HardKeyAction.PRESS, event.keyCode, 0, 0))
@@ -122,9 +133,10 @@ class BasicHardKeyboard : HardKeyboard() {
 						shiftState = false
 					}
 					shiftInput = false
+					updateLabels()
 				}
 				KeyEvent.KEYCODE_DEL -> {
-
+					updateLabels()
 				}
 				else -> {
 					if (softLongPressMode == LONG_PRESS_SHIFT) {
@@ -136,6 +148,7 @@ class BasicHardKeyboard : HardKeyboard() {
 					Handler().post {
 						if(shiftState) shiftInput = true
 						if (!capsLock && shiftInput && !shiftPressing) shiftState = false
+						updateLabels()
 					}
 				}
 			}
@@ -155,6 +168,7 @@ class BasicHardKeyboard : HardKeyboard() {
 	}
 
 	override fun init() {
+		updateLabels()
 	}
 
 	override fun pause() {
@@ -182,8 +196,57 @@ class BasicHardKeyboard : HardKeyboard() {
 					ex.printStackTrace()
 				}
 			}
+			"soft-long-press-mode" -> {
+				if(value is Int) softLongPressMode = value
+			}
+			"label-mode" -> {
+				if(value is Int) labelMode = value
+			}
+			"labels" -> {
+				try {
+					if(value is HashMap<*, *>) {
+						labels = value as HashMap<Int, Pair<String, String>>
+					} else if(value is JSONObject) {
+						this.labels = loadLabels(value)
+					}
+				} catch(ex: Exception) {
+					ex.printStackTrace()
+				}
+			}
 			else -> super.setProperty(key, value)
 		}
+	}
+
+	private fun getVariables() : Map<String, Long> {
+		return hashMapOf(
+				"T" to automataState.toLong(),
+				"P" to if(capsLock) 1L else 0L,
+				"D" to cho.toLong(), "E" to jung.toLong(), "F" to jong.toLong()
+		)
+	}
+
+	private fun getLabels(mode: Int) : Map<Int, String> {
+		val result = hashMapOf<Int, String>()
+		val evaluator = HeonOt.getInstance().treeEvaluator
+		when(mode) {
+			LABEL_FROM_TABLE -> {
+				for(i in labels) {
+					result += i.key to if(shiftState) i.value.second else i.value.first
+				}
+			}
+			LABEL_CALCULATED -> {
+				for(i in layout) {
+					evaluator.variables = getVariables()
+					result += i.value.keyCode to String(Character.toChars(evaluator.eval(if(shiftState) i.value.shift else i.value.normal).toInt()))
+				}
+			}
+		}
+		return result
+	}
+
+	private fun updateLabels() {
+		EventBus.getDefault().post(SetPropertyEvent("soft-key-labels", getLabels(labelMode)))
+		EventBus.getDefault().post(UpdateStateEvent(UpdateStateEvent.Target.SOFT_KEYBOARD))
 	}
 
 	override fun toJSONObject(): JSONObject {
@@ -191,12 +254,15 @@ class BasicHardKeyboard : HardKeyboard() {
 		val properties = JSONObject()
 
 		properties.put("layout", storeLayout())
+		properties.put("soft-long-press-mode", softLongPressMode)
+		properties.put("label-mode", labelMode)
+		properties.put("labels", storeLabels())
 
 		obj.put("properties", properties)
 		return obj
 	}
 
-	fun storeLayout() : JSONObject {
+	private fun storeLayout() : JSONObject {
 		val obj = JSONObject()
 		val layout = JSONArray()
 
@@ -213,10 +279,29 @@ class BasicHardKeyboard : HardKeyboard() {
 		return obj
 	}
 
+	private fun storeLabels() : JSONObject {
+		val obj = JSONObject()
+		val labels = JSONArray()
+
+		for(i in this.labels) {
+			val entry = JSONObject()
+			entry.put("keycode", i.key)
+			entry.put("normal", i.value.first)
+			entry.put("shift", i.value.second)
+			labels.put(entry)
+		}
+		obj.put("labels", labels)
+		return obj
+	}
+
 	companion object {
 
 		val LONG_PRESS_SHIFT = 0
 		val LONG_PRESS_REPEAT = 1
+
+		val LABEL_NONE = 0
+		val LABEL_FROM_TABLE = 1
+		val LABEL_CALCULATED = 2
 
 		fun loadLayout(layoutObject: JSONObject) : HashMap<Int, BasicHardKeyboardMap> {
 			val parser = StringRecursionTreeParser()
@@ -225,8 +310,8 @@ class BasicHardKeyboard : HardKeyboard() {
 			val table = layoutObject.getJSONArray("layout")
 
 			table?.let {
-				for(i in 0 until table.length()) {
-					val o = table.getJSONObject(i)
+				for(i in 0 until it.length()) {
+					val o = it.getJSONObject(i)
 
 					val keyCode = o.getInt("keycode")
 					val normal = parser.parse(o.getString("normal"))
@@ -237,5 +322,26 @@ class BasicHardKeyboard : HardKeyboard() {
 			}
 			return result
 		}
+
+		fun loadLabels(labelsObject: JSONObject) : HashMap<Int, Pair<String, String>> {
+			val result = hashMapOf<Int, Pair<String, String>>()
+			val table = labelsObject.getJSONArray("labels")
+
+			table?.let {
+				for(i in 0 until it.length()) {
+					val o = it.getJSONObject(i)
+
+					val keyCode = o.getInt("keycode")
+					val normal = o.getString("normal")
+					val shift = o.getString("shift")
+
+					result += keyCode to Pair(normal, shift)
+
+				}
+			}
+
+			return result
+		}
+
 	}
 }

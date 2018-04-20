@@ -260,6 +260,17 @@
               "shift": "44"
             }
           ]
+        },
+        "soft-long-press-mode": 0,
+        "label-mode": 2,
+        "labels": {
+          "labels": [
+            {
+              "keycode": 33,
+              "normal": "ㅕㅂ",
+              "shift": "ㄵ"
+            }
+          ]
         }
       }
     },
