@@ -267,7 +267,7 @@ public class DefaultHardKeyboard extends HardKeyboard {
 		settings.addView(super.createSettingsView(context));
 
 		KeyboardView keyboardView = new KeyboardView(context, null);
-		Keyboard keyboard = new Keyboard(context, R.xml.keyboard_full_10cols);
+		Keyboard keyboard = new Keyboard(context, R.xml.keyboard_full_pc);
 		keyboardView.setKeyboard(keyboard);
 		keyboardView.setPreviewEnabled(false);
 		keyboardView.setOnKeyboardActionListener(new KeyboardView.OnKeyboardActionListener() {
