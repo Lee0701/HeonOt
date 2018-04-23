@@ -237,7 +237,7 @@ class BasicHardKeyboard : HardKeyboard() {
 			LABEL_CALCULATED -> {
 				for(i in layout) {
 					evaluator.variables = getVariables()
-					result += i.value.keyCode to String(Character.toChars(evaluator.eval(if(shiftState) i.value.shift else i.value.normal).toInt()))
+					result += i.value.keyCode to String(Character.toChars(evaluator.eval(if(shiftState) i.value.shift else i.value.normal).toInt() and 0xffffff))
 				}
 			}
 		}

@@ -48,6 +48,7 @@ class UnicodeCharacterGenerator : CharacterGenerator() {
 	override fun input(code: Long) {
 		val state = this.processInput(code)
 		fireComposeCharEvent(state)
+		EventBus.getDefault().post(AutomataStateChangeEvent(state.status))
 		states.push(state)
 	}
 
@@ -56,6 +57,7 @@ class UnicodeCharacterGenerator : CharacterGenerator() {
 		var state = State(states.peek())
 
 		val codeType = (code and -0x1000000 shr 0x18).toInt()
+		val advanceStatus = (codeType and CODE_NO_CHANGE_STATUS) == 0
 		val codePoint = (code and 0x00ffffff).toInt()
 		if (codePoint and 0x00ff0000 != 0) {
 			commitComposingChar()
@@ -99,6 +101,7 @@ class UnicodeCharacterGenerator : CharacterGenerator() {
 					state.syllable.cho = charCode
 				}
 				state.lastInput = state.lastInput or State.INPUT_CHO3
+				if(advanceStatus) state.status = State.STATUS_CHO
 			}
 
 			UnicodeJamoHandler.JamoType.JUNG3 -> {
@@ -130,6 +133,7 @@ class UnicodeCharacterGenerator : CharacterGenerator() {
 					state.syllable.jung = charCode
 				}
 				state.lastInput = state.lastInput or State.INPUT_JUNG3
+				if(advanceStatus) state.status = State.STATUS_JUNG
 			}
 
 			UnicodeJamoHandler.JamoType.JONG3 -> {
@@ -162,6 +166,7 @@ class UnicodeCharacterGenerator : CharacterGenerator() {
 					state.syllable.jong = charCode
 				}
 				state.lastInput = state.lastInput or State.INPUT_JONG3
+				if(advanceStatus) state.status = State.STATUS_JONG
 			}
 
 			UnicodeJamoHandler.JamoType.CHO2 -> run {
@@ -179,6 +184,7 @@ class UnicodeCharacterGenerator : CharacterGenerator() {
 						state = states.pop()
 						state.lastInput = state.lastInput or (State.INPUT_NO_MATCHING_JONG or State.INPUT_NEW_SYLLABLE_STARTED)
 						state.lastInput = state.lastInput or State.INPUT_CHO2
+						if(advanceStatus) state.status = State.STATUS_CHO
 						return@run
 					} else if (state.syllable.containsJong()) {
 						val pair = JamoPair(state.syllable.jong, charCode)
@@ -198,6 +204,7 @@ class UnicodeCharacterGenerator : CharacterGenerator() {
 						state.syllable.jong = charCode
 					}
 					state.lastInput = state.lastInput or State.INPUT_JONG2
+					if(advanceStatus) state.status = State.STATUS_JONG
 				} else {
 					// 한글 자모 초성으로 변환
 					charCode = convertCompatibleJamo(charCode, UnicodeJamoHandler.JamoType.CHO3)
@@ -224,6 +231,7 @@ class UnicodeCharacterGenerator : CharacterGenerator() {
 						state.syllable.cho = charCode
 					}
 					state.lastInput = state.lastInput or State.INPUT_CHO2
+					if(advanceStatus) state.status = State.STATUS_CHO
 				}
 			}
 
@@ -232,6 +240,7 @@ class UnicodeCharacterGenerator : CharacterGenerator() {
 				// 종성이 존재할 경우 (도깨비불 발생)
 				if (state.syllable.containsJong()) {
 					state.lastInput = 0
+					if(advanceStatus) state.status = State.STATUS_INITIAL
 					if (state.beforeJong.toInt() != 0) {
 						state.syllable.jong = state.beforeJong
 					} else {
@@ -265,6 +274,7 @@ class UnicodeCharacterGenerator : CharacterGenerator() {
 						state.syllable.jung = charCode
 					}
 					state.lastInput = state.lastInput or State.INPUT_JUNG2
+					if(advanceStatus) state.status = State.STATUS_JUNG
 				}
 			}
 
@@ -324,6 +334,10 @@ class UnicodeCharacterGenerator : CharacterGenerator() {
 		return if (key < 0) null else combinationTable[key]
 	}
 
+	companion object {
+		val CODE_NO_CHANGE_STATUS = 1
+	}
+
 	class State {
 
 		internal var syllable: UnicodeHangulSyllable
@@ -331,6 +345,7 @@ class UnicodeCharacterGenerator : CharacterGenerator() {
 		internal var beforeJong: Char = ' '
 		internal var composing: String
 		internal var lastInput: Int = 0
+		internal var status = 0
 
 		@JvmOverloads internal constructor(syllable: UnicodeHangulSyllable = UnicodeHangulSyllable()) {
 			this.syllable = syllable
@@ -346,9 +361,15 @@ class UnicodeCharacterGenerator : CharacterGenerator() {
 			beforeJong = previousState.beforeJong
 			composing = previousState.composing
 			lastInput = previousState.lastInput
+			status = previousState.status
 		}
 
 		companion object {
+
+			val STATUS_INITIAL = 0
+			val STATUS_CHO = 1
+			val STATUS_JUNG = 2
+			val STATUS_JONG = 3
 
 			val MASK_HANGUL_BEOL = 0xf000
 			val MASK_HANGUL_TYPE = 0x0f00
