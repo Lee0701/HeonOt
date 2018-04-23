@@ -42,11 +42,12 @@ class BasicHardKeyboard : HardKeyboard() {
 				}
 				KeyEvent.KEYCODE_ALT_LEFT, KeyEvent.KEYCODE_ALT_RIGHT -> {
 					altState = false
+					updateLabels()
 				}
 			}
 
 			when(event.keyCode) {
-				KeyEvent.KEYCODE_SPACE, KeyEvent.KEYCODE_ENTER -> updateLabels()
+				KeyEvent.KEYCODE_SPACE, KeyEvent.KEYCODE_ENTER, KeyEvent.KEYCODE_DEL -> updateLabels()
 			}
 			return
 		}
@@ -67,9 +68,12 @@ class BasicHardKeyboard : HardKeyboard() {
 			KeyEvent.KEYCODE_SHIFT_LEFT, KeyEvent.KEYCODE_SHIFT_RIGHT -> {
 				shiftState = true
 				updateLabels()
+				return
 			}
 			KeyEvent.KEYCODE_ALT_LEFT, KeyEvent.KEYCODE_ALT_RIGHT -> {
 				altState = true
+				updateLabels()
+				return
 			}
 		}
 
@@ -79,7 +83,9 @@ class BasicHardKeyboard : HardKeyboard() {
 			evaluator.variables = getVariables()
 			val result = evaluator.eval(if(shiftState) it.shift else it.normal)
 			EventBus.getDefault().post(InputCharEvent(result))
-			updateLabels()
+			Handler().post {
+				updateLabels()
+			}
 			return@input
 		}
 		HardKeyboard.directInput(event.keyCode, shiftState, altState)

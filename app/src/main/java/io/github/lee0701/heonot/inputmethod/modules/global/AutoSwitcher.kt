@@ -1,6 +1,7 @@
 package io.github.lee0701.heonot.inputmethod.modules.global
 
 import io.github.lee0701.heonot.HeonOt
+import io.github.lee0701.heonot.inputmethod.event.HardwareChangeEvent
 import io.github.lee0701.heonot.inputmethod.event.InputTypeEvent
 import io.github.lee0701.heonot.inputmethod.modules.InputMethodModule
 import io.github.lee0701.heonot.inputmethod.scripting.StringRecursionTreeParser
@@ -12,7 +13,8 @@ import org.json.JSONObject
 class AutoSwitcher : InputMethodModule() {
 
 	var node: TreeNode? = null
-	var inputType: Int = 0
+	var inputType = 0
+	var hardwareState = 0
 	var previousInputMethodId = -1
 
 	override fun init() {
@@ -36,6 +38,12 @@ class AutoSwitcher : InputMethodModule() {
 	fun onInputType(event: InputTypeEvent) {
 		inputType = event.inputType
 		autoSwitch();
+	}
+
+	@Subscribe
+	fun onHardwareChange(event: HardwareChangeEvent) {
+		hardwareState = if(event.hardwareKeyboardState) 1 else 0
+		autoSwitch()
 	}
 
 	private fun autoSwitch() {
