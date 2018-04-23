@@ -298,6 +298,7 @@ class UnicodeCharacterGenerator : CharacterGenerator() {
 			states.pop()
 			val state = states.peek()
 			fireComposeCharEvent(state)
+			EventBus.getDefault().post(AutomataStateChangeEvent(state.status))
 		} catch (e: EmptyStackException) {
 			EventBus.getDefault().post(FinishComposingEvent())
 			EventBus.getDefault().post(DeleteCharEvent(1, 0))
@@ -309,6 +310,7 @@ class UnicodeCharacterGenerator : CharacterGenerator() {
 		EventBus.getDefault().post(FinishComposingEvent())
 		states.clear()
 		states.push(State())
+		EventBus.getDefault().post(AutomataStateChangeEvent(0))
 	}
 
 	fun startNewSyllable(syllable: UnicodeHangulSyllable) {

@@ -16,248 +16,243 @@
           "layout": [
             {
               "keycode": 8,
-              "normal": "4546",
-              "shift": "4521"
+              "normal": "0x31",
+              "shift": "0x21"
             },
             {
               "keycode": 9,
-              "normal": "4539",
-              "shift": "4528"
+              "normal": "0x32",
+              "shift": "0x40"
             },
             {
               "keycode": 10,
-              "normal": "4536",
-              "shift": "4541"
+              "normal": "0x33",
+              "shift": "0x23"
             },
             {
               "keycode": 11,
-              "normal": "4461",
-              "shift": "4533"
+              "normal": "0x34",
+              "shift": "0x24"
             },
             {
               "keycode": 12,
-              "normal": "4466",
-              "shift": "4532"
+              "normal": "0x35",
+              "shift": "0x25"
             },
             {
               "keycode": 13,
-              "normal": "4451",
-              "shift": "61"
+              "normal": "0x36",
+              "shift": "0x5e"
             },
             {
               "keycode": 14,
-              "normal": "4456",
-              "shift": "8220"
+              "normal": "0x37",
+              "shift": "0x26"
             },
             {
               "keycode": 15,
-              "normal": "4468",
-              "shift": "8221"
+              "normal": "0x38",
+              "shift": "0x2a"
             },
             {
               "keycode": 16,
-              "normal": "4462",
-              "shift": "39"
+              "normal": "0x39",
+              "shift": "0x28"
             },
             {
               "keycode": 7,
-              "normal": "4367",
-              "shift": "126"
+              "normal": "0x30",
+              "shift": "0x29"
             },
             {
               "keycode": 45,
-              "normal": "4538",
-              "shift": "4545"
+              "normal": "T==1 ? 0x1174 : 0x11ba",
+              "shift": "0x1174"
             },
             {
               "keycode": 51,
-              "normal": "4527",
-              "shift": "4544"
+              "normal": "T==1 ? 0x1163 : 0x11af",
+              "shift": "0x1163"
             },
             {
               "keycode": 33,
-              "normal": "T==1 ? 4455 : 4536",
-              "shift": "4524"
+              "normal": "T==1 ? 0x1167 : 0x11b8",
+              "shift": "0x1167"
             },
             {
               "keycode": 46,
-              "normal": "4450",
-              "shift": "4534"
+              "normal": "T==1 ? 0x1162 : 0x11ae",
+              "shift": "0x1162"
             },
             {
               "keycode": 48,
-              "normal": "4453",
-              "shift": "4531"
+              "normal": "T==1 ? 0x1165 : 0x11c0",
+              "shift": "0x1165"
             },
             {
               "keycode": 53,
-              "normal": "4357",
-              "shift": "53"
+              "normal": "0x1105",
+              "shift": "0x1105"
             },
             {
               "keycode": 49,
-              "normal": "4355",
-              "shift": "54"
+              "normal": "0x1103",
+              "shift": "0x1103"
             },
             {
               "keycode": 37,
-              "normal": "4358",
-              "shift": "55"
+              "normal": "T==1 ? 0x100116e : 0x1106",
+              "shift": "0x100116e"
             },
             {
               "keycode": 43,
-              "normal": "4366",
-              "shift": "56"
+              "normal": "T==1 ? 0x100116e : 0x110e",
+              "shift": "0x100116e"
             },
             {
               "keycode": 44,
-              "normal": "4369",
-              "shift": "57"
-            },
-            {
-              "keycode": 40,
-              "normal": "40",
-              "shift": "41"
+              "normal": "T==1 ? 0x1001169 : 0x1111",
+              "shift": "0x1001169"
             },
             {
               "keycode": 29,
-              "normal": "4540",
-              "shift": "4526"
+              "normal": "T==1 ? 0x1164 : 0x11bc",
+              "shift": "0x1164"
             },
             {
               "keycode": 47,
-              "normal": "4523",
-              "shift": "4525"
+              "normal": "T==1 ? 0x1168 : 0x11ab",
+              "shift": "0x1168"
             },
             {
               "keycode": 32,
-              "normal": "4469",
-              "shift": "4530"
+              "normal": "T==1 ? 0x1175 : 0x11c2",
+              "shift": "0x1175"
             },
             {
               "keycode": 34,
-              "normal": "4449",
-              "shift": "4529"
+              "normal": "T==1 ? 0x1161 : 0x11bd",
+              "shift": "0x1161"
             },
             {
               "keycode": 35,
-              "normal": "4467",
-              "shift": "4452"
+              "normal": "T==1 ? 0x1173 : 0x11c1",
+              "shift": "0x1173"
             },
             {
               "keycode": 36,
-              "normal": "4354",
-              "shift": "48"
+              "normal": "0x1102",
+              "shift": "0x1102"
             },
             {
               "keycode": 38,
-              "normal": "4363",
-              "shift": "49"
+              "normal": "0x110b",
+              "shift": "0x3b"
             },
             {
               "keycode": 39,
-              "normal": "4352",
-              "shift": "50"
+              "normal": "0x1100",
+              "shift": "0x27"
             },
             {
               "keycode": 40,
-              "normal": "4364",
-              "shift": "51"
+              "normal": "0x110c",
+              "shift": "0x110c"
             },
             {
               "keycode": 74,
-              "normal": "4359",
-              "shift": "52"
+              "normal": "0x1107",
+              "shift": "0x3a"
             },
             {
               "keycode": 75,
-              "normal": "4368",
-              "shift": "183"
+              "normal": "0x1110",
+              "shift": "0x22"
             },
             {
               "keycode": 54,
-              "normal": "4535",
-              "shift": "4542"
+              "normal": "T==1 ? 0x1172 : 0x11b7",
+              "shift": "0x1172"
             },
             {
               "keycode": 52,
-              "normal": "4520",
-              "shift": "4537"
+              "normal": "T==1 ? 0x116d : 0x11a8",
+              "shift": "0x116d"
             },
             {
               "keycode": 31,
-              "normal": "4454",
-              "shift": "4543"
+              "normal": "T==1 ? 0x1166 : 0x11be",
+              "shift": "0x1166"
             },
             {
               "keycode": 50,
-              "normal": "4457",
-              "shift": "4522"
+              "normal": "T==1 ? 0x1169 : 0x11bf",
+              "shift": "0x1169"
             },
             {
               "keycode": 30,
-              "normal": "4462",
-              "shift": "63"
+              "normal": "T==1 ? 0x116e : 0x11bb",
+              "shift": "0x116e"
             },
             {
               "keycode": 42,
-              "normal": "4361",
-              "shift": "45"
+              "normal": "0x1109",
+              "shift": "0x1109"
             },
             {
               "keycode": 41,
-              "normal": "4370",
-              "shift": "34"
+              "normal": "0x1112",
+              "shift": "0x2f"
             },
             {
               "keycode": 55,
-              "normal": "44",
-              "shift": "44"
+              "normal": "0x2c",
+              "shift": "0x3c"
             },
             {
               "keycode": 56,
-              "normal": "46",
-              "shift": "46"
+              "normal": "0x2e",
+              "shift": "0x3e"
             },
             {
               "keycode": 76,
-              "normal": "0x1001169",
-              "shift": "33"
+              "normal": "T==1 ? 0x1001169 : 0x110f",
+              "shift": "0x3f"
             },
             {
               "keycode": 68,
-              "normal": "42",
-              "shift": "8251"
+              "normal": "0x60",
+              "shift": "0x7e"
             },
             {
               "keycode": 69,
-              "normal": "41",
-              "shift": "59"
+              "normal": "0x2d",
+              "shift": "0x5f"
             },
             {
               "keycode": 70,
-              "normal": "62",
-              "shift": "43"
+              "normal": "0x3d",
+              "shift": "0x2b"
             },
             {
               "keycode": 71,
-              "normal": "40",
-              "shift": "37"
+              "normal": "0x5b",
+              "shift": "0x7b"
             },
             {
               "keycode": 72,
-              "normal": "60",
-              "shift": "47"
+              "normal": "0x5d",
+              "shift": "0x7d"
             },
             {
               "keycode": 73,
-              "normal": "58",
-              "shift": "92"
+              "normal": "0x5c",
+              "shift": "0x7c"
             },
             {
               "keycode": 128,
-              "normal": "46",
-              "shift": "44"
+              "normal": "0x2e",
+              "shift": "0x2c"
             }
           ]
         },

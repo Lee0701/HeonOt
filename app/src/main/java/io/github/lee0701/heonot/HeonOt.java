@@ -78,7 +78,7 @@ public class HeonOt extends InputMethodService {
 				e.printStackTrace();
 			}
 			try {
-				String method = getRawString("method_sebeol_391");
+				String method = getRawString("method_shin_original");
 				inputMethods.add(InputMethod.loadJSON(method));
 			} catch (JSONException | IOException e) {
 				e.printStackTrace();
