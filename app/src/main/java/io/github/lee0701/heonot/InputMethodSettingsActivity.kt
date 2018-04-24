@@ -39,6 +39,41 @@ class InputMethodSettingsActivity : SettingsActivity() {
         }
         modules.addOnTabSelectedListener(listener)
 
+        val importButton = Button(this@InputMethodSettingsActivity)
+        importButton.setText(R.string.button_import)
+        importButton.setOnClickListener {
+            AlertDialog.Builder(this@InputMethodSettingsActivity)
+                    .setMessage(R.string.msg_paste_method_json)
+                    .setPositiveButton(R.string.button_ok) { _, _ ->
+                        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                        val json = run {
+                            if (Build.VERSION.SDK_INT >= 11) {
+                                val clipData = clipboard.primaryClip
+                                clipData.getItemAt(0)?.coerceToText(this@InputMethodSettingsActivity).toString()
+                            } else {
+                                clipboard.text.toString()
+                            }
+                        }
+                        try {
+                            if(json.isNotEmpty()) {
+                                val method = InputMethod.loadJSON(json)
+                                inputMethods[id] = method
+                                saveMethods()
+                                finish()
+                            } else throw Exception()
+                        } catch(ex: Exception) {
+                            AlertDialog.Builder(this@InputMethodSettingsActivity)
+                                    .setMessage(R.string.msg_error_importing)
+                                    .create()
+                                    .show()
+                        }
+                    }
+                    .setNegativeButton(R.string.button_cancel, { _, _ -> })
+                    .create()
+                    .show()
+        }
+        buttons.addView(importButton)
+
         val exportButton = Button(this@InputMethodSettingsActivity)
         exportButton.setText(R.string.button_export)
         exportButton.setOnClickListener { _ ->
@@ -82,7 +117,6 @@ class InputMethodSettingsActivity : SettingsActivity() {
             saveMethods()
             finish()
         }
-
         buttons.addView(deleteButton)
 
         listener.onTabSelected(modules.getTabAt(0))
