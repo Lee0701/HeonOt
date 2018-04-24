@@ -25,6 +25,7 @@ public abstract class InputMethodModule implements Cloneable {
 
 	public View createSettingsView(Context context) {
 		LinearLayout settings = new LinearLayout(context);
+		settings.setOrientation(LinearLayout.VERTICAL);
 
 		TextView nameView = new TextView(context);
 		nameView.setTextSize(TypedValue.COMPLEX_UNIT_PT, 12);

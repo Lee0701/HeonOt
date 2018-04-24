@@ -29,6 +29,9 @@
 
 	<string name="msg_module_name">Module Name</string>
 
+	<string name="expression">Expression</string>
+	<string name="msg_expression_parse_failed">Error parsing expression.</string>
+
 	<string name="dhk_key_normal">Normal</string>
 	<string name="dhk_key_shifted">Shifted</string>
 

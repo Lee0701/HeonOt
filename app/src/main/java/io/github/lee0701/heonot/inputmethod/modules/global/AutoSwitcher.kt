@@ -1,6 +1,15 @@
 package io.github.lee0701.heonot.inputmethod.modules.global
 
+import android.content.Context
+import android.support.design.widget.TextInputEditText
+import android.support.design.widget.TextInputLayout
+import android.text.TextUtils
+import android.view.View
+import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.widget.Toast
 import io.github.lee0701.heonot.HeonOt
+import io.github.lee0701.heonot.R
 import io.github.lee0701.heonot.inputmethod.event.HardwareChangeEvent
 import io.github.lee0701.heonot.inputmethod.event.InputTypeEvent
 import io.github.lee0701.heonot.inputmethod.modules.InputMethodModule
@@ -9,6 +18,7 @@ import io.github.lee0701.heonot.inputmethod.scripting.StringTreeExporter
 import io.github.lee0701.heonot.inputmethod.scripting.nodes.TreeNode
 import org.greenrobot.eventbus.Subscribe
 import org.json.JSONObject
+import kotlin.math.exp
 
 class AutoSwitcher : InputMethodModule() {
 
@@ -47,7 +57,7 @@ class AutoSwitcher : InputMethodModule() {
 	}
 
 	private fun autoSwitch() {
-		val variables = hashMapOf("T" to inputType.toLong())
+		val variables = hashMapOf("T" to inputType.toLong(), "H" to hardwareState.toLong())
 		node?.let {
 			HeonOt.getInstance().treeEvaluator.variables = variables
 			val result = HeonOt.getInstance().treeEvaluator.eval(it)
@@ -59,6 +69,33 @@ class AutoSwitcher : InputMethodModule() {
 				previousInputMethodId = -1
 			}
 		}
+	}
+
+	override fun createSettingsView(context: Context?): View {
+		val view = super.createSettingsView(context) as ViewGroup
+
+		val exporter = StringTreeExporter()
+		val parser = StringRecursionTreeParser()
+
+		val layout = TextInputLayout(context)
+		val expression = TextInputEditText(context)
+		expression.setHint(R.string.expression)
+		expression.ellipsize = TextUtils.TruncateAt.END
+		expression.setSingleLine()
+		expression.setText(exporter.export(node) as String)
+		expression.imeOptions = EditorInfo.IME_ACTION_DONE
+		expression.setOnFocusChangeListener { v, hasFocus ->
+			try {
+				node = parser.parse(expression.text.toString())
+			} catch(ex: Exception) {
+				Toast.makeText(context, R.string.msg_expression_parse_failed, Toast.LENGTH_SHORT).show()
+			}
+		}
+		layout.addView(expression)
+
+		view.addView(layout)
+
+		return view
 	}
 
 	override fun toJSONObject(): JSONObject {

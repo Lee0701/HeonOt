@@ -151,7 +151,7 @@ public class HeonOt extends InputMethodService {
 			if (getCurrentInputConnection() != null) {
 				int hiddenState = newConfig.hardKeyboardHidden;
 				boolean hidden = (hiddenState == Configuration.HARDKEYBOARDHIDDEN_YES);
-				//TODO: Implement soft keyboard auto hiding.
+				EventBus.getDefault().post(new HardwareChangeEvent(!hidden));
 			}
 		} catch (Exception ex) {
 		}
