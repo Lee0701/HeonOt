@@ -214,6 +214,41 @@
               "keycode": 10,
               "normal": "51",
               "shift": "35"
+            },
+            {
+              "keycode": 68,
+              "normal": "0x60",
+              "shift": "0x7e"
+            },
+            {
+              "keycode": 69,
+              "normal": "0x2d",
+              "shift": "0x5f"
+            },
+            {
+              "keycode": 70,
+              "normal": "0x3d",
+              "shift": "0x2b"
+            },
+            {
+              "keycode": 71,
+              "normal": "0x5b",
+              "shift": "0x7b"
+            },
+            {
+              "keycode": 72,
+              "normal": "0x5d",
+              "shift": "0x7d"
+            },
+            {
+              "keycode": 73,
+              "normal": "0x5c",
+              "shift": "0x7c"
+            },
+            {
+              "keycode": 128,
+              "normal": "0x2e",
+              "shift": "0x2c"
             }
           ]
         },

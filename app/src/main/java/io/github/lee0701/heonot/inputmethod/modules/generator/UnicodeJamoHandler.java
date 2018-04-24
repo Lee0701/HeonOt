@@ -103,7 +103,7 @@ public final class UnicodeJamoHandler {
 
 	public static int parseCharCode(String str) {
 		if(str.startsWith("0x")) {
-			return Integer.parseInt(str.replaceFirst("0x", ""), 16);
+			return Integer.parseInt(str.substring(2), 16);
 		} else {
 			try {
 				return Integer.parseInt(str);

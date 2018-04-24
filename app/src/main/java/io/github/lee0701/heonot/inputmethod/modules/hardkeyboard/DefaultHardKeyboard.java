@@ -374,8 +374,8 @@ public class DefaultHardKeyboard extends HardKeyboard {
 			DefaultHardKeyboardMap map = this.layout.get(keyCode);
 			JSONObject entry = new JSONObject();
 			entry.put("keycode", (int) keyCode);
-			entry.put("normal", Integer.toString(map.getNormal()));
-			entry.put("shift", Integer.toString(map.getShift()));
+			entry.put("normal", "0x" + Integer.toString(map.getNormal(), 16));
+			entry.put("shift", "0x" + Integer.toString(map.getShift(), 16));
 			layout.put(entry);
 		}
 
@@ -403,7 +403,7 @@ public class DefaultHardKeyboard extends HardKeyboard {
 				if(caps == null) caps = shift;
 
 				DefaultHardKeyboardMap map = new DefaultHardKeyboardMap(keyCode,
-						Integer.parseInt(normal), Integer.parseInt(shift), Integer.parseInt(caps));
+						parseCharCode(normal), parseCharCode(shift), parseCharCode(caps));
 				layout.put(keyCode, map);
 			}
 		}

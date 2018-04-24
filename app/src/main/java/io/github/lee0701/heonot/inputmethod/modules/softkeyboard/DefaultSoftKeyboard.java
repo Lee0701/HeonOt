@@ -389,8 +389,10 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 	public void onUpdateState(UpdateStateEvent event) {
 		if(event.getTarget() == UpdateStateEvent.Target.SOFT_KEYBOARD && labels != null) {
 			this.updateLabels(keyboard, labels);
-			keyboardView.invalidateAllKeys();
-			keyboardView.requestLayout();
+			if(keyboardView != null) {
+				keyboardView.invalidateAllKeys();
+				keyboardView.requestLayout();
+			}
 		}
 	}
 
