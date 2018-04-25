@@ -5,7 +5,7 @@
       "name": "Auto Switcher",
       "class": "io.github.lee0701.heonot.inputmethod.modules.global.AutoSwitcher",
       "properties": {
-        "node": "((T & 15) == 1) ? (((a = (T & 4080)) == 128) || (a == 144)) ? 0 : -1 : -1"
+        "node": "((T & TYPE_MASK_CLASS) == TYPE_CLASS_TEXT) ? (((v = (T & TYPE_MASK_VARIATION)) == TYPE_TEXT_VARIATION_PASSWORD) || (v == TYPE_TEXT_VARIATION_VISIBLE_PASSWORD) || (v == TYPE_TEXT_VARIATION_WEB_PASSWORD) || (v == TYPE_TEXT_VARIATION_URI) ? 0 : -1 : -1"
       }
     },
     {

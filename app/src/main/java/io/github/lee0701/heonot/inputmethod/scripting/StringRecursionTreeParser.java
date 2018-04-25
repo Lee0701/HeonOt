@@ -271,7 +271,7 @@ public class StringRecursionTreeParser implements TreeParser {
 							|| (ch >= '0' && ch <= '9') || ch == '_') nextChar();
 					String var = str.substring(startPos, this.pos);
 					if(constants.containsKey(var)) {
-						x = new ConstantTreeNode(constants.get(var));
+						x = new ConstantTreeNode(var, constants.get(var));
 					} else {
 						x = new VariableTreeNode(var);
 					}

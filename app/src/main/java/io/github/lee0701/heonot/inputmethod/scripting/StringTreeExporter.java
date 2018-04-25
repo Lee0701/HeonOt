@@ -8,16 +8,6 @@ import static io.github.lee0701.heonot.inputmethod.scripting.nodes.Operator.*;
 
 public class StringTreeExporter implements TreeExporter {
 
-	protected ConstantHandler constantHandler;
-
-	public ConstantHandler getConstantHandler() {
-		return constantHandler;
-	}
-
-	public void setConstantHandler(ConstantHandler constantHandler) {
-		this.constantHandler = constantHandler;
-	}
-
 	@Override
 	public Object export(final TreeNode node) {
 		return new Object() {
@@ -31,8 +21,9 @@ public class StringTreeExporter implements TreeExporter {
 
 			public void export(TreeNode node) {
 				if (node instanceof ConstantTreeNode) {
-					long value = ((ConstantTreeNode) node).getValue();
-					if(constantHandler != null) result.append(constantHandler.onConstant(value));
+					ConstantTreeNode constantTreeNode = (ConstantTreeNode) node;
+					long value = constantTreeNode.getValue();
+					if(constantTreeNode.getName() != null) result.append(constantTreeNode.getName());
 					else result.append(value);
 				} else if (node instanceof VariableTreeNode) {
 					result.append(((VariableTreeNode) node).getName());
@@ -236,10 +227,6 @@ public class StringTreeExporter implements TreeExporter {
 			}
 
 		}.export();
-	}
-
-	public static interface ConstantHandler {
-		String onConstant(long constant);
 	}
 
 }

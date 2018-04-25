@@ -59,14 +59,17 @@ class AutoSwitcher : InputMethodModule() {
 	private fun autoSwitch() {
 		val variables = hashMapOf("T" to inputType.toLong(), "H" to hardwareState.toLong())
 		node?.let {
-			HeonOt.getInstance().treeEvaluator.variables = variables
-			val result = HeonOt.getInstance().treeEvaluator.eval(it)
-			if(result >= 0) {
-				previousInputMethodId = HeonOt.getInstance().currentInputMethodId
-				HeonOt.getInstance().changeInputMethod(result.toInt())
-			} else if(previousInputMethodId >= 0) {
-				HeonOt.getInstance().changeInputMethod(previousInputMethodId)
-				previousInputMethodId = -1
+			HeonOt.getInstance().treeEvaluator.let { evaluator ->
+				evaluator.variables = variables
+				val result = evaluator.eval(it)
+
+				if(result >= 0) {
+					previousInputMethodId = HeonOt.getInstance().currentInputMethodId
+					HeonOt.getInstance().changeInputMethod(result.toInt())
+				} else if(previousInputMethodId >= 0) {
+					HeonOt.getInstance().changeInputMethod(previousInputMethodId)
+					previousInputMethodId = -1
+				}
 			}
 		}
 	}
@@ -76,6 +79,21 @@ class AutoSwitcher : InputMethodModule() {
 
 		val exporter = StringTreeExporter()
 		val parser = StringRecursionTreeParser()
+		parser.setConstants(mutableMapOf(
+				"HARDWARE_ON" to 1.toLong(),
+				"HARDWARE_OFF" to 0.toLong(),
+				"TYPE_MASK_CLASS" to EditorInfo.TYPE_MASK_CLASS.toLong(),
+				"TYPE_MASK_FLAGS" to EditorInfo.TYPE_MASK_FLAGS.toLong(),
+				"TYPE_MASK_VARIATION" to EditorInfo.TYPE_MASK_VARIATION.toLong(),
+				"TYPE_CLASS_DATETIME" to EditorInfo.TYPE_CLASS_DATETIME.toLong(),
+				"TYPE_CLASS_NUMBER" to EditorInfo.TYPE_CLASS_NUMBER.toLong(),
+				"TYPE_CLASS_TEXT" to EditorInfo.TYPE_CLASS_TEXT.toLong(),
+				"TYPE_CLASS_PHONE" to EditorInfo.TYPE_CLASS_PHONE.toLong(),
+				"TYPE_TEXT_VARIATION_PASSWORD" to EditorInfo.TYPE_TEXT_VARIATION_PASSWORD.toLong(),
+				"TYPE_TEXT_VARIATION_VISIBLE_PASSWORD" to EditorInfo.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD.toLong(),
+				"TYPE_TEXT_VARIATION_WEB_PASSWORD" to EditorInfo.TYPE_TEXT_VARIATION_WEB_PASSWORD.toLong(),
+				"TYPE_TEXT_VARIATION_URI" to EditorInfo.TYPE_TEXT_VARIATION_URI.toLong()
+				))
 
 		val layout = TextInputLayout(context)
 		val expression = TextInputEditText(context)
