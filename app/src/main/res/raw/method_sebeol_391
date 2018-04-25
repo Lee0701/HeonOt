@@ -5,7 +5,13 @@
       "name": "Soft Keyboard",
       "class": "io.github.lee0701.heonot.inputmethod.modules.softkeyboard.DefaultSoftKeyboard",
       "properties": {
-        "keyboard": "keyboard_full_10cols"
+        "keyboard": "keyboard_full_10cols",
+        "key-height-portrait": 50,
+        "key-height-landscape": 42,
+        "long-press-timeout": 300,
+        "use-flick": true,
+        "flick-sensitivity": 100,
+        "vibrate-duration": 30
       }
     },
     {

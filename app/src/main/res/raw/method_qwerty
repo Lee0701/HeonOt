@@ -6,6 +6,7 @@
       "class": "io.github.lee0701.heonot.inputmethod.modules.softkeyboard.DefaultSoftKeyboard",
       "properties": {
         "keyboard": "keyboard_full_10cols",
+        "skin": "keyboard_white",
         "key-height-portrait": 50,
         "key-height-landscape": 42,
         "long-press-timeout": 300,
