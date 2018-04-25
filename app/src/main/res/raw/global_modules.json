@@ -23,7 +23,7 @@
                 "shift": false,
                 "keycode": 204
               },
-              "node": "A = !A"
+              "node": "!A"
             },
             {
               "mode": 1,
@@ -34,7 +34,7 @@
                 "shift": true,
                 "keycode": 62
               },
-              "node": "A = !A"
+              "node": "!A"
             }
           ]
         }
