@@ -26,6 +26,7 @@ import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -77,6 +78,8 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 	private boolean showPreview = false;
 
 	protected Map<Integer, String> labels;
+
+	private Handler handler;
 
 	class LongClickHandler implements Runnable {
 		int keyCode;
@@ -333,6 +336,9 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 
 	@Override
 	public @NotNull View createView(@NotNull Context context) {
+
+		handler = new Handler();
+
 		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
 		String skin = keyboardSkin != null ? keyboardSkin : context.getString(R.string.keyboard_skin_id_default);
 		int id = context.getResources().getIdentifier(skin, "layout", context.getPackageName());
@@ -396,7 +402,7 @@ public class DefaultSoftKeyboard extends SoftKeyboard implements KeyboardView.On
 	@Subscribe
 	public void onUpdateState(UpdateStateEvent event) {
 		if(event.getTarget() == UpdateStateEvent.Target.SOFT_KEYBOARD && labels != null) {
-			new Handler().post(() -> {
+			handler.post(() -> {
 				this.updateLabels(keyboard, labels);
 				if(keyboardView != null) {
 					keyboardView.invalidateAllKeys();

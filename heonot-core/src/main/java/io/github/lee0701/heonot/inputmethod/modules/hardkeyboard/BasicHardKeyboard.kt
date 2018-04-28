@@ -8,6 +8,7 @@ import io.github.lee0701.heonot.inputmethod.scripting.StringTreeExporter
 import io.github.lee0701.heonot.inputmethod.scripting.nodes.ConstantTreeNode
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -82,12 +83,9 @@ class BasicHardKeyboard : HardKeyboard() {
 			evaluator.variables = getVariables()
 			val result = evaluator.eval(node)
 			EventBus.getDefault().post(InputCharEvent(result))
-			//Handler().post {
-				updateLabels()
-			//}
-			return@input
-		}
-		HeonOt.INSTANCE?.directInput(event.keyCode, shiftState, altState)
+		} ?: HeonOt.INSTANCE?.directInput(event.keyCode, shiftState, altState)
+		if(shiftState) shiftInput = true
+		if (!capsLock && shiftInput && !shiftPressing) shiftState = false
 		updateLabels()
 	}
 
@@ -150,11 +148,6 @@ class BasicHardKeyboard : HardKeyboard() {
 					} else if (softLongPressMode == LONG_PRESS_REPEAT) {
 						EventBus.getDefault().post(HardKeyEvent(HardKeyEvent.HardKeyAction.RELEASE, event.keyCode, 0, 0))
 					}
-					//Handler().post {
-						if(shiftState) shiftInput = true
-						if (!capsLock && shiftInput && !shiftPressing) shiftState = false
-						updateLabels()
-					//}
 				}
 			}
 		}
@@ -165,11 +158,12 @@ class BasicHardKeyboard : HardKeyboard() {
 		automataState = event.state
 	}
 
-	@Subscribe
+	@Subscribe(threadMode = ThreadMode.ASYNC)
 	fun onComposeChar(event: ComposeCharEvent) {
 		cho = event.cho
 		jung = event.jung
 		jong = event.jong
+		updateLabels()
 	}
 
 	override fun init() {
@@ -232,18 +226,17 @@ class BasicHardKeyboard : HardKeyboard() {
 
 	private fun getLabels(mode: Int) : Map<Int, String> {
 		val result = hashMapOf<Int, String>()
-		val evaluator = HeonOt.INSTANCE?.treeEvaluator
-		evaluator?.let {
-			when(mode) {
-				LABEL_FROM_TABLE -> {
-					for(i in labels) {
-						result += i.key to if(shiftState) i.value.second else i.value.first
-					}
+		when(mode) {
+			LABEL_FROM_TABLE -> {
+				for(i in labels) {
+					result += i.key to if(shiftState) i.value.second else i.value.first
 				}
-				LABEL_CALCULATED -> {
-					for(i in layout) {
-						evaluator.variables = getVariables()
-						result += i.value.keyCode to String(Character.toChars(evaluator.eval(if(shiftState) i.value.shift else i.value.normal).toInt() and 0xffffff))
+			}
+			LABEL_CALCULATED -> {
+				HeonOt.INSTANCE?.treeEvaluator?.let {
+					for (i in layout) {
+						it.variables = getVariables()
+						result += i.value.keyCode to String(Character.toChars(it.eval(if(shiftState) i.value.shift else i.value.normal).toInt() and 0xffffff))
 					}
 				}
 			}

@@ -32,7 +32,7 @@ interface HeonOt {
 		for (method in inputMethods) {
 			method.pause()
 		}
-		globalModules?.pause()
+		globalModules.pause()
 
 		changeInputMethod(0)
 	}

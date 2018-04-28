@@ -118,11 +118,6 @@ open class DefaultHardKeyboard : HardKeyboard() {
 						}
 						LONG_PRESS_REPEAT -> EventBus.getDefault().post(HardKeyEvent(HardKeyEvent.HardKeyAction.RELEASE, event.keyCode, 0, 0))
 					}
-					//Handler().post({
-						if (shiftState) shiftInput = true
-						if (!capsLock && shiftInput && !shiftPressing) shiftState = false
-						updateSoftKeyLabels()
-					//})
 				}
 			}
 		}
@@ -180,10 +175,6 @@ open class DefaultHardKeyboard : HardKeyboard() {
 			return
 		}
 
-		if (layout == null) {
-			HeonOt.INSTANCE?.directInput(event.keyCode, shiftState, altState, capsLock)
-			return
-		}
 		val map = layout[event.keyCode]
 		if (map != null) {
 			val charCode = if (shiftState) map.shift else map.normal
@@ -191,6 +182,9 @@ open class DefaultHardKeyboard : HardKeyboard() {
 		} else {
 			HeonOt.INSTANCE?.directInput(event.keyCode, shiftState, altState, capsLock)
 		}
+		if(shiftState) shiftInput = true
+		if (!capsLock && shiftInput && !shiftPressing) shiftState = false
+		updateSoftKeyLabels()
 	}
 
 	private fun updateSoftKeyLabels() {

@@ -46,6 +46,7 @@ class AndroidHeonOt : InputMethodService, HeonOt {
 
 	override fun onDestroy() {
 		super.onDestroy()
+		this.destroy()
 	}
 
 	override fun init() {
