@@ -1,0 +1,407 @@
+{
+  "name": "Dubeolsik Standard",
+  "modules": [
+    {
+      "name": "Soft Keyboard",
+      "class": "softkeyboard.DefaultSoftKeyboard",
+      "properties": {
+        "keyboard": "keyboard_full_10cols",
+        "key-height-portrait": 56,
+        "key-height-landscape": 42,
+        "long-press-timeout": 300,
+        "use-flick": true,
+        "flick-sensitivity": 100,
+        "vibrate-duration": 30
+      }
+    },
+    {
+      "name": "Hard Keyboard",
+      "class": "hardkeyboard.DefaultHardKeyboard",
+      "properties": {
+        "layout": {
+          "layout": [
+            {
+              "keycode": 45,
+              "normal": "12610",
+              "shift": "12611"
+            },
+            {
+              "keycode": 68,
+              "normal": "42",
+              "shift": "8251"
+            },
+            {
+              "keycode": 11,
+              "normal": "52",
+              "shift": "36"
+            },
+            {
+              "keycode": 33,
+              "normal": "12599",
+              "shift": "12600"
+            },
+            {
+              "keycode": 72,
+              "normal": "60",
+              "shift": "47"
+            },
+            {
+              "keycode": 53,
+              "normal": "12635",
+              "shift": "12635"
+            },
+            {
+              "keycode": 37,
+              "normal": "12625",
+              "shift": "12625"
+            },
+            {
+              "keycode": 36,
+              "normal": "12631",
+              "shift": "12631"
+            },
+            {
+              "keycode": 128,
+              "normal": "46",
+              "shift": "44"
+            },
+            {
+              "keycode": 71,
+              "normal": "40",
+              "shift": "37"
+            },
+            {
+              "keycode": 15,
+              "normal": "56",
+              "shift": "42"
+            },
+            {
+              "keycode": 50,
+              "normal": "12621",
+              "shift": "12621"
+            },
+            {
+              "keycode": 56,
+              "normal": "46",
+              "shift": "46"
+            },
+            {
+              "keycode": 41,
+              "normal": "12641",
+              "shift": "12641"
+            },
+            {
+              "keycode": 54,
+              "normal": "12619",
+              "shift": "12619"
+            },
+            {
+              "keycode": 42,
+              "normal": "12636",
+              "shift": "12636"
+            },
+            {
+              "keycode": 52,
+              "normal": "12620",
+              "shift": "12620"
+            },
+            {
+              "keycode": 55,
+              "normal": "44",
+              "shift": "44"
+            },
+            {
+              "keycode": 14,
+              "normal": "55",
+              "shift": "38"
+            },
+            {
+              "keycode": 46,
+              "normal": "12593",
+              "shift": "12594"
+            },
+            {
+              "keycode": 51,
+              "normal": "12616",
+              "shift": "12617"
+            },
+            {
+              "keycode": 16,
+              "normal": "57",
+              "shift": "40"
+            },
+            {
+              "keycode": 7,
+              "normal": "48",
+              "shift": "41"
+            },
+            {
+              "keycode": 75,
+              "normal": "39",
+              "shift": "34"
+            },
+            {
+              "keycode": 8,
+              "normal": "49",
+              "shift": "33"
+            },
+            {
+              "keycode": 49,
+              "normal": "12629",
+              "shift": "12629"
+            },
+            {
+              "keycode": 44,
+              "normal": "12628",
+              "shift": "12630"
+            },
+            {
+              "keycode": 13,
+              "normal": "54",
+              "shift": "94"
+            },
+            {
+              "keycode": 29,
+              "normal": "12609",
+              "shift": "12609"
+            },
+            {
+              "keycode": 30,
+              "normal": "12640",
+              "shift": "12640"
+            },
+            {
+              "keycode": 69,
+              "normal": "41",
+              "shift": "59"
+            },
+            {
+              "keycode": 43,
+              "normal": "12624",
+              "shift": "12626"
+            },
+            {
+              "keycode": 47,
+              "normal": "12596",
+              "shift": "12596"
+            },
+            {
+              "keycode": 48,
+              "normal": "12613",
+              "shift": "12614"
+            },
+            {
+              "keycode": 34,
+              "normal": "12601",
+              "shift": "12601"
+            },
+            {
+              "keycode": 76,
+              "normal": "47",
+              "shift": "63"
+            },
+            {
+              "keycode": 70,
+              "normal": "62",
+              "shift": "43"
+            },
+            {
+              "keycode": 73,
+              "normal": "58",
+              "shift": "92"
+            },
+            {
+              "keycode": 32,
+              "normal": "12615",
+              "shift": "12615"
+            },
+            {
+              "keycode": 39,
+              "normal": "12623",
+              "shift": "12623"
+            },
+            {
+              "keycode": 9,
+              "normal": "50",
+              "shift": "64"
+            },
+            {
+              "keycode": 38,
+              "normal": "12627",
+              "shift": "12627"
+            },
+            {
+              "keycode": 40,
+              "normal": "12643",
+              "shift": "12643"
+            },
+            {
+              "keycode": 35,
+              "normal": "12622",
+              "shift": "12622"
+            },
+            {
+              "keycode": 12,
+              "normal": "53",
+              "shift": "37"
+            },
+            {
+              "keycode": 31,
+              "normal": "12618",
+              "shift": "12618"
+            },
+            {
+              "keycode": 74,
+              "normal": "59",
+              "shift": "58"
+            },
+            {
+              "keycode": 10,
+              "normal": "51",
+              "shift": "35"
+            }
+          ]
+        },
+        "soft-long-press-mode": 0
+      }
+    },
+    {
+      "name": "Character Generator",
+      "class": "generator.UnicodeCharacterGenerator",
+      "properties": {
+        "combination-table": {
+          "combination": [
+            {
+              "a": 4352,
+              "b": 4352,
+              "result": "4353"
+            },
+            {
+              "a": 4359,
+              "b": 4359,
+              "result": "4360"
+            },
+            {
+              "a": 4361,
+              "b": 4361,
+              "result": "4362"
+            },
+            {
+              "a": 4457,
+              "b": 4450,
+              "result": "4459"
+            },
+            {
+              "a": 4538,
+              "b": 4538,
+              "result": "4539"
+            },
+            {
+              "a": 4457,
+              "b": 4469,
+              "result": "4460"
+            },
+            {
+              "a": 4527,
+              "b": 4544,
+              "result": "4532"
+            },
+            {
+              "a": 4467,
+              "b": 4469,
+              "result": "4468"
+            },
+            {
+              "a": 4527,
+              "b": 4520,
+              "result": "4528"
+            },
+            {
+              "a": 4527,
+              "b": 4538,
+              "result": "4531"
+            },
+            {
+              "a": 4527,
+              "b": 4546,
+              "result": "4534"
+            },
+            {
+              "a": 4520,
+              "b": 4538,
+              "result": "4522"
+            },
+            {
+              "a": 4523,
+              "b": 4541,
+              "result": "4524"
+            },
+            {
+              "a": 4527,
+              "b": 4536,
+              "result": "4530"
+            },
+            {
+              "a": 4523,
+              "b": 4546,
+              "result": "4525"
+            },
+            {
+              "a": 4520,
+              "b": 4520,
+              "result": "4521"
+            },
+            {
+              "a": 4457,
+              "b": 4449,
+              "result": "4458"
+            },
+            {
+              "a": 4462,
+              "b": 4469,
+              "result": "4465"
+            },
+            {
+              "a": 4364,
+              "b": 4364,
+              "result": "4365"
+            },
+            {
+              "a": 4536,
+              "b": 4538,
+              "result": "4537"
+            },
+            {
+              "a": 4462,
+              "b": 4454,
+              "result": "4464"
+            },
+            {
+              "a": 4527,
+              "b": 4535,
+              "result": "4529"
+            },
+            {
+              "a": 4527,
+              "b": 4545,
+              "result": "4533"
+            },
+            {
+              "a": 4355,
+              "b": 4355,
+              "result": "4356"
+            },
+            {
+              "a": 4462,
+              "b": 4453,
+              "result": "4463"
+            }
+          ]
+        },
+        "moajugi": false,
+        "first-mid-end": true,
+        "full-moachigi": false
+      }
+    }
+  ]
+}

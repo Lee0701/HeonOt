@@ -1,0 +1,44 @@
+{
+  "name": "Global Modules",
+  "modules": [
+    {
+      "name": "Auto Switcher",
+      "class": "global.AutoSwitcher",
+      "properties": {
+        "node": "((T & TYPE_MASK_CLASS) == TYPE_CLASS_TEXT) ? (((v = (T & TYPE_MASK_VARIATION)) == TYPE_TEXT_VARIATION_PASSWORD) || (v == TYPE_TEXT_VARIATION_VISIBLE_PASSWORD) || (v == TYPE_TEXT_VARIATION_WEB_PASSWORD) || (v == TYPE_TEXT_VARIATION_URI) ? 0 : -1 : -1"
+      }
+    },
+    {
+      "name": "Shortcut Processor",
+      "class": "global.ShortcutProcessor",
+      "properties": {
+        "shortcuts": {
+          "shortcuts": [
+            {
+              "mode": 1,
+              "keystroke": {
+                "control": false,
+                "alt": false,
+                "win": false,
+                "shift": false,
+                "keycode": 204
+              },
+              "node": "!A"
+            },
+            {
+              "mode": 1,
+              "keystroke": {
+                "control": false,
+                "alt": false,
+                "win": false,
+                "shift": true,
+                "keycode": 62
+              },
+              "node": "!A"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
