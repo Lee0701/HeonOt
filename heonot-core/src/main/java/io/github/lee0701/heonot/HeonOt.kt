@@ -34,7 +34,6 @@ interface HeonOt {
 		}
 		globalModules.pause()
 
-		changeInputMethod(0)
 	}
 
 	fun changeInputMethod(inputMethodId: Int) {

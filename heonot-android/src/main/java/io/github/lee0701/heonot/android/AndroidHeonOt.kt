@@ -1,5 +1,6 @@
 package io.github.lee0701.heonot.android
 
+import android.content.Context
 import android.content.res.Configuration
 import android.inputmethodservice.InputMethodService
 import android.text.TextUtils
@@ -25,7 +26,12 @@ import java.io.IOException
 class AndroidHeonOt : InputMethodService, HeonOt {
 
 	constructor() : super() {
+		HeonOt.INSTANCE?.destroy()
 		HeonOt.INSTANCE = this
+	}
+
+	constructor(context: Context) : this() {
+		attachBaseContext(context)
 	}
 
 	override var treeEvaluator = TreeEvaluator()

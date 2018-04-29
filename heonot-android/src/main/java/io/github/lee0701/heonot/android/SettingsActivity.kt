@@ -30,7 +30,7 @@ abstract class SettingsActivity : AppCompatActivity() {
 		methodsDir = File(filesDir, "methods")
 		globalMethodsFile = File(filesDir, "global.json")
 
-		AndroidHeonOt()
+		HeonOt.INSTANCE ?: AndroidHeonOt(this)
 
 		loadMethods()
 	}
